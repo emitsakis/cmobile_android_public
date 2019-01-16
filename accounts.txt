@@ -1,0 +1,13 @@
+Gmail account
+username:cmobiledev@gmail.com
+password:c-mobile@2019
+------------------------------------
+Github
+username:c-mobile
+mail:cmobiledev@gmail.com
+password:c-mobile@2019
+-----------------------------------
+mapbox
+username:c-mobile
+mail:cmobiledev@gmail.com
+password:c-mobile@2019
