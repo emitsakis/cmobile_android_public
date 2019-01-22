@@ -5,6 +5,7 @@ import android.support.v7.app.AppCompatActivity
 import android.util.Log
 import android.view.View
 import android.widget.TextView
+import certh.hit.cmobile.utils.Helper
 import certh.hit.cmobile.utils.MqttHelper
 import org.eclipse.paho.client.mqttv3.IMqttDeliveryToken
 import org.eclipse.paho.client.mqttv3.MqttCallbackExtended
@@ -23,7 +24,7 @@ class MqttActivity : AppCompatActivity() {
         setContentView(R.layout.activity_mqtt)
 
         dataReceived = findViewById(R.id.dataReceived)
-
+        Helper.createUID()
         startMqtt()
     }
 

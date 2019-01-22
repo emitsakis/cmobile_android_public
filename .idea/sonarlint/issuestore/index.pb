@@ -11,3 +11,7 @@ c
 build.gradle,f\0\f07866736216be0ee2aba49e392191aeae700a35
 @
 app/build.gradle,f\4\f4a01d6a4fcb971362ec00a83903fd3902f52164
+g
+7app/src/main/java/certh/hit/cmobile/utils/MqttHelper.kt,f\1\f162d18592a8a4d820649d878cd781328e5a55a5
+c
+3app/src/main/java/certh/hit/cmobile/MqttActivity.kt,a\9\a9d5ff360032d5fd672b080ecb466bc7b9e1d4c6
