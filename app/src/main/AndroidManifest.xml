@@ -11,14 +11,19 @@
                  android:supportsRtl="true"
                  android:theme="@style/AppTheme"
                  android:name=".CMobileApplication">
+
         <activity
-                android:name=".HomeActivity"
+                android:name=".MqttActivity"
                 android:theme="@style/Theme.AppCompat.NoActionBar">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
+        </activity>
+        <activity
+                android:name=".HomeActivity"
+                android:theme="@style/Theme.AppCompat.NoActionBar">
         </activity>
     <service android:name="org.eclipse.paho.android.service.MqttService" />
     </application>
