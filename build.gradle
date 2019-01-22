@@ -18,6 +18,8 @@ buildscript {
         //FIREBASE
         firebaseCoreVersion = '16.0.1'
         firebaseCrashlytics = '2.9.8'
+        mapbox_version='7.0.0'
+
 
     }
     dependencies {
@@ -31,6 +33,9 @@ buildscript {
 
 
     }
+
+
+
 }
 
 allprojects {
@@ -40,6 +45,9 @@ allprojects {
         // Add repository
         maven {
             url 'https://maven.google.com/'
+        }
+        maven {
+            url "https://repo.eclipse.org/content/repositories/paho-snapshots/"
         }
 
     }
