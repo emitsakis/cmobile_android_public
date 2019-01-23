@@ -20,6 +20,7 @@ object Helper {
     private val TAG: String = Helper::class.java.canonicalName  as String
     val mapsKey = BuildConfig.MAP_BOX_API_KEY
 
+
     fun createUID(){
         val keyGen = KeyPairGenerator.getInstance("EC")
         val random = SecureRandom.getInstance("SHA1PRNG")
