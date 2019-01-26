@@ -13,8 +13,8 @@
                  android:name=".CMobileApplication">
 
         <activity
-                android:name=".MqttActivity"
-                android:theme="@style/Theme.AppCompat.NoActionBar">
+                android:name=".SplashScreenActivity"
+                android:theme="@style/AppTheme.NoActionBar1">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 

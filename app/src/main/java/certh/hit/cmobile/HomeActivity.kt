@@ -1,40 +1,26 @@
 package certh.hit.cmobile
 
-import android.graphics.Color
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
 import android.util.Log
+import android.widget.Toast
 import certh.hit.cmobile.utils.Helper
 import com.mapbox.android.core.permissions.PermissionsListener
 import com.mapbox.android.core.permissions.PermissionsManager
+import com.mapbox.geojson.Feature
+import com.mapbox.geojson.FeatureCollection
+import com.mapbox.geojson.LineString
+import com.mapbox.geojson.Point
 import com.mapbox.mapboxsdk.Mapbox
-import com.mapbox.mapboxsdk.annotations.MarkerOptions
-import com.mapbox.mapboxsdk.geometry.LatLng
+import com.mapbox.mapboxsdk.location.LocationComponentOptions
+import com.mapbox.mapboxsdk.location.OnCameraTrackingChangedListener
 import com.mapbox.mapboxsdk.location.modes.CameraMode
 import com.mapbox.mapboxsdk.location.modes.RenderMode
 import com.mapbox.mapboxsdk.maps.MapView
 import com.mapbox.mapboxsdk.maps.MapboxMap
 import com.mapbox.mapboxsdk.maps.OnMapReadyCallback
 import com.mapbox.mapboxsdk.maps.Style
-import com.mapbox.mapboxsdk.style.layers.PropertyFactory
-import android.widget.Toast
-
-import android.support.annotation.NonNull
-import com.mapbox.geojson.Feature
-import com.mapbox.geojson.FeatureCollection
-import com.mapbox.geojson.LineString
-import com.mapbox.geojson.Point
-import com.mapbox.mapboxsdk.geometry.LatLngQuad
-import com.mapbox.mapboxsdk.location.LocationComponentOptions
-import com.mapbox.mapboxsdk.location.OnCameraTrackingChangedListener
-import com.mapbox.mapboxsdk.style.layers.RasterLayer
 import com.mapbox.mapboxsdk.style.sources.GeoJsonSource
-import com.mapbox.mapboxsdk.style.sources.ImageSource
-import com.mapbox.mapboxsdk.style.sources.RasterSource
-import com.mapbox.mapboxsdk.style.sources.VectorSource
-import timber.log.Timber
-import java.net.MalformedURLException
-import java.net.URL
 
 
 /**

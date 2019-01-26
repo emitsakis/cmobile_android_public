@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@drawable/gradient_background"
+>
+
+    <ImageView
+            android:id="@+id/logoView"
+            android:layout_width="150dp"
+            android:layout_height="150dp"
+            app:srcCompat="@drawable/ic_c_mobile_logo_master_white"
+            android:layout_centerVertical="true"
+            android:layout_centerHorizontal="true"/>
+    <ProgressBar
+            style="?android:attr/progressBarStyleLarge"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:id="@+id/progressBar"
+            android:layout_below="@+id/logoView"
+            android:layout_centerHorizontal="true"
+            android:visibility="gone"
+
+            />
+</RelativeLayout>
