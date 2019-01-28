@@ -1,5 +1,8 @@
 <resources>
     <string name="app_name">C-Mobile</string>
-
-
+    <string name="gps_status_enabled">enabled</string>
+    <string name="gps_status_disabled">disabled</string>
+    <string name="permission_status_granted">granted</string>
+    <string name="permission_status_denied">denied</string>
+    <string name="permission_status_blocked">denied</string>
 </resources>

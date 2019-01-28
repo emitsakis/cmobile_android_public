@@ -94,10 +94,8 @@ class HomeActivity : AppCompatActivity(),OnMapReadyCallback,PermissionsListener 
         // Check if permissions are enabled and if not request
         if (PermissionsManager.areLocationPermissionsGranted(this)) {
             val options = LocationComponentOptions.builder(this)
-                .foregroundDrawable(R.mipmap.ic_launcher)
-                .backgroundDrawable(R.mipmap.ic_launcher)
-                .gpsDrawable(R.mipmap.ic_launcher)
-                .bearingTintColor(R.color.colorPrimary)
+                .gpsDrawable(R.drawable.ic_cursor)
+                .bearingTintColor(R.color.primary_blue)
                 .accuracyAlpha(1.0f)
                 .trackingGesturesManagement(true)
                 .build()
@@ -120,8 +118,7 @@ class HomeActivity : AppCompatActivity(),OnMapReadyCallback,PermissionsListener 
 
                 }
             })
-            // Enable to make component visible
-            locationComponent?.isLocationComponentEnabled = true
+
 
             // Set the component's camera mode
             locationComponent?.cameraMode = CameraMode.TRACKING_GPS_NORTH

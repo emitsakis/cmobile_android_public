@@ -12,13 +12,13 @@ import org.eclipse.paho.client.mqttv3.*
 class MqttHelper(context: Context) {
     var mqttAndroidClient: MqttAndroidClient
 
-    internal val serverUri = "tcp://m24.cloudmqtt.com:19381"
+    internal val serverUri = "tcp://mqttcits.imet.gr:1883"
 
-    internal val clientId = "testMQTT"
-    internal val subscriptionTopic = "sensor/+"
+    internal val clientId = "js-utility-SY0NY"
+    internal val subscriptionTopic = "hit/denm/#"
 
-    internal val username = "anyzsvwo"
-    internal val password = "OQlut0sno5SI"
+    internal val username = "cmobile"
+    internal val password = "antonis"
 
     init {
         mqttAndroidClient = MqttAndroidClient(context, serverUri, clientId)
