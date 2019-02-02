@@ -3,6 +3,7 @@ package certh.hit.cmobile
 import android.app.Application
 import certh.hit.cmobile.utils.Helper
 import com.mapbox.mapboxsdk.Mapbox
+import timber.log.Timber
 
 /**
  * Created by anmpout on 21/01/2019
@@ -15,4 +16,6 @@ class CMobileApplication : Application(){
 // Mapbox Access token
         Mapbox.getInstance(getApplicationContext(), Helper.mapsKey);
     }
+
+
 }

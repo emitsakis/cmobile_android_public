@@ -43,12 +43,13 @@ dependencies {
     implementation "com.android.support:appcompat-v7:$supportVersion"
     implementation "com.mapbox.mapboxsdk:mapbox-android-sdk:$mapbox_version"
     implementation "com.android.support.constraint:constraint-layout:$constraint_layout_version"
-    implementation 'com.github.mrgames13:SplashScreen:1.0.1'
+    implementation "com.google.android.gms:play-services-location:$play_services"
     api 'org.eclipse.paho:org.eclipse.paho.client.mqttv3:1.1.0'
     api 'org.eclipse.paho:org.eclipse.paho.android.service:1.1.1'
     testImplementation 'junit:junit:4.12'
     androidTestImplementation 'com.android.support.test:runner:1.0.2'
     androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.2'
+
 
 
 

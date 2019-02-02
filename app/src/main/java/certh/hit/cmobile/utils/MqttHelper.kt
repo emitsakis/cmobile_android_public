@@ -15,8 +15,9 @@ class MqttHelper(context: Context) {
     internal val serverUri = "tcp://mqttcits.imet.gr:1883"
 
     internal val clientId = "js-utility-SY0NY"
-    internal val subscriptionTopic = "hit/denm/#"
-
+    //internal val subscriptionTopic = "hit_certh/ivi_hit/1/2/2/1/0/0/0/0/0/3/2/1/1/3/2/1/1/0/666"
+    //internal val subscriptionTopic = "hit_certh/v-ivi_hit/1/2/2/1/0/0/0/0/0/3/0/3/0/2/3/2/3/0/v.olgas-ymca"
+    //internal val subscriptionTopic = "hit_certh/spat_hit/1002"
     internal val username = "cmobile"
     internal val password = "antonis"
 
@@ -48,7 +49,7 @@ class MqttHelper(context: Context) {
         mqttAndroidClient.setCallback(callback)
     }
 
-    private fun connect() {
+    public fun connect() {
         val mqttConnectOptions = MqttConnectOptions()
         mqttConnectOptions.isAutomaticReconnect = true
         mqttConnectOptions.isCleanSession = false
@@ -62,11 +63,11 @@ class MqttHelper(context: Context) {
 
                     val disconnectedBufferOptions = DisconnectedBufferOptions()
                     disconnectedBufferOptions.isBufferEnabled = true
-                    disconnectedBufferOptions.bufferSize = 100
+                    disconnectedBufferOptions.bufferSize = 500
                     disconnectedBufferOptions.isPersistBuffer = false
                     disconnectedBufferOptions.isDeleteOldestMessages = false
                     mqttAndroidClient.setBufferOpts(disconnectedBufferOptions)
-                    subscribeToTopic()
+                  //  subscribeToTopic(subscriptionTopic :String,qos:Int)
                 }
 
                 override fun onFailure(asyncActionToken: IMqttToken, exception: Throwable) {
@@ -82,9 +83,9 @@ class MqttHelper(context: Context) {
     }
 
 
-    private fun subscribeToTopic() {
+    public fun subscribeToTopic(subscriptionTopic :String,qos:Int) {
         try {
-            mqttAndroidClient.subscribe(subscriptionTopic, 0, null, object : IMqttActionListener {
+            mqttAndroidClient.subscribe(subscriptionTopic, qos, null, object : IMqttActionListener {
                 override fun onSuccess(asyncActionToken: IMqttToken) {
                     Log.w("Mqtt", "Subscribed!")
                 }
@@ -97,6 +98,74 @@ class MqttHelper(context: Context) {
             System.err.println("Exceptionst subscribing")
             ex.printStackTrace()
         }
+
+    }
+
+    public fun subscribeToTopics(topics :Array<String>, qos:IntArray) {
+        try {
+            mqttAndroidClient.subscribe(topics, qos, null, object : IMqttActionListener {
+                override fun onSuccess(asyncActionToken: IMqttToken) {
+                    Log.w("Mqtt", "Subscribed!")
+                }
+
+                override fun onFailure(asyncActionToken: IMqttToken, exception: Throwable) {
+                    Log.w("Mqtt", "Subscribed fail!")
+                }
+            })
+        } catch (ex: MqttException) {
+            System.err.println("Exceptionst subscribing")
+            ex.printStackTrace()
+        }
+
+    }
+
+    public fun unsubscribeToTopic(subscriptionTopic :String) {
+        try {
+            mqttAndroidClient.unsubscribe(subscriptionTopic,  null, object : IMqttActionListener {
+                override fun onSuccess(asyncActionToken: IMqttToken) {
+                    Log.w("Mqtt", "Subscribed!")
+                }
+
+                override fun onFailure(asyncActionToken: IMqttToken, exception: Throwable) {
+                    Log.w("Mqtt", "Subscribed fail!")
+                }
+            })
+        } catch (ex: MqttException) {
+            System.err.println("Exceptionst subscribing")
+            ex.printStackTrace()
+        }
+
+    }
+
+    public fun unsubscribeToTopics(topics :Array<String>) {
+        try {
+            mqttAndroidClient.unsubscribe(topics,  null, object : IMqttActionListener {
+                override fun onSuccess(asyncActionToken: IMqttToken) {
+                    Log.w("Mqtt", "Subscribed!")
+                }
+
+                override fun onFailure(asyncActionToken: IMqttToken, exception: Throwable) {
+                    Log.w("Mqtt", "Subscribed fail!")
+                }
+            })
+        } catch (ex: MqttException) {
+            System.err.println("Exceptionst subscribing")
+            ex.printStackTrace()
+        }
+
+    }
+
+    public fun disconnect(){
+        mqttAndroidClient.disconnect(null,object:IMqttActionListener{
+            override fun onSuccess(asyncActionToken: IMqttToken?) {
+                TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+            }
+
+            override fun onFailure(asyncActionToken: IMqttToken?, exception: Throwable?) {
+                TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+            }
+
+        })
 
     }
 }

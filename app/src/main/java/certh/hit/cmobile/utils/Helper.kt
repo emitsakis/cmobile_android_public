@@ -37,5 +37,37 @@ object Helper {
 
     }
 
+     fun calculateQuadTree(latitude:Double, longitude:Double, zoom :Int):String{
+         var quadTreeCalculator  = GlobalMercator()
+        val googleTile1 = quadTreeCalculator.GoogleTile(latitude, longitude, zoom)
+        val tmsTile = quadTreeCalculator.TMSTileFromGoogleTile(googleTile1[0], googleTile1[1], zoom)
+        val quadtree = quadTreeCalculator.QuadTree(tmsTile[0], tmsTile[1], zoom)
 
+        return insertPeriodically(quadtree,"/",1)
+    }
+
+    private fun insertPeriodically(
+        text: String, insert: String, period: Int
+    ): String {
+        val builder = StringBuilder(
+            text.length + insert.length * (text.length / period) + 1
+        )
+
+        var index = 0
+        var prefix = ""
+        while (index < text.length) {
+            // Don't put the insert in the very first iteration.
+            // This is easier than appending it *after* each substring
+            builder.append(prefix)
+            prefix = insert
+            builder.append(
+                text.substring(
+                    index,
+                    Math.min(index + period, text.length)
+                )
+            )
+            index += period
+        }
+        return builder.toString()
+    }
 }

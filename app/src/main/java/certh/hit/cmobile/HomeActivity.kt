@@ -1,10 +1,16 @@
 package certh.hit.cmobile
 
+import android.arch.lifecycle.Observer
+import android.arch.lifecycle.ViewModelProviders
+import android.location.Location
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
 import android.util.Log
 import android.widget.Toast
+import certh.hit.cmobile.location.GpsStatus
+import certh.hit.cmobile.location.PermissionStatus
 import certh.hit.cmobile.utils.Helper
+import certh.hit.cmobile.viewmodel.MapViewModel
 import com.mapbox.android.core.permissions.PermissionsListener
 import com.mapbox.android.core.permissions.PermissionsManager
 import com.mapbox.geojson.Feature
@@ -21,6 +27,7 @@ import com.mapbox.mapboxsdk.maps.MapboxMap
 import com.mapbox.mapboxsdk.maps.OnMapReadyCallback
 import com.mapbox.mapboxsdk.maps.Style
 import com.mapbox.mapboxsdk.style.sources.GeoJsonSource
+import timber.log.Timber
 
 
 /**
@@ -34,6 +41,32 @@ class HomeActivity : AppCompatActivity(),OnMapReadyCallback,PermissionsListener 
     private var permissionsManager: PermissionsManager? = null
     private var style :Style? = null
     private val TAG: String = HomeActivity::class.java.canonicalName  as String
+    private var viewModel: MapViewModel? = null
+    private val gpsObserver = Observer<GpsStatus> { status ->
+        status?.let {
+            Log.d(TAG,status.toString())
+           // updateGpsCheckUI(status)
+        }
+    }
+
+    private val permissionObserver = Observer<PermissionStatus> { status ->
+        status?.let {
+         //   updatePermissionCheckUI(status)
+            Log.d(TAG,status.toString())
+            when (status) {
+
+           //     is PermissionStatus.Granted -> handleGpsAlertDialog()
+          //      is PermissionStatus.Denied -> showLocationPermissionNeededDialog()
+            }
+        }
+    }
+
+    private val lastLocationObserver = Observer<Location> { lastLocation ->
+        lastLocation?.let {
+            Log.d(TAG,lastLocation.toString())
+        }
+    }
+
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -42,7 +75,9 @@ class HomeActivity : AppCompatActivity(),OnMapReadyCallback,PermissionsListener 
         setContentView(R.layout.activity_home)
         mapView = findViewById(R.id.mapView)
         mapView?.onCreate(savedInstanceState)
+        viewModel = ViewModelProviders.of(this).get(MapViewModel::class.java)
         mapView?.getMapAsync(this)
+
 //        mapView?.getMapAsync { mapboxMap ->
 //            mapboxMap.setStyle(Style.DARK) {
 //                for (singleLayer in it.layers) {
@@ -56,38 +91,29 @@ class HomeActivity : AppCompatActivity(),OnMapReadyCallback,PermissionsListener 
 //        }
 
     }
+
     override fun onMapReady(mapboxMap: MapboxMap) {
         Log.d(TAG, "onMapReady:")
         this.mapboxMap = mapboxMap
         mapboxMap.setStyle(Style.DARK){
 
             this.style = style
-//            val vectorSource = VectorSource("vector-source", "mapbox://mapbox.mapbox-terrain-v2")
-//            mapboxMap.style?.addSource(vectorSource)
-//            val rasterSource = RasterSource("raster-source", "mapbox://mapbox.u8yyzaor")
-//            mapboxMap.style?.addSource(rasterSource)
-//            try {
-////                val geoJsonUrl = URL("https://url-to-geojson-file.geojson")
-////                val geoJsonSource = GeoJsonSource("geojson-source", geoJsonUrl)
-////                mapboxMap.style?.addSource(geoJsonSource)
-////            } catch (exception: MalformedURLException) {
-////                Timber.d(TAG, exception.toString())
-////            }
-//// Set the latitude and longitude coordinates of the image's four corners
-//            val quad = LatLngQuad(
-//                LatLng(46.437, -80.425),
-//                LatLng(46.437, -71.516),
-//                LatLng(37.936, -71.516),
-//                LatLng(37.936, -80.425))
-//
-//            mapboxMap.style?.addSource(ImageSource(ID_IMAGE_SOURCE, quad, DRAWABLE_IMAGE_HERE))
-//
-//// Add layer
-//            val layer = RasterLayer(ID_IMAGE_LAYER, ID_IMAGE_SOURCE)
-//            mapboxMap.style?.addLayer(layer)
+
            enableLocationComponent()
+            subscribeToGpsListener()
+            subscribeToLocationPermissionListener()
+            subscribeToLocationUpdate()
         }
     }
+
+    private fun subscribeToLocationUpdate() = viewModel?.lastLocation?.observe(this,lastLocationObserver)
+
+
+    private fun subscribeToGpsListener() = viewModel?.gpsStatusLiveData?.observe(this, gpsObserver)
+
+    private fun subscribeToLocationPermissionListener() =
+        viewModel?.locationPermissionStatusLiveData?.observe(this, permissionObserver)
+
     @SuppressWarnings("MissingPermission")
     private fun enableLocationComponent() {
 
@@ -175,6 +201,7 @@ class HomeActivity : AppCompatActivity(),OnMapReadyCallback,PermissionsListener 
     override fun onDestroy() {
         super.onDestroy()
         mapView?.onDestroy()
+
     }
 
     override fun onSaveInstanceState(outState: Bundle) {

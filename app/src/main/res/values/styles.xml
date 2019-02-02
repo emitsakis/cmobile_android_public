@@ -10,7 +10,7 @@
     <style name="myProgressBar" parent="AppTheme">
         <item name="colorAccent">@color/white</item>
     </style>
-    <style name="AppTheme.NoActionBar1" parent="AppTheme.NoActionBar">
+    <style name="AppTheme.NoActionBar1" parent="Theme.AppCompat.Light.NoActionBar">
         <!-- Customize your theme here. -->
         <item name="colorPrimary">@color/primary_blue</item>
         <item name="colorPrimaryDark">@color/dark_blue</item>
