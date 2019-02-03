@@ -1,21 +1,94 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.constraint.ConstraintLayout
+<RelativeLayout
         xmlns:android="http://schemas.android.com/apk/res/android"
         xmlns:mapbox="http://schemas.android.com/apk/res-auto"
-        android:layout_width="match_parent"
+        xmlns:tools="http://schemas.android.com/tools" android:layout_width="match_parent"
         android:layout_height="match_parent">
+    <RelativeLayout android:id="@+id/billboard"
+                    android:layout_width="match_parent"
+                    android:layout_height="220dp"
+                    android:background="@color/dark_blue">
+        <RelativeLayout
+                android:id="@+id/vms"
+                android:layout_width="250dp"
+                android:layout_height="250dp"
+                android:background="@drawable/ic_billboard2_color"
+                android:layout_centerHorizontal="true"
+                android:layout_marginTop="5dp"
+                android:layout_marginStart="5dp"
+                android:layout_marginEnd="5dp"
+                android:layout_marginBottom="0dp" android:visibility="visible">
+            <TextView android:id="@+id/path"
+                      android:layout_width="wrap_content"
+                      android:layout_height="wrap_content"
+                      android:textColor="@color/dark_blue"
+                      android:text="V.OLGAS-YMCA"
+                      android:textSize="30sp"
+                      android:layout_centerHorizontal="true"
+                      android:layout_marginTop="40dp"
+                      android:fontFamily="@font/anton"
+                      android:gravity="center"
+                      android:layout_marginStart="5dp"
+                      android:layout_marginEnd="5dp"/>
+            <TextView android:id="@+id/path_eta"
+                      android:layout_width="wrap_content"
+                      android:layout_height="wrap_content"
+                      android:textColor="@color/dark_blue"
+                      android:text="02:41"
+                      android:textSize="25sp"
+                      android:layout_centerHorizontal="true"
+                      android:layout_below="@+id/path" android:fontFamily="@font/anton"
+            />
+        </RelativeLayout>
+        <RelativeLayout android:layout_width="match_parent" android:layout_height="match_parent"
+                        android:id="@+id/message">
+            <ImageView
+                    android:id="@+id/ivi_sign"
+                    android:layout_width="150dp"
+                    android:layout_height="150dp"
+                    android:layout_centerVertical="true"
+                    android:src="@drawable/speed_limit_50"
+                    android:layout_marginStart="5dp"/>
+            <RelativeLayout android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_centerVertical="true"
+                            android:layout_toEndOf="@id/ivi_sign">
+                <TextView
+                        android:id="@+id/speed"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="42"
+                        android:textColor="@color/white"
+                        android:textSize="70sp"
 
+                        android:layout_marginEnd="5dp"
+                        android:layout_marginStart="15dp"
+                        android:fontFamily="@font/anton"/>
+                <TextView
+                        android:id="@+id/speed_measure"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="km/h"
+                        android:textColor="@color/white"
+                        android:textSize="30sp"
+                        android:layout_toEndOf="@id/speed"
+                        android:layout_marginTop="50dp"
+                        android:fontFamily="@font/anton"/>
+            </RelativeLayout>
+        </RelativeLayout>
+    </RelativeLayout>
     <com.mapbox.mapboxsdk.maps.MapView
             android:id="@+id/mapView"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             mapbox:mapbox_cameraTargetLat="40.73581"
             mapbox:mapbox_cameraTargetLng="-73.99155"
-            mapbox:mapbox_cameraZoom="20"
+            mapbox:mapbox_cameraZoom="18"
             mapbox:mapbox_cameraBearing="120.33"
             mapbox:mapbox_cameraTilt="60.25"
-            mapbox:mapbox_cameraZoomMax="22"
+            mapbox:mapbox_cameraZoomMax="20"
             mapbox:mapbox_uiRotateGestures="true"
+            android:layout_below="@+id/billboard"
             />
 
-</android.support.constraint.ConstraintLayout>
+</RelativeLayout>

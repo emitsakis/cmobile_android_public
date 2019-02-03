@@ -11,9 +11,7 @@ import certh.hit.cmobile.model.Topic
 import certh.hit.cmobile.utils.Helper
 import certh.hit.cmobile.utils.MqttHelper
 import com.google.android.gms.location.*
-import org.eclipse.paho.client.mqttv3.IMqttDeliveryToken
-import org.eclipse.paho.client.mqttv3.MqttCallbackExtended
-import org.eclipse.paho.client.mqttv3.MqttMessage
+import org.eclipse.paho.client.mqttv3.*
 import timber.log.Timber
 
 /**
@@ -30,7 +28,7 @@ class LocationUpdateListener(private val context: Context) : LiveData<Location>(
 
     private var availableTopics  :List<Topic> = DataFactory().getAllTopics()
 
-    private var subscribedTopics :List<Topic> = ArrayList()
+    private val subscribedTopics :ArrayList<Topic> = ArrayList()
 
 
 
@@ -40,15 +38,16 @@ class LocationUpdateListener(private val context: Context) : LiveData<Location>(
         fusedLocationClient.removeLocationUpdates(locationCallback)    }
 
     override fun onActive() {
+        startMqtt()
         registerReceiver()
         checkGpsAndReact()
-        startMqtt()
+
     }
 
     private fun startMqtt() {
         mqttHelper = MqttHelper(context)
         mqttHelper.connect()
-        mqttHelper?.setCallback(object : MqttCallbackExtended {
+        mqttHelper.setCallback(object : MqttCallbackExtended {
             override fun connectComplete(b: Boolean, s: String) {
 
             }
@@ -60,7 +59,7 @@ class LocationUpdateListener(private val context: Context) : LiveData<Location>(
             @Throws(Exception::class)
             override fun messageArrived(topic: String, mqttMessage: MqttMessage) {
                 Log.d("Debug", mqttMessage.toString())
-              //  postValue(Location("GPS"))
+                postValue(Location("GPS"))
             }
 
             override fun deliveryComplete(iMqttDeliveryToken: IMqttDeliveryToken) {
@@ -93,19 +92,66 @@ class LocationUpdateListener(private val context: Context) : LiveData<Location>(
         override fun onLocationResult(locationResult: com.google.android.gms.location.LocationResult) {
             //Decide how to use/store location coordinates
             Timber.d("New Coordinates Received: %s", locationResult.locations.toString())
-            checkLocationAndSubscribe(locationResult)
-            checkLocationAndUnsubscribe(locationResult)
+            var quadTree =  Helper.calculateQuadTree(locationResult.lastLocation.latitude,locationResult.lastLocation.longitude,22)
+            checkLocationAndSubscribe(locationResult,quadTree)
+            checkLocationAndUnsubscribe(locationResult,quadTree)
         }
     }
 
-    private fun checkLocationAndUnsubscribe(locationResult: LocationResult) {
-      var quadTree =  Helper.calculateQuadTree(locationResult.lastLocation.latitude,locationResult.lastLocation.longitude,22)
-        postValue(Location(quadTree))
+    private fun checkLocationAndUnsubscribe(
+        locationResult: LocationResult,
+        quadTree: String
+    ) {
+        for (topic in availableTopics){
+            var upperTopicQuadTree = topic.quadTree?.substring(0,15)
+            Timber.d("upperQuadTree : %s",upperTopicQuadTree)
+            Timber.d("caluclated quadTree : %s",quadTree.substring(0,15))
+            if(upperTopicQuadTree?.compareTo(quadTree.substring(0,15)) == 0 &&
+                !subscribedTopics.any { topic1 -> topic1.typeId ==topic.typeId }) {
+                if (mqttHelper.isConnected()) {
+                    mqttHelper.subscribeToTopic(topic.toString(), 0, object : IMqttActionListener {
+                        override fun onSuccess(asyncActionToken: IMqttToken) {
+                            Log.w("Mqtt", "Subscribed!")
+                            subscribedTopics.add(topic)
+                        }
+
+                        override fun onFailure(asyncActionToken: IMqttToken, exception: Throwable) {
+                            Log.w("Mqtt", "Subscribed fail!")
+                        }
+                    })
+                }
+            }
+
+
+        }
     }
 
-    private fun checkLocationAndSubscribe(locationResult: LocationResult) {
+    private fun checkLocationAndSubscribe(
+        locationResult: LocationResult,
+        quadTree: String
+    ) {
+        for (topic in subscribedTopics) {
+            var upperTopicQuadTree = topic.quadTree?.substring(0,15)
+            Timber.d("upperQuadTree : %s",upperTopicQuadTree)
+            Timber.d("caluclated quadTree : %s",quadTree.substring(0,15))
+            if(upperTopicQuadTree?.compareTo(quadTree.substring(0,15)) != 0){
+                if (mqttHelper.isConnected()) {
+                    mqttHelper.unsubscribeToTopic(topic.toString(), object : IMqttActionListener {
+                        override fun onSuccess(asyncActionToken: IMqttToken) {
+                            Log.w("Mqtt", "UnSubscribed!")
+                            subscribedTopics.remove(topic)
+                        }
 
+                        override fun onFailure(asyncActionToken: IMqttToken, exception: Throwable) {
+                            Log.w("Mqtt", "UnSubscribed fail!")
+                        }
+                    })
+                }
+
+
+            }
+
+        }
     }
-
 
 }

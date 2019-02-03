@@ -2,6 +2,7 @@ package certh.hit.cmobile.utils
 
 import android.content.Context
 import android.util.Log
+import com.mapbox.mapboxsdk.style.layers.SymbolLayer
 import org.eclipse.paho.android.service.MqttAndroidClient
 import org.eclipse.paho.client.mqttv3.*
 
@@ -83,17 +84,9 @@ class MqttHelper(context: Context) {
     }
 
 
-    public fun subscribeToTopic(subscriptionTopic :String,qos:Int) {
+    public fun subscribeToTopic(subscriptionTopic :String,qos:Int,callback:IMqttActionListener) {
         try {
-            mqttAndroidClient.subscribe(subscriptionTopic, qos, null, object : IMqttActionListener {
-                override fun onSuccess(asyncActionToken: IMqttToken) {
-                    Log.w("Mqtt", "Subscribed!")
-                }
-
-                override fun onFailure(asyncActionToken: IMqttToken, exception: Throwable) {
-                    Log.w("Mqtt", "Subscribed fail!")
-                }
-            })
+            mqttAndroidClient.subscribe(subscriptionTopic, qos, null, callback)
         } catch (ex: MqttException) {
             System.err.println("Exceptionst subscribing")
             ex.printStackTrace()
@@ -119,17 +112,9 @@ class MqttHelper(context: Context) {
 
     }
 
-    public fun unsubscribeToTopic(subscriptionTopic :String) {
+    public fun unsubscribeToTopic(subscriptionTopic :String,callback: IMqttActionListener) {
         try {
-            mqttAndroidClient.unsubscribe(subscriptionTopic,  null, object : IMqttActionListener {
-                override fun onSuccess(asyncActionToken: IMqttToken) {
-                    Log.w("Mqtt", "Subscribed!")
-                }
-
-                override fun onFailure(asyncActionToken: IMqttToken, exception: Throwable) {
-                    Log.w("Mqtt", "Subscribed fail!")
-                }
-            })
+            mqttAndroidClient.unsubscribe(subscriptionTopic,  null,callback )
         } catch (ex: MqttException) {
             System.err.println("Exceptionst subscribing")
             ex.printStackTrace()
@@ -167,5 +152,9 @@ class MqttHelper(context: Context) {
 
         })
 
+    }
+
+    fun isConnected():Boolean{
+        return mqttAndroidClient.isConnected
     }
 }

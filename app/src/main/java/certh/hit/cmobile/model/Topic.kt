@@ -32,4 +32,10 @@ class Topic {
         const val SSM = "ssm"
         const val SRM = "srm"
     }
+
+    override fun toString(): String {
+        return "$basePath/$type/$quadTree/$data"
+    }
+
+
 }
