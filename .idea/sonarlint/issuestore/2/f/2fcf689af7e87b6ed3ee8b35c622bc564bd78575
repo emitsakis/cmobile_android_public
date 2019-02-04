@@ -1,17 +1,0 @@
-
-xkotlin:S4144î"_Update this function so that its implementation is not identical to "PixelsToTile" on line 190.(©ýÎµ
-lkotlin:S100Œ"TRename function "LatLonToMeters" to match the regular expression ^[a-z][a-zA-Z0-9]*$(ò¾ñÎ
-qkotlin:S100š"TRename function "MetersToLatLon" to match the regular expression ^[a-z][a-zA-Z0-9]*$(›–ÅÅùÿÿÿÿ
-lkotlin:S100¨"TRename function "PixelsToMeters" to match the regular expression ^[a-z][a-zA-Z0-9]*$(œÝïí
-qkotlin:S100·"TRename function "MetersToPixels" to match the regular expression ^[a-z][a-zA-Z0-9]*$(¸Ùœ¥üÿÿÿÿ
-okotlin:S100Å"RRename function "PixelsToTile" to match the regular expression ^[a-z][a-zA-Z0-9]*$(É‘óþùÿÿÿÿ
-qkotlin:S100Ó"TRename function "PixelsToRaster" to match the regular expression ^[a-z][a-zA-Z0-9]*$(é†éÓýÿÿÿÿ
-jkotlin:S100Ý"RRename function "MetersToTile" to match the regular expression ^[a-z][a-zA-Z0-9]*$(ïìÇŽ
-hkotlin:S100Ž"PRename function "TileBounds" to match the regular expression ^[a-z][a-zA-Z0-9]*$(÷îÃ¤
-skotlin:S100œ"VRename function "TileLatLonBounds" to match the regular expression ^[a-z][a-zA-Z0-9]*$(¥×Â©þÿÿÿÿ
-hkotlin:S100¨"PRename function "Resolution" to match the regular expression ^[a-z][a-zA-Z0-9]*$(Ôã”¶
-skotlin:S100³"VRename function "ZoomForPixelSize" to match the regular expression ^[a-z][a-zA-Z0-9]*$(óÄóÐÿÿÿÿÿ
-hkotlin:S100È"PRename function "GoogleTile" to match the regular expression ^[a-z][a-zA-Z0-9]*$(ÔžöÙ
-xkotlin:S100Î"[Rename function "TMSTileFromGoogleTile" to match the regular expression ^[a-z][a-zA-Z0-9]*$(´’ç¬ùÿÿÿÿ
-mkotlin:S100Ü"PRename function "GoogleTile" to match the regular expression ^[a-z][a-zA-Z0-9]*$(Ñ´Ö¼üÿÿÿÿ
-kkotlin:S100ç"NRename function "QuadTree" to match the regular expression ^[a-z][a-zA-Z0-9]*$(¥Ï¢¬ÿÿÿÿÿ

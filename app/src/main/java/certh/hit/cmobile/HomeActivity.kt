@@ -2,13 +2,19 @@ package certh.hit.cmobile
 
 import android.arch.lifecycle.Observer
 import android.arch.lifecycle.ViewModelProviders
+import android.content.ComponentName
+import android.content.Context
+import android.content.Intent
+import android.content.ServiceConnection
 import android.location.Location
 import android.os.Bundle
+import android.os.IBinder
 import android.support.v7.app.AppCompatActivity
 import android.util.Log
 import android.widget.Toast
 import certh.hit.cmobile.location.GpsStatus
 import certh.hit.cmobile.location.PermissionStatus
+import certh.hit.cmobile.service.LocationService
 import certh.hit.cmobile.utils.Helper
 import certh.hit.cmobile.viewmodel.MapViewModel
 import com.mapbox.android.core.permissions.PermissionsListener
@@ -27,7 +33,6 @@ import com.mapbox.mapboxsdk.maps.MapboxMap
 import com.mapbox.mapboxsdk.maps.OnMapReadyCallback
 import com.mapbox.mapboxsdk.maps.Style
 import com.mapbox.mapboxsdk.style.sources.GeoJsonSource
-import timber.log.Timber
 
 
 /**
@@ -98,6 +103,7 @@ class HomeActivity : AppCompatActivity(),OnMapReadyCallback,PermissionsListener 
         mapboxMap.setStyle(Style.DARK){
 
             this.style = style
+            val intent = Intent(getApplicationContext(), LocationService::class.java)
 
            enableLocationComponent()
             subscribeToGpsListener()
