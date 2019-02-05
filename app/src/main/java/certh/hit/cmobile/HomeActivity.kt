@@ -6,9 +6,12 @@ import android.location.Location
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
 import android.util.Log
+import android.view.View.VISIBLE
+import android.widget.RelativeLayout
 import android.widget.Toast
 import certh.hit.cmobile.location.GpsStatus
 import certh.hit.cmobile.location.PermissionStatus
+import certh.hit.cmobile.model.UserMessage
 import certh.hit.cmobile.utils.Helper
 import certh.hit.cmobile.viewmodel.MapViewModel
 import com.mapbox.android.core.permissions.PermissionsListener
@@ -42,6 +45,7 @@ class HomeActivity : AppCompatActivity(),OnMapReadyCallback,PermissionsListener 
     private var style :Style? = null
     private val TAG: String = HomeActivity::class.java.canonicalName  as String
     private var viewModel: MapViewModel? = null
+    private var vmsRelative :RelativeLayout? = null
     private val gpsObserver = Observer<GpsStatus> { status ->
         status?.let {
             Log.d(TAG,status.toString())
@@ -61,9 +65,12 @@ class HomeActivity : AppCompatActivity(),OnMapReadyCallback,PermissionsListener 
         }
     }
 
-    private val lastLocationObserver = Observer<Location> { lastLocation ->
-        lastLocation?.let {
-            Log.d(TAG,lastLocation.toString())
+    private val lastLocationObserver = Observer<UserMessage> { userMessage ->
+        userMessage?.let {
+            if(userMessage.topic?.type.equals("v-ivi_hit",true)){
+                vmsRelative!!.visibility = VISIBLE
+            }
+
         }
     }
 
@@ -74,6 +81,7 @@ class HomeActivity : AppCompatActivity(),OnMapReadyCallback,PermissionsListener 
         Mapbox.getInstance(this, Helper.mapsKey)
         setContentView(R.layout.activity_home)
         mapView = findViewById(R.id.mapView)
+        vmsRelative = findViewById(R.id.vms)
         mapView?.onCreate(savedInstanceState)
         viewModel = ViewModelProviders.of(this).get(MapViewModel::class.java)
         mapView?.getMapAsync(this)

@@ -5,6 +5,10 @@ import android.os.Build
 import android.util.Base64
 import android.util.Log
 import certh.hit.cmobile.BuildConfig
+import certh.hit.cmobile.model.IVIUserMessage
+import certh.hit.cmobile.model.Topic
+import certh.hit.cmobile.model.VIVIUserMessage
+import org.json.JSONObject
 import java.io.UnsupportedEncodingException
 import java.security.KeyPairGenerator
 import java.security.SecureRandom
@@ -69,5 +73,50 @@ object Helper {
             index += period
         }
         return builder.toString()
+    }
+
+    fun parseIVIUserMessage(jsonString:String,topic:Topic):IVIUserMessage{
+        var message = IVIUserMessage()
+        val rootJsonObject = JSONObject(jsonString)
+        var ivigeneralivicontainer = rootJsonObject.optJSONObject("ivigeneralivicontainer")
+        if (ivigeneralivicontainer != null){
+            var iviglcpartroadsigncode = ivigeneralivicontainer.optJSONObject("iviglcpartroadsigncode")
+            if(iviglcpartroadsigncode!=null){
+                message.name = iviglcpartroadsigncode.optString("Name","")
+                message.trafficSingDescription = iviglcpartroadsigncode.optString("Trafficsigndescription","")
+                message.ServiceCategoryCode = iviglcpartroadsigncode.optInt("ServiceCategoryCode",0)
+                message.serviceCategory = iviglcpartroadsigncode.optString("serviceCategory","")
+
+            }
+        }
+        message.topic =topic
+        return message
+    }
+
+    fun parseVIVIUserMessage(jsonString: String,topic: Topic):VIVIUserMessage{
+        var message = VIVIUserMessage()
+        val rootJsonObject = JSONObject(jsonString)
+        var ivigeneralivicontainer = rootJsonObject.optJSONObject("ivigeneralivicontainer")
+        if (ivigeneralivicontainer != null){
+            var iviglcpartroadsigncode = ivigeneralivicontainer.optJSONObject("iviglcpartroadsigncode")
+            if(iviglcpartroadsigncode!=null){
+                message.route = iviglcpartroadsigncode.optString("Route","")
+                message.eta = iviglcpartroadsigncode.optString("ETA","")
+
+            }
+        }
+        message.topic =topic
+        return message
+
+    }
+
+    fun parseTopic(topicString:String): Topic{
+        var topic = Topic()
+       var topicSplit = topicString.split("/")
+        topic.basePath =topicSplit.get(0)
+        topic.type = topicSplit.get(1)
+        topic.data = topicSplit.get(topicSplit.size-1)
+        return topic
+
     }
 }

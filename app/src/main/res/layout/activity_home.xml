@@ -17,7 +17,7 @@
                 android:layout_marginTop="5dp"
                 android:layout_marginStart="5dp"
                 android:layout_marginEnd="5dp"
-                android:layout_marginBottom="0dp" android:visibility="visible">
+                android:layout_marginBottom="0dp" android:visibility="gone">
             <TextView android:id="@+id/path"
                       android:layout_width="wrap_content"
                       android:layout_height="wrap_content"
@@ -40,15 +40,18 @@
                       android:layout_below="@+id/path" android:fontFamily="@font/anton"
             />
         </RelativeLayout>
-        <RelativeLayout android:layout_width="match_parent" android:layout_height="match_parent"
-                        android:id="@+id/message">
+        <RelativeLayout
+                android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:id="@+id/message" android:visibility="gone">
+
             <ImageView
                     android:id="@+id/ivi_sign"
                     android:layout_width="150dp"
                     android:layout_height="150dp"
                     android:layout_centerVertical="true"
                     android:src="@drawable/speed_limit_50"
-                    android:layout_marginStart="5dp"/>
+                    android:layout_marginStart="60dp"/>
             <RelativeLayout android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_centerVertical="true"
@@ -75,6 +78,45 @@
                         android:layout_marginTop="50dp"
                         android:fontFamily="@font/anton"/>
             </RelativeLayout>
+        </RelativeLayout>
+        <RelativeLayout
+                android:id="@+id/signal"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent" android:visibility="gone">
+            <ImageView
+                    android:id="@+id/signal_icon"
+                    android:layout_width="150dp"
+                    android:layout_height="150dp"
+                    android:layout_centerVertical="true"
+                    android:src="@drawable/ic_traffic_light__y"
+                    android:layout_marginStart="60dp"/>
+            <RelativeLayout android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_centerVertical="true"
+                            android:layout_toEndOf="@id/signal_icon">
+                <TextView
+                        android:id="@+id/time"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="3"
+                        android:textColor="@color/white"
+                        android:textSize="70sp"
+
+                        android:layout_marginEnd="5dp"
+                        android:layout_marginStart="25dp"
+                        android:fontFamily="@font/anton"/>
+                <TextView
+                        android:id="@+id/time_unit"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="s"
+                        android:textColor="@color/white"
+                        android:textSize="30sp"
+                        android:layout_toEndOf="@id/time"
+                        android:layout_marginTop="50dp"
+                        android:fontFamily="@font/anton" android:layout_marginStart="10dp"/>
+            </RelativeLayout>
+
         </RelativeLayout>
     </RelativeLayout>
     <com.mapbox.mapboxsdk.maps.MapView
