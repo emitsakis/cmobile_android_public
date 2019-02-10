@@ -7,6 +7,7 @@ import android.content.Context
 import android.content.Intent
 import android.content.ServiceConnection
 import android.location.Location
+import android.os.Build
 import android.os.Bundle
 import android.os.IBinder
 import android.support.v7.app.AppCompatActivity
@@ -15,6 +16,8 @@ import android.widget.Toast
 import certh.hit.cmobile.location.GpsStatus
 import certh.hit.cmobile.location.PermissionStatus
 import certh.hit.cmobile.service.LocationService
+import certh.hit.cmobile.service.LocationServiceCallback
+import certh.hit.cmobile.service.LocationServiceInterface
 import certh.hit.cmobile.utils.Helper
 import certh.hit.cmobile.viewmodel.MapViewModel
 import com.mapbox.android.core.permissions.PermissionsListener
@@ -33,6 +36,7 @@ import com.mapbox.mapboxsdk.maps.MapboxMap
 import com.mapbox.mapboxsdk.maps.OnMapReadyCallback
 import com.mapbox.mapboxsdk.maps.Style
 import com.mapbox.mapboxsdk.style.sources.GeoJsonSource
+import timber.log.Timber
 
 
 /**
@@ -47,6 +51,9 @@ class HomeActivity : AppCompatActivity(),OnMapReadyCallback,PermissionsListener 
     private var style :Style? = null
     private val TAG: String = HomeActivity::class.java.canonicalName  as String
     private var viewModel: MapViewModel? = null
+    private var playIntent :Intent? = null
+    private var musicSrv: LocationService? = null
+    private var mPlayerAdapter:LocationServiceInterface? = null
     private val gpsObserver = Observer<GpsStatus> { status ->
         status?.let {
             Log.d(TAG,status.toString())
@@ -82,13 +89,16 @@ class HomeActivity : AppCompatActivity(),OnMapReadyCallback,PermissionsListener 
         mapView?.onCreate(savedInstanceState)
         viewModel = ViewModelProviders.of(this).get(MapViewModel::class.java)
         mapView?.getMapAsync(this)
-
+        if (playIntent == null) {
+            playIntent = Intent(this, LocationService::class.java)
+            bindService(playIntent, musicConnection, Context.BIND_AUTO_CREATE)
+        }
 //        mapView?.getMapAsync { mapboxMap ->
 //            mapboxMap.setStyle(Style.DARK) {
 //                for (singleLayer in it.layers) {
-//                   // Log.d(TAG, "onMapReady: layer id = " + singleLayer.id)
+//                   // Log.d(TAG(TAG, "onMapReady: layer id = " + singleLayer.id)
 //                }
-//                Log.d(TAG, "onMapReady: layer id = " + it.layers.get(0).id)
+//                Log.d(TAG(TAG, "onMapReady: layer id = " + it.layers.get(0).id)
 //                mapboxMap.style?.getLayer("water")?.setProperties(PropertyFactory.fillColor(Color.parseColor("#0e6001")))
 //
 //                // Map is set up and the style has loaded. Now you can add data or make other map adjustments
@@ -103,7 +113,7 @@ class HomeActivity : AppCompatActivity(),OnMapReadyCallback,PermissionsListener 
         mapboxMap.setStyle(Style.DARK){
 
             this.style = style
-            val intent = Intent(getApplicationContext(), LocationService::class.java)
+
 
            enableLocationComponent()
             subscribeToGpsListener()
@@ -179,6 +189,32 @@ class HomeActivity : AppCompatActivity(),OnMapReadyCallback,PermissionsListener 
 
         }
     }
+
+    private val musicConnection = object : ServiceConnection {
+
+        override fun onServiceConnected(name: ComponentName, service: IBinder) {
+            Log.d(TAG,"onStart: create MediaPlayer")
+            val binder = service as LocationService.AudioBinder
+            //get service
+            musicSrv = binder.service
+            musicSrv!!.setPlaybackInfoListener(PlaybackListener())
+            mPlayerAdapter = musicSrv
+            mPlayerAdapter!!.setupNotification("ssss","Sssssssdsd")
+            //mPlayerAdapter.loadMedia(url, lastPosition)
+           // mPlayerAdapter.setupNotification(if (lectureIndex != 0) noLectureString else "", lectureTitle)
+
+
+
+        }
+
+        override fun onServiceDisconnected(name: ComponentName) {
+            Log.d(TAG,"onServiceDisconnected")
+            mPlayerAdapter = null
+            //  musicBound = false;
+        }
+    }
+
+
     public override fun onStart() {
         super.onStart()
         mapView?.onStart()
@@ -230,5 +266,14 @@ class HomeActivity : AppCompatActivity(),OnMapReadyCallback,PermissionsListener 
             finish()
         }
     }
+
+    class PlaybackListener : LocationServiceCallback() {
+        override fun onPositionChanged(position: Int) {
+        Log.d("PlaybackListener","paok"+ position.toString())
+        }
+
+
+    }
+
 }
 

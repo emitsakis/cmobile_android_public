@@ -25,13 +25,11 @@
                 android:name=".HomeActivity"
                 android:theme="@style/Theme.AppCompat.NoActionBar">
         </activity>
-    <service android:name="org.eclipse.paho.android.service.MqttService" />
-        <service android:name=".service.LocationIntentService"/>
         <service
-                android:name=".service.LocationService"
-                android:enabled="true"
-                android:exported="true" >
+                android:name="certh.hit.cmobile.service.LocationService">
         </service>
+    <service android:name="org.eclipse.paho.android.service.MqttService" />
+
         <meta-data android:name="preloaded_fonts" android:resource="@array/preloaded_fonts"/>
 
     </application>
