@@ -2,6 +2,7 @@ package certh.hit.cmobile
 
 import android.arch.lifecycle.Observer
 import android.arch.lifecycle.ViewModelProviders
+import android.graphics.Typeface
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
@@ -12,9 +13,13 @@ import android.os.Bundle
 import android.os.IBinder
 import android.support.v7.app.AppCompatActivity
 import android.util.Log
+import android.view.View.VISIBLE
+import android.widget.RelativeLayout
+import android.widget.TextView
 import android.widget.Toast
 import certh.hit.cmobile.location.GpsStatus
 import certh.hit.cmobile.location.PermissionStatus
+import certh.hit.cmobile.model.UserMessage
 import certh.hit.cmobile.service.LocationService
 import certh.hit.cmobile.service.LocationServiceCallback
 import certh.hit.cmobile.service.LocationServiceInterface
@@ -54,6 +59,9 @@ class HomeActivity : AppCompatActivity(),OnMapReadyCallback,PermissionsListener 
     private var playIntent :Intent? = null
     private var musicSrv: LocationService? = null
     private var mPlayerAdapter:LocationServiceInterface? = null
+    private var vmsRelative :RelativeLayout? = null
+    private var  tx :TextView? = null
+    private var  tf : Typeface? = null
     private val gpsObserver = Observer<GpsStatus> { status ->
         status?.let {
             Log.d(TAG,status.toString())
@@ -73,9 +81,12 @@ class HomeActivity : AppCompatActivity(),OnMapReadyCallback,PermissionsListener 
         }
     }
 
-    private val lastLocationObserver = Observer<Location> { lastLocation ->
-        lastLocation?.let {
-            Log.d(TAG,lastLocation.toString())
+    private val lastLocationObserver = Observer<UserMessage> { userMessage ->
+        userMessage?.let {
+            if(userMessage.topic?.type.equals("v-ivi_hit",true)){
+              //  vmsRelative!!.visibility = VISIBLE
+            }
+
         }
     }
 
@@ -86,6 +97,12 @@ class HomeActivity : AppCompatActivity(),OnMapReadyCallback,PermissionsListener 
         Mapbox.getInstance(this, Helper.mapsKey)
         setContentView(R.layout.activity_home)
         mapView = findViewById(R.id.mapView)
+        //vmsRelative = findViewById(R.id.vms)
+        tx =findViewById(R.id.textview1);
+
+        tf = Typeface.createFromAsset(getAssets(),  "fonts/led.ttf");
+
+        tx!!.typeface =tf
         mapView?.onCreate(savedInstanceState)
         viewModel = ViewModelProviders.of(this).get(MapViewModel::class.java)
         mapView?.getMapAsync(this)
@@ -189,32 +206,6 @@ class HomeActivity : AppCompatActivity(),OnMapReadyCallback,PermissionsListener 
 
         }
     }
-
-    private val musicConnection = object : ServiceConnection {
-
-        override fun onServiceConnected(name: ComponentName, service: IBinder) {
-            Log.d(TAG,"onStart: create MediaPlayer")
-            val binder = service as LocationService.AudioBinder
-            //get service
-            musicSrv = binder.service
-            musicSrv!!.setPlaybackInfoListener(PlaybackListener())
-            mPlayerAdapter = musicSrv
-            mPlayerAdapter!!.setupNotification("ssss","Sssssssdsd")
-            //mPlayerAdapter.loadMedia(url, lastPosition)
-           // mPlayerAdapter.setupNotification(if (lectureIndex != 0) noLectureString else "", lectureTitle)
-
-
-
-        }
-
-        override fun onServiceDisconnected(name: ComponentName) {
-            Log.d(TAG,"onServiceDisconnected")
-            mPlayerAdapter = null
-            //  musicBound = false;
-        }
-    }
-
-
     public override fun onStart() {
         super.onStart()
         mapView?.onStart()

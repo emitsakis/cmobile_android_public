@@ -44,6 +44,7 @@ dependencies {
     implementation "com.mapbox.mapboxsdk:mapbox-android-sdk:$mapbox_version"
     implementation "com.android.support.constraint:constraint-layout:$constraint_layout_version"
     implementation "com.google.android.gms:play-services-location:$play_services"
+    implementation "com.google.code.gson:gson:$gson_version"
     api 'org.eclipse.paho:org.eclipse.paho.client.mqttv3:1.1.0'
     api 'org.eclipse.paho:org.eclipse.paho.android.service:1.1.1'
     testImplementation 'junit:junit:4.12'

@@ -8,6 +8,7 @@ import android.text.format.DateUtils
 import android.util.Log
 import certh.hit.cmobile.model.DataFactory
 import certh.hit.cmobile.model.Topic
+import certh.hit.cmobile.model.UserMessage
 import certh.hit.cmobile.utils.Helper
 import certh.hit.cmobile.utils.MqttHelper
 import com.google.android.gms.location.*
@@ -17,7 +18,7 @@ import timber.log.Timber
 /**
  * Created by anmpout on 02/02/2019
  */
-class LocationUpdateListener(private val context: Context) : LiveData<Location>() {
+class LocationUpdateListener(private val context: Context) : LiveData<UserMessage>() {
     private lateinit var fusedLocationClient: FusedLocationProviderClient
 
     private lateinit var locationRequest: LocationRequest
@@ -58,8 +59,9 @@ class LocationUpdateListener(private val context: Context) : LiveData<Location>(
 
             @Throws(Exception::class)
             override fun messageArrived(topic: String, mqttMessage: MqttMessage) {
-                Log.d("Debug", mqttMessage.toString())
-                postValue(Location("GPS"))
+                    Log.d("Debug", mqttMessage.toString())
+
+                postValue(Helper.parseIVIUserMessage(mqttMessage.toString(),Helper.parseTopic(topic)))
             }
 
             override fun deliveryComplete(iMqttDeliveryToken: IMqttDeliveryToken) {

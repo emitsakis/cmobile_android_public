@@ -2,81 +2,9 @@
 <RelativeLayout
         xmlns:android="http://schemas.android.com/apk/res/android"
         xmlns:mapbox="http://schemas.android.com/apk/res-auto"
-        xmlns:tools="http://schemas.android.com/tools" android:layout_width="match_parent"
-        android:layout_height="match_parent">
-    <RelativeLayout android:id="@+id/billboard"
-                    android:layout_width="match_parent"
-                    android:layout_height="220dp"
-                    android:background="@color/dark_blue">
-        <RelativeLayout
-                android:id="@+id/vms"
-                android:layout_width="250dp"
-                android:layout_height="250dp"
-                android:background="@drawable/ic_billboard2_color"
-                android:layout_centerHorizontal="true"
-                android:layout_marginTop="5dp"
-                android:layout_marginStart="5dp"
-                android:layout_marginEnd="5dp"
-                android:layout_marginBottom="0dp" android:visibility="visible">
-            <TextView android:id="@+id/path"
-                      android:layout_width="wrap_content"
-                      android:layout_height="wrap_content"
-                      android:textColor="@color/dark_blue"
-                      android:text="V.OLGAS-YMCA"
-                      android:textSize="30sp"
-                      android:layout_centerHorizontal="true"
-                      android:layout_marginTop="40dp"
-                      android:fontFamily="@font/anton"
-                      android:gravity="center"
-                      android:layout_marginStart="5dp"
-                      android:layout_marginEnd="5dp"/>
-            <TextView android:id="@+id/path_eta"
-                      android:layout_width="wrap_content"
-                      android:layout_height="wrap_content"
-                      android:textColor="@color/dark_blue"
-                      android:text="02:41"
-                      android:textSize="25sp"
-                      android:layout_centerHorizontal="true"
-                      android:layout_below="@+id/path" android:fontFamily="@font/anton"
-            />
-        </RelativeLayout>
-        <RelativeLayout android:layout_width="match_parent" android:layout_height="match_parent"
-                        android:id="@+id/message">
-            <ImageView
-                    android:id="@+id/ivi_sign"
-                    android:layout_width="150dp"
-                    android:layout_height="150dp"
-                    android:layout_centerVertical="true"
-                    android:src="@drawable/speed_limit_50"
-                    android:layout_marginStart="5dp"/>
-            <RelativeLayout android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_centerVertical="true"
-                            android:layout_toEndOf="@id/ivi_sign">
-                <TextView
-                        android:id="@+id/speed"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="42"
-                        android:textColor="@color/white"
-                        android:textSize="70sp"
-
-                        android:layout_marginEnd="5dp"
-                        android:layout_marginStart="15dp"
-                        android:fontFamily="@font/anton"/>
-                <TextView
-                        android:id="@+id/speed_measure"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="km/h"
-                        android:textColor="@color/white"
-                        android:textSize="30sp"
-                        android:layout_toEndOf="@id/speed"
-                        android:layout_marginTop="50dp"
-                        android:fontFamily="@font/anton"/>
-            </RelativeLayout>
-        </RelativeLayout>
-    </RelativeLayout>
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        xmlns:app="http://schemas.android.com/apk/res-auto">
     <com.mapbox.mapboxsdk.maps.MapView
             android:id="@+id/mapView"
             android:layout_width="match_parent"
@@ -88,7 +16,85 @@
             mapbox:mapbox_cameraTilt="60.25"
             mapbox:mapbox_cameraZoomMax="20"
             mapbox:mapbox_uiRotateGestures="true"
-            android:layout_below="@+id/billboard"
+    >
+    </com.mapbox.mapboxsdk.maps.MapView>
+    <RelativeLayout android:id="@+id/billboard"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:visibility="visible">
+
+        <RelativeLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content">
+
+            <certh.hit.cmobile.utils.ColorArcProgressBar
+                    android:layout_width="50dp"
+                    android:layout_height="50dp"
+                    android:layout_gravity="center_horizontal"
+                    android:id="@+id/bar2"
+                    app:is_need_content="true"
+                    app:front_color1="#69cbd2"
+                    app:front_color2="#7eb6e2"
+                    app:front_color3="#989df7"
+                    app:max_value="100"
+                    app:back_width="5dp"
+                    app:front_width="5dp"
+                    app:total_engle="270"
+                    app:is_need_unit="true"
+                    app:string_unit="km/h"
+                    app:is_need_title="false"
+                    app:back_color="@android:color/darker_gray"
             />
+            <ImageView android:layout_width="50dp"
+                       android:layout_height="50dp"
+                       android:src="@drawable/speed_limit_50"
+                       android:layout_toEndOf="@id/bar2"
+                       android:layout_marginStart="-30dp"
+                       android:layout_marginTop="20dp"/>
+
+        </RelativeLayout>
+        <RelativeLayout android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_alignParentEnd="true" android:layout_marginTop="20dp"
+                        android:layout_marginEnd="10dp">
+            <ImageView android:id="@+id/red_light"
+                       android:layout_width="wrap_content"
+                       android:layout_height="wrap_content"
+                       android:src="@drawable/red_lighter"
+                       android:layout_marginBottom="10dp"/>
+
+            <ImageView android:id="@+id/yellow_light"
+                       android:layout_width="wrap_content"
+                       android:layout_height="wrap_content"
+                       android:src="@drawable/yellow_lighter"
+                       android:layout_below="@id/red_light"
+                       android:layout_marginBottom="10dp"/>
+
+            <ImageView android:id="@+id/green_light"
+                       android:layout_width="wrap_content"
+                       android:layout_height="wrap_content"
+                       android:src="@drawable/green_lighter"
+                       android:layout_below="@id/yellow_light"
+                       android:layout_marginBottom="10dp"/>
+
+        </RelativeLayout>
+    </RelativeLayout>
+
+    <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@color/blackColor"
+    android:layout_alignParentBottom="true">
+        <TextView
+                android:id="@+id/textview1"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="XANTH 2'"
+                android:textSize="40sp"
+                android:textColor="#ffd700"
+                android:layout_centerHorizontal="true"
+        />
+
+    </RelativeLayout>
 
 </RelativeLayout>
