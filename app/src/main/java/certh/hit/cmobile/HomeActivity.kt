@@ -2,18 +2,16 @@ package certh.hit.cmobile
 
 import android.arch.lifecycle.Observer
 import android.arch.lifecycle.ViewModelProviders
-import android.graphics.Typeface
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.content.ServiceConnection
-import android.location.Location
-import android.os.Build
+import android.graphics.Typeface
 import android.os.Bundle
 import android.os.IBinder
 import android.support.v7.app.AppCompatActivity
 import android.util.Log
-import android.view.View.VISIBLE
+import android.widget.ImageView
 import android.widget.RelativeLayout
 import android.widget.TextView
 import android.widget.Toast
@@ -23,6 +21,7 @@ import certh.hit.cmobile.model.UserMessage
 import certh.hit.cmobile.service.LocationService
 import certh.hit.cmobile.service.LocationServiceCallback
 import certh.hit.cmobile.service.LocationServiceInterface
+import certh.hit.cmobile.utils.ColorArcProgressBar
 import certh.hit.cmobile.utils.Helper
 import certh.hit.cmobile.viewmodel.MapViewModel
 import com.mapbox.android.core.permissions.PermissionsListener
@@ -41,7 +40,6 @@ import com.mapbox.mapboxsdk.maps.MapboxMap
 import com.mapbox.mapboxsdk.maps.OnMapReadyCallback
 import com.mapbox.mapboxsdk.maps.Style
 import com.mapbox.mapboxsdk.style.sources.GeoJsonSource
-import timber.log.Timber
 
 
 /**
@@ -56,12 +54,18 @@ class HomeActivity : AppCompatActivity(),OnMapReadyCallback,PermissionsListener 
     private var style :Style? = null
     private val TAG: String = HomeActivity::class.java.canonicalName  as String
     private var viewModel: MapViewModel? = null
-    private var playIntent :Intent? = null
-    private var musicSrv: LocationService? = null
-    private var mPlayerAdapter:LocationServiceInterface? = null
-    private var vmsRelative :RelativeLayout? = null
-    private var  tx :TextView? = null
+    private var locationIntent :Intent? = null
+    private var locationSrv: LocationService? = null
+    private var mLocationAdapter:LocationServiceInterface? = null
+    private var  vIVIMessage :TextView? = null
+    private var iviMessageParent :RelativeLayout? = null
+    private var trafficLight :RelativeLayout? = null
+    private var trafficLightRed :ImageView? = null
+    private var trafficLightYellow :ImageView? = null
+    private var trafficLightGreen :ImageView? = null
     private var  tf : Typeface? = null
+    private var speedBar : ColorArcProgressBar? = null
+    private var iviSing : ImageView? =null
     private val gpsObserver = Observer<GpsStatus> { status ->
         status?.let {
             Log.d(TAG,status.toString())
@@ -83,9 +87,7 @@ class HomeActivity : AppCompatActivity(),OnMapReadyCallback,PermissionsListener 
 
     private val lastLocationObserver = Observer<UserMessage> { userMessage ->
         userMessage?.let {
-            if(userMessage.topic?.type.equals("v-ivi_hit",true)){
-              //  vmsRelative!!.visibility = VISIBLE
-            }
+
 
         }
     }
@@ -96,20 +98,12 @@ class HomeActivity : AppCompatActivity(),OnMapReadyCallback,PermissionsListener 
         super.onCreate(savedInstanceState)
         Mapbox.getInstance(this, Helper.mapsKey)
         setContentView(R.layout.activity_home)
-        mapView = findViewById(R.id.mapView)
-        //vmsRelative = findViewById(R.id.vms)
-        tx =findViewById(R.id.textview1);
+        setupUI()
 
-        tf = Typeface.createFromAsset(getAssets(),  "fonts/led.ttf");
-
-        tx!!.typeface =tf
         mapView?.onCreate(savedInstanceState)
-        viewModel = ViewModelProviders.of(this).get(MapViewModel::class.java)
+        //viewModel = ViewModelProviders.of(this).get(MapViewModel::class.java)
         mapView?.getMapAsync(this)
-        if (playIntent == null) {
-            playIntent = Intent(this, LocationService::class.java)
-            bindService(playIntent, musicConnection, Context.BIND_AUTO_CREATE)
-        }
+
 //        mapView?.getMapAsync { mapboxMap ->
 //            mapboxMap.setStyle(Style.DARK) {
 //                for (singleLayer in it.layers) {
@@ -124,6 +118,21 @@ class HomeActivity : AppCompatActivity(),OnMapReadyCallback,PermissionsListener 
 
     }
 
+    private fun setupUI() {
+        mapView = findViewById(R.id.mapView)
+        vIVIMessage =findViewById(R.id.vivi_message);
+        tf = Typeface.createFromAsset(getAssets(),  "fonts/led.ttf");
+        vIVIMessage!!.typeface =tf
+        speedBar = findViewById(R.id.speed_bar)
+        iviMessageParent = findViewById(R.id.vivi_message_parent)
+        trafficLight = findViewById(R.id.traffic_light)
+        trafficLightRed = findViewById(R.id.red_light)
+        trafficLightYellow = findViewById(R.id.yellow_light)
+        trafficLightGreen = findViewById(R.id.green_light)
+        iviSing = findViewById(R.id.ivi_sign)
+
+    }
+
     override fun onMapReady(mapboxMap: MapboxMap) {
         Log.d(TAG, "onMapReady:")
         this.mapboxMap = mapboxMap
@@ -135,7 +144,6 @@ class HomeActivity : AppCompatActivity(),OnMapReadyCallback,PermissionsListener 
            enableLocationComponent()
             subscribeToGpsListener()
             subscribeToLocationPermissionListener()
-            subscribeToLocationUpdate()
         }
     }
 
@@ -180,23 +188,11 @@ class HomeActivity : AppCompatActivity(),OnMapReadyCallback,PermissionsListener 
 
 
             // Set the component's camera mode
-            locationComponent?.cameraMode = CameraMode.TRACKING_GPS_NORTH
+            locationComponent?.cameraMode = CameraMode.TRACKING_GPS
 
             // Set the component's render mode
             locationComponent?.renderMode = RenderMode.GPS
             locationComponent?.isLocationComponentEnabled = true
-            val routeCoordinates = ArrayList<Point>()
-            routeCoordinates.add(Point.fromLngLat(-118.394391, 33.397676))
-            routeCoordinates.add(Point.fromLngLat(-100.370917, 20.391142))
-
-// Create the LineString from the list of coordinates and then make a GeoJSON FeatureCollection so that we can add the line to our map as a layer.
-
-            val lineString = LineString.fromLngLats(routeCoordinates)
-            val featureCollection = FeatureCollection.fromFeatures(
-                arrayOf(Feature.fromGeometry(lineString)))
-
-            val geoJsonSource = GeoJsonSource("geojson-source", featureCollection)
-            mapboxMap?.style!!.addSource(geoJsonSource)
 
         } else {
 
@@ -214,6 +210,10 @@ class HomeActivity : AppCompatActivity(),OnMapReadyCallback,PermissionsListener 
     public override fun onResume() {
         super.onResume()
         mapView?.onResume()
+        if (mLocationAdapter == null) {
+            initializeService()
+
+        }
     }
 
     public override fun onPause() {
@@ -232,6 +232,11 @@ class HomeActivity : AppCompatActivity(),OnMapReadyCallback,PermissionsListener 
     }
 
     override fun onDestroy() {
+        if (mLocationAdapter != null) {
+        unbindService(locationConnection)
+        stopService(locationIntent)
+
+    }
         super.onDestroy()
         mapView?.onDestroy()
 
@@ -241,6 +246,7 @@ class HomeActivity : AppCompatActivity(),OnMapReadyCallback,PermissionsListener 
         super.onSaveInstanceState(outState)
         mapView?.onSaveInstanceState(outState)
     }
+
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<String>, grantResults: IntArray) {
         permissionsManager?.onRequestPermissionsResult(requestCode, permissions, grantResults)
     }
@@ -258,12 +264,47 @@ class HomeActivity : AppCompatActivity(),OnMapReadyCallback,PermissionsListener 
         }
     }
 
-    class PlaybackListener : LocationServiceCallback() {
+    inner class PlaybackListener : LocationServiceCallback() {
         override fun onPositionChanged(position: Int) {
-        Log.d("PlaybackListener","paok"+ position.toString())
+            speedBar!!.setCurrentValues(position.toFloat())
+
         }
 
 
+    }
+
+    /**
+     * Connect to the service
+     *
+     *
+     */
+    private val locationConnection = object : ServiceConnection {
+
+        override fun onServiceConnected(name: ComponentName, service: IBinder) {
+            Log.d(TAG,"onStart: create MediaPlayer")
+            val binder = service as LocationService.LocationBinder
+            //get service
+            locationSrv = binder.service
+            locationSrv!!.setPlaybackInfoListener(PlaybackListener())
+            mLocationAdapter = locationSrv
+            mLocationAdapter!!.setupNotification("","")
+            Log.d(TAG,"connectied")
+
+
+        }
+
+        override fun onServiceDisconnected(name: ComponentName) {
+            Log.d(TAG,"onServiceDisconnected")
+            mLocationAdapter = null
+            //  musicBound = false;
+        }
+    }
+
+    private fun initializeService() {
+        if (locationIntent == null) {
+            locationIntent = Intent(this, LocationService::class.java)
+            bindService(locationIntent, locationConnection, Context.BIND_AUTO_CREATE)
+        }
     }
 
 }

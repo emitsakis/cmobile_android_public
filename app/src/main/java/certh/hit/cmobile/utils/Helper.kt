@@ -23,6 +23,7 @@ import java.security.interfaces.ECPublicKey
 object Helper {
     private val TAG: String = Helper::class.java.canonicalName  as String
     val mapsKey = BuildConfig.MAP_BOX_API_KEY
+    val ZOOM_LEVEL = 14
 
 
     fun createUID(){
@@ -118,5 +119,9 @@ object Helper {
         topic.data = topicSplit.get(topicSplit.size-1)
         return topic
 
+    }
+
+    fun toKmPerHour(speed: Float): Int {
+        return (speed *3.6).toInt()
     }
 }
