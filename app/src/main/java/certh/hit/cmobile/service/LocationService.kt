@@ -48,9 +48,9 @@ class LocationService:Service(), LocationServiceInterface {
          mPlaybackInfoListener!!.onPositionChanged(Helper.toKmPerHour(locationResult.lastLocation.speed))
             var quadTree =  Helper.calculateQuadTree(locationResult.lastLocation.latitude,locationResult.lastLocation.longitude,Helper.ZOOM_LEVEL)
             checkLocationAndSubscribe2(locationResult,quadTree)
-            //checkLocationAndSubscribe(locationResult,quadTree)
-            //checkLocationAndUnsubscribe(locationResult,quadTree)
-        }
+
+    }
+
     }
 
 
@@ -148,7 +148,12 @@ class LocationService:Service(), LocationServiceInterface {
     ) {
         var  mapMessage = Helper.parseMAPMessage(mqttMessage.toString(),tmpTopic)
         mapMessages.add(mapMessage)
+        createSPATTopicAndSubscribe()
 
+    }
+
+    private fun createSPATTopicAndSubscribe() {
+        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 
     private fun handleSPATMessage(
@@ -242,16 +247,6 @@ class LocationService:Service(), LocationServiceInterface {
                         Log.w("Mqtt", "Subscribed fail!")
                     }
                 })
-//                mqttHelper.subscribeToTopic("hit_certh/spat_hit/1003", 0, object : IMqttActionListener {
-//                    override fun onSuccess(asyncActionToken: IMqttToken) {
-//                        Log.w("Mqtt", "Subscribed!")
-//                        subscribedTopics.add(topicViv)
-//                    }
-//
-//                    override fun onFailure(asyncActionToken: IMqttToken, exception: Throwable) {
-//                        Log.w("Mqtt", "Subscribed fail!")
-//                    }
-//                })
                 mqttHelper.subscribeToTopic(topicVivI.toString(), 0, object : IMqttActionListener {
                     override fun onSuccess(asyncActionToken: IMqttToken) {
                         Log.w("Mqtt", "Subscribed!")

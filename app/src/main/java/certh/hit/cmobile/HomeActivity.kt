@@ -8,9 +8,12 @@ import android.content.Intent
 import android.content.ServiceConnection
 import android.graphics.Typeface
 import android.os.Bundle
+import android.os.Handler
 import android.os.IBinder
 import android.support.v7.app.AppCompatActivity
 import android.util.Log
+import android.view.View.GONE
+import android.view.View.VISIBLE
 import android.widget.ImageView
 import android.widget.RelativeLayout
 import android.widget.TextView
@@ -269,15 +272,27 @@ class HomeActivity : AppCompatActivity(),OnMapReadyCallback,PermissionsListener 
 
     inner class PlaybackListener : LocationServiceCallback() {
         override fun onIVIMessageReceived(message: IVIUserMessage) {
-            TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
         }
 
         override fun onVIVIUserMessage(message: VIVIUserMessage) {
-            TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+            iviMessageParent!!.visibility = VISIBLE
+            var messageString = message.route+" "+Helper.grapMinutes(message.eta)+"'"
+            vIVIMessage!!.setText(messageString)
+            Handler().postDelayed({
+                iviMessageParent!!.visibility = GONE
+            }, 30000)
+
+
         }
 
         override fun onSPATUserMessage(message: SPATUserMessage) {
-            TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+            if(message.eventState.equals("green",ignoreCase = true)){
+                trafficLight!!.visibility = VISIBLE
+
+            }else{
+                trafficLight!!.visibility = GONE
+
+            }
         }
 
         override fun onPositionChanged(position: Int) {

@@ -4,7 +4,8 @@
         xmlns:mapbox="http://schemas.android.com/apk/res-auto"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        xmlns:app="http://schemas.android.com/apk/res-auto">
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        android:keepScreenOn="true">
     <com.mapbox.mapboxsdk.maps.MapView
             android:id="@+id/mapView"
             android:layout_width="match_parent"
@@ -65,9 +66,9 @@
                 android:layout_marginTop="60dp"
                 android:layout_marginEnd="10dp">
             <ImageView android:id="@+id/red_light"
-                       android:layout_width="wrap_content"
-                       android:layout_height="wrap_content"
-                       android:src="@drawable/red_lighter"
+                       android:layout_width="50dp"
+                       android:layout_height="50dp"
+                       android:src="@drawable/ic_sea_waves"
                        android:layout_marginBottom="10dp"/>
 
             <ImageView android:id="@+id/yellow_light"
@@ -75,14 +76,16 @@
                        android:layout_height="wrap_content"
                        android:src="@drawable/yellow_lighter"
                        android:layout_below="@id/red_light"
-                       android:layout_marginBottom="10dp"/>
+                       android:layout_marginBottom="10dp"
+            android:visibility="gone"/>
 
             <ImageView android:id="@+id/green_light"
                        android:layout_width="wrap_content"
                        android:layout_height="wrap_content"
                        android:src="@drawable/green_lighter"
                        android:layout_below="@id/yellow_light"
-                       android:layout_marginBottom="10dp"/>
+                       android:layout_marginBottom="10dp"
+                       android:visibility="gone"/>
 
         </RelativeLayout>
     </RelativeLayout>
@@ -91,16 +94,22 @@
             android:id="@+id/vivi_message_parent"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="@color/blackColor"
-    android:layout_alignParentBottom="true"
+            android:background="@color/blackColorTransparent"
+            android:layout_alignParentBottom="true"
             android:visibility="gone">
         <TextView
                 android:id="@+id/vivi_message"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="XANTH 2'"
-                android:textSize="40sp"
-                android:textColor="#ffd700"
+                android:text="YMCA 2'"
+                android:singleLine="true"
+                android:ellipsize="marquee"
+                android:marqueeRepeatLimit ="marquee_forever"
+                android:focusable="true"
+                android:focusableInTouchMode="true"
+                android:scrollHorizontally="true"
+                android:textSize="35sp"
+                android:textColor="@color/white"
                 android:layout_centerHorizontal="true"
         />
 

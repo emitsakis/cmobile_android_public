@@ -154,4 +154,11 @@ object Helper {
     fun toKmPerHour(speed: Float): Int {
         return (speed *3.6).toInt()
     }
+
+    fun grapMinutes(eta: String?): String? {
+        var parts = eta!!.split(":")
+        var minutes = parts.get(1)
+        return minutes;
+
+    }
 }
