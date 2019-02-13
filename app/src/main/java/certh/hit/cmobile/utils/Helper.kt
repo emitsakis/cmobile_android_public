@@ -1,15 +1,11 @@
 package certh.hit.cmobile.utils
 
 
-import android.os.Build
 import android.util.Base64
 import android.util.Log
 import certh.hit.cmobile.BuildConfig
-import certh.hit.cmobile.model.IVIUserMessage
-import certh.hit.cmobile.model.Topic
-import certh.hit.cmobile.model.VIVIUserMessage
+import certh.hit.cmobile.model.*
 import org.json.JSONObject
-import java.io.UnsupportedEncodingException
 import java.security.KeyPairGenerator
 import java.security.SecureRandom
 import java.security.interfaces.ECPrivateKey
@@ -23,7 +19,7 @@ import java.security.interfaces.ECPublicKey
 object Helper {
     private val TAG: String = Helper::class.java.canonicalName  as String
     val mapsKey = BuildConfig.MAP_BOX_API_KEY
-    val ZOOM_LEVEL = 14
+    val ZOOM_LEVEL = 2
 
 
     fun createUID(){
@@ -90,6 +86,11 @@ object Helper {
 
             }
         }
+        var ivigeographiclocationcontainer = rootJsonObject.optJSONObject("ivigeographiclocationcontainer")
+        if (ivigeographiclocationcontainer != null){
+            message.latitude = ivigeographiclocationcontainer.optDouble("POINT_X",0.0)
+            message.longitude = ivigeographiclocationcontainer.optDouble("POINT_Y",0.0)
+        }
         message.topic =topic
         return message
     }
@@ -106,9 +107,38 @@ object Helper {
 
             }
         }
+        var ivigeographiclocationcontainer = rootJsonObject.optJSONObject("ivigeographiclocationcontainer")
+        if (ivigeographiclocationcontainer != null){
+            message.latitude = ivigeographiclocationcontainer.optDouble("latitude",0.0)
+            message.longitude = ivigeographiclocationcontainer.optDouble("longitude",0.0)
+        }
         message.topic =topic
         return message
 
+    }
+
+    fun parseMAPMessage(jsonString:String,topic:Topic): MAPUserMessage {
+        var message = MAPUserMessage()
+        val rootJsonObject = JSONObject(jsonString)
+        if(rootJsonObject != null){
+            message.indexNumber = rootJsonObject.optInt("indexnumber",0)
+            message.latitude = rootJsonObject.optDouble("latitude",0.0)
+            message.longitude = rootJsonObject.optDouble("longitude",0.0)
+        }
+        message.topic =topic
+        return message
+    }
+
+    fun parseSPATMessage(jsonString:String,topic:Topic): SPATUserMessage {
+        var message = SPATUserMessage()
+        val rootJsonObject = JSONObject(jsonString)
+        if(rootJsonObject != null){
+            message.indexNumber = rootJsonObject.optInt("indexnumber",0)
+            message.eventState = rootJsonObject.optString("eventstate")
+            message.likelyTime = rootJsonObject.optString("likelytime")
+        }
+        message.topic =topic
+        return message
     }
 
     fun parseTopic(topicString:String): Topic{

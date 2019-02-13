@@ -17,7 +17,10 @@ import android.widget.TextView
 import android.widget.Toast
 import certh.hit.cmobile.location.GpsStatus
 import certh.hit.cmobile.location.PermissionStatus
+import certh.hit.cmobile.model.IVIUserMessage
+import certh.hit.cmobile.model.SPATUserMessage
 import certh.hit.cmobile.model.UserMessage
+import certh.hit.cmobile.model.VIVIUserMessage
 import certh.hit.cmobile.service.LocationService
 import certh.hit.cmobile.service.LocationServiceCallback
 import certh.hit.cmobile.service.LocationServiceInterface
@@ -161,7 +164,7 @@ class HomeActivity : AppCompatActivity(),OnMapReadyCallback,PermissionsListener 
         // Check if permissions are enabled and if not request
         if (PermissionsManager.areLocationPermissionsGranted(this)) {
             val options = LocationComponentOptions.builder(this)
-                .gpsDrawable(R.drawable.ic_cursor)
+                .gpsDrawable(R.drawable.ic_cursor_)
                 .bearingTintColor(R.color.primary_blue)
                 .accuracyAlpha(1.0f)
                 .trackingGesturesManagement(true)
@@ -265,6 +268,18 @@ class HomeActivity : AppCompatActivity(),OnMapReadyCallback,PermissionsListener 
     }
 
     inner class PlaybackListener : LocationServiceCallback() {
+        override fun onIVIMessageReceived(message: IVIUserMessage) {
+            TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        }
+
+        override fun onVIVIUserMessage(message: VIVIUserMessage) {
+            TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        }
+
+        override fun onSPATUserMessage(message: SPATUserMessage) {
+            TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        }
+
         override fun onPositionChanged(position: Int) {
             speedBar!!.setCurrentValues(position.toFloat())
 

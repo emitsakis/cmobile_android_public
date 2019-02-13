@@ -45,7 +45,6 @@ class MqttHelper(context: Context) {
         })
         connect()
     }
-
     fun setCallback(callback: MqttCallbackExtended) {
         mqttAndroidClient.setCallback(callback)
     }
@@ -141,13 +140,12 @@ class MqttHelper(context: Context) {
     }
 
     public fun disconnect(){
+        mqttAndroidClient.unregisterResources()
         mqttAndroidClient.disconnect(null,object:IMqttActionListener{
             override fun onSuccess(asyncActionToken: IMqttToken?) {
-                TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
             }
 
             override fun onFailure(asyncActionToken: IMqttToken?, exception: Throwable?) {
-                TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
             }
 
         })

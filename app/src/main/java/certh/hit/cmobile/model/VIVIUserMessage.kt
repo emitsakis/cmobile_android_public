@@ -6,4 +6,5 @@ package certh.hit.cmobile.model
 class VIVIUserMessage : UserMessage() {
     var eta :String? = null
     var route :String? = null
+
 }

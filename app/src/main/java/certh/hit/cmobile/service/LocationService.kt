@@ -9,6 +9,7 @@ import android.os.Looper
 import android.text.format.DateUtils
 import android.util.Log
 import certh.hit.cmobile.model.DataFactory
+import certh.hit.cmobile.model.MAPUserMessage
 import certh.hit.cmobile.model.Topic
 import certh.hit.cmobile.utils.Helper
 import certh.hit.cmobile.utils.MqttHelper
@@ -38,7 +39,9 @@ class LocationService:Service(), LocationServiceInterface {
     private var availableTopics  :List<Topic> = DataFactory().getAllTopics()
 
     private val subscribedTopics :ArrayList<Topic> = ArrayList()
+    private val mapMessages :ArrayList<MAPUserMessage> = ArrayList()
     private val mBinder = LocationBinder()
+
     private val locationCallback = object : LocationCallback() {
         override fun onLocationResult(locationResult: com.google.android.gms.location.LocationResult) {
             //Decide how to use/store location coordinates
@@ -85,31 +88,21 @@ class LocationService:Service(), LocationServiceInterface {
         checkGpsAndReact()
     }
 
-    override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-        super.onStartCommand(intent, flags, startId)
-        Log.d(TAG, "Service onStartCommand " + startId)
 
-        var i: Int = 0
-
-        while (i <= 3) {
-
-            try {
-                Thread.sleep(10000)
-                i++
-            } catch (e: Exception) {
-            }
-            Log.i(TAG, "Service running")
-        }
-        return Service.START_STICKY
-    }
 
     override fun onDestroy() {
+        stopMqtt();
+
         Log.d(TAG, "Service onDestroy")
+    }
+
+    private fun stopMqtt() {
+        mqttHelper.disconnect()
+
     }
 
     fun setPlaybackInfoListener(listener: LocationServiceCallback) {
         mPlaybackInfoListener = listener
-        mPlaybackInfoListener!!.onPositionChanged(1000)
 
     }
 
@@ -122,20 +115,67 @@ class LocationService:Service(), LocationServiceInterface {
             }
 
             override fun connectionLost(throwable: Throwable) {
-
+                Log.d("Debug", "connectionLost")
             }
 
             @Throws(Exception::class)
             override fun messageArrived(topic: String, mqttMessage: MqttMessage) {
+                var tmpTopic = Helper.parseTopic(topic);
+                if(topic.contains(Topic.VIVI)){
+                    handleVIVIMessage(mqttMessage,tmpTopic)
+                }else if(topic.contains(Topic.IVI)){
+                    handleIVIMessage(mqttMessage,tmpTopic)
+                }else if(topic.contains(Topic.SPAT))
+                {
+                    handleSPATMessage(mqttMessage,tmpTopic)
+                }else if (topic.contains(Topic.MAP)){
+                    handleMAPMessage(mqttMessage,tmpTopic)
+                }
+                Log.d("Debug", topic)
                 Log.d("Debug", mqttMessage.toString())
 
             }
 
             override fun deliveryComplete(iMqttDeliveryToken: IMqttDeliveryToken) {
-
+                Log.d("Debug", iMqttDeliveryToken.toString())
             }
         })
     }
+
+    private fun handleMAPMessage(
+        mqttMessage: MqttMessage,
+        tmpTopic: Topic
+    ) {
+        var  mapMessage = Helper.parseMAPMessage(mqttMessage.toString(),tmpTopic)
+        mapMessages.add(mapMessage)
+
+    }
+
+    private fun handleSPATMessage(
+        mqttMessage: MqttMessage,
+        tmpTopic: Topic
+    ) {
+        var spatUserMessage = Helper.parseSPATMessage(mqttMessage.toString(),tmpTopic)
+         var mapMessage = mapMessages.find { msg -> msg.indexNumber==spatUserMessage.indexNumber }
+        spatUserMessage.mapMessage = mapMessage
+        mPlaybackInfoListener!!.onSPATUserMessage(spatUserMessage)
+
+    }
+
+    private fun handleIVIMessage(mqttMessage: MqttMessage, topic:Topic) {
+        var iviUserMessage = Helper.parseIVIUserMessage(mqttMessage.toString(),topic)
+        mPlaybackInfoListener!!.onIVIMessageReceived(iviUserMessage)
+    }
+
+    private fun handleVIVIMessage(
+        mqttMessage: MqttMessage,
+        tmpTopic: Topic
+    ) {
+        var viviUserMessage = Helper.parseVIVIUserMessage(mqttMessage.toString(),tmpTopic)
+        mPlaybackInfoListener!!.onVIVIUserMessage(viviUserMessage)
+
+    }
+
     private fun checkGpsAndReact() {
         isTrackingRunning = try {
             fusedLocationClient.requestLocationUpdates(
@@ -188,19 +228,50 @@ class LocationService:Service(), LocationServiceInterface {
     private fun checkLocationAndSubscribe2(result: LocationResult, quadTree: String) {
         if(!currentQuadTree.contentEquals(quadTree)){
             if (mqttHelper.isConnected()) {
-                //todo
-                var topic = Topic()
-                mqttHelper.subscribeToTopic(topic.toString(), 0, object : IMqttActionListener {
+                currentQuadTree = quadTree
+                var topicViv = Topic.createIVI(quadTree)
+                var topicVivI = Topic.createVIVI(quadTree)
+                var topicMAP = Topic.createMAP(quadTree)
+                mqttHelper.subscribeToTopic(topicViv.toString(), 0, object : IMqttActionListener {
                     override fun onSuccess(asyncActionToken: IMqttToken) {
                         Log.w("Mqtt", "Subscribed!")
-                        subscribedTopics.add(topic)
+                        subscribedTopics.add(topicViv)
                     }
 
                     override fun onFailure(asyncActionToken: IMqttToken, exception: Throwable) {
                         Log.w("Mqtt", "Subscribed fail!")
                     }
                 })
+//                mqttHelper.subscribeToTopic("hit_certh/spat_hit/1003", 0, object : IMqttActionListener {
+//                    override fun onSuccess(asyncActionToken: IMqttToken) {
+//                        Log.w("Mqtt", "Subscribed!")
+//                        subscribedTopics.add(topicViv)
+//                    }
+//
+//                    override fun onFailure(asyncActionToken: IMqttToken, exception: Throwable) {
+//                        Log.w("Mqtt", "Subscribed fail!")
+//                    }
+//                })
+                mqttHelper.subscribeToTopic(topicVivI.toString(), 0, object : IMqttActionListener {
+                    override fun onSuccess(asyncActionToken: IMqttToken) {
+                        Log.w("Mqtt", "Subscribed!")
+                        subscribedTopics.add(topicVivI)
+                    }
 
+                    override fun onFailure(asyncActionToken: IMqttToken, exception: Throwable) {
+                        Log.w("Mqtt", "Subscribed fail!")
+                    }
+                })
+                mqttHelper.subscribeToTopic(topicMAP.toString(), 0, object : IMqttActionListener {
+                    override fun onSuccess(asyncActionToken: IMqttToken) {
+                        Log.w("Mqtt", "Subscribed!")
+                        subscribedTopics.add(topicMAP)
+                    }
+
+                    override fun onFailure(asyncActionToken: IMqttToken, exception: Throwable) {
+                        Log.w("Mqtt", "Subscribed fail!")
+                    }
+                })
             }
 
 

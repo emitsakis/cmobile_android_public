@@ -12,4 +12,5 @@ interface LocationServiceInterface {
      * @param lectureTitle the lecture title
      */
     abstract fun setupNotification(noLecture: String, lectureTitle: String)
+
 }
