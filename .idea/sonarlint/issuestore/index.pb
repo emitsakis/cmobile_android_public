@@ -1,15 +1,27 @@
 
-w
-Gapp/src/main/java/certh/hit/cmobile/service/LocationServiceInterface.kt,0\c\0cca547535c4de61f5d85446869e58b0fee3481b
-v
-Fapp/src/main/java/certh/hit/cmobile/service/LocationServiceCallback.kt,e\f\ef5d7a7ba8e8d1c03bd2f8d0ecad90a17997f294
-P
- app/src/main/AndroidManifest.xml,8\c\8c55c3ccc257e5907959013f99656e4c8ec3903e
+?
+settings.gradle,0\5\05efc8b1657769a27696d478ded1e95f38737233
+<
+build.gradle,f\0\f07866736216be0ee2aba49e392191aeae700a35
+A
+gradle.properties,2\a\2afbb999f001938c88fa43fc2ef52abf0f8213e4
+@
+app/build.gradle,f\4\f4a01d6a4fcb971362ec00a83903fd3902f52164
 v
 Fapp/src/main/java/certh/hit/cmobile/location/LocationUpdateListener.kt,8\4\848ddf030695e437c9c76e37e6263d5e41b5d540
+x
+Happ/src/main/java/certh/hit/cmobile/location/PermissionStatusListener.kt,b\a\ba42086ec2217b18e1d74374db06de24b36e907a
+q
+Aapp/src/main/java/certh/hit/cmobile/location/GpsStatusListener.kt,e\7\e7ee10d98aff609a22773b6c84dfc529d9db137c
 c
-3app/src/main/java/certh/hit/cmobile/utils/Helper.kt,d\d\dd3eaacede272a481b9542ce599eac6a017cac6c
+3app/src/main/java/certh/hit/cmobile/HomeActivity.kt,a\d\ad090d90e98d95cf0a7e5f451fa63aa281f70f7c
+m
+=app/src/main/java/certh/hit/cmobile/viewmodel/MapViewModel.kt,3\c\3cf64d40b4c0011d416752b7d745eae8d65f39d4
+P
+ app/src/main/AndroidManifest.xml,8\c\8c55c3ccc257e5907959013f99656e4c8ec3903e
+b
+2app/src/main/java/certh/hit/cmobile/model/Topic.kt,8\6\8689484569f231f26d7ab46fee6237aaada2c324
 n
 >app/src/main/java/certh/hit/cmobile/service/LocationService.kt,e\f\ef5f160953ecaed31a2f603e5130ec861b6bb098
 c
-3app/src/main/java/certh/hit/cmobile/HomeActivity.kt,a\d\ad090d90e98d95cf0a7e5f451fa63aa281f70f7c
+3app/src/main/java/certh/hit/cmobile/utils/Helper.kt,d\d\dd3eaacede272a481b9542ce599eac6a017cac6c

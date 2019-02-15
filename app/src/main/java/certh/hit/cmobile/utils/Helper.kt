@@ -1,15 +1,23 @@
 package certh.hit.cmobile.utils
 
 
+import android.os.Environment
 import android.util.Base64
 import android.util.Log
 import certh.hit.cmobile.BuildConfig
 import certh.hit.cmobile.model.*
 import org.json.JSONObject
+import java.io.BufferedWriter
+import java.io.File
+import java.io.FileWriter
+import java.io.IOException
 import java.security.KeyPairGenerator
 import java.security.SecureRandom
 import java.security.interfaces.ECPrivateKey
 import java.security.interfaces.ECPublicKey
+import android.os.Environment.getExternalStorageDirectory
+
+
 
 
 
@@ -19,7 +27,7 @@ import java.security.interfaces.ECPublicKey
 object Helper {
     private val TAG: String = Helper::class.java.canonicalName  as String
     val mapsKey = BuildConfig.MAP_BOX_API_KEY
-    val ZOOM_LEVEL = 2
+    val ZOOM_LEVEL = 8
 
 
     fun createUID(){
@@ -161,4 +169,41 @@ object Helper {
         return minutes;
 
     }
+
+
+    fun appendLog(text:String,filename:String)
+    {
+        val externalStorageDir = Environment.getExternalStorageDirectory()
+        val logFile = File(externalStorageDir, filename+".txt")
+        if (!logFile.exists())
+        {
+            try
+            {
+                logFile.createNewFile();
+            }
+            catch ( ex: IOException)
+            {
+                // TODO Auto-generated catch block
+                ex.printStackTrace();
+            }
+        }
+        try
+        {
+            //BufferedWriter for performance, true to set append to file flag
+            var buf = BufferedWriter( FileWriter(logFile, true));
+            buf.append(text);
+            buf.newLine();
+            buf.close();
+        }
+        catch ( e:IOException)
+        {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+    }
+
+
+
+
+
 }

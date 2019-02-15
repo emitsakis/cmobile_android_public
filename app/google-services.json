@@ -1,0 +1,42 @@
+{
+  "project_info": {
+    "project_number": "650494914117",
+    "firebase_url": "https://c-mobile-6c30f.firebaseio.com",
+    "project_id": "c-mobile-6c30f",
+    "storage_bucket": "c-mobile-6c30f.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:650494914117:android:2c5c650bce2cb6f4",
+        "android_client_info": {
+          "package_name": "certh.hit.cmobile"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "650494914117-fuma0qso8jkqcs2d80lf54mknvj5c3q5.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBwdR_r0HWODYdvii0EqxEy5h1AAMO-yoM"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 1,
+          "other_platform_oauth_client": []
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

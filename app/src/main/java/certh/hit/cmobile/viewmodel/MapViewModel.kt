@@ -16,10 +16,8 @@ class MapViewModel(application: Application) : AndroidViewModel(application) {
 
     val gpsStatusLiveData = GpsStatusListener(application)
 
-    val lastLocation = LocationUpdateListener(application)
 
-    val locationPermissionStatusLiveData = PermissionStatusListener(application,
-        Manifest.permission.ACCESS_FINE_LOCATION)
+
 
 
 }

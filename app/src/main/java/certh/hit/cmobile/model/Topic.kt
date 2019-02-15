@@ -54,7 +54,7 @@ class Topic {
             returnTopic.basePath = BASE
             returnTopic.type = SPAT
             returnTopic.quadTree=quadTree
-            returnTopic.data = "#"
+           // returnTopic.data = "#"
             return returnTopic
         }
         const val IVI = "ivi_hit"
@@ -70,6 +70,10 @@ class Topic {
 
     override fun toString(): String {
         return "$basePath/$type/$quadTree/$data"
+    }
+
+    fun toStringSpat(): String {
+        return "$basePath/$type/$quadTree"
     }
 
 

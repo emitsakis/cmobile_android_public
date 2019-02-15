@@ -1,4 +1,9 @@
 
-=kotlin:S125H"Remove this commented out code.(Â¶æ¬8©†ô±-
-Bkotlin:S125N"Remove this commented out code.(ŠÜÒÍşÿÿÿÿ8©†ô±-
-^kotlin:S1144–">Remove this unused private "subscribeToLocationUpdate" method.(ÄøÚ8şğ³-
+>kotlin:S125‡"Remove this commented out code.(É ‹Ø8¯Ôë-
+kotlin:S1186ù"ZAdd a nested comment explaining why this function is empty or complete the implementation.(Ğı¸¾ÿÿÿÿÿ8ÆçÊê-
+>kotlin:S125‹"Remove this commented out code.(–™Ã¢8µˆœë-
+>kotlin:S125"Remove this commented out code.(Õ²î«8ˆıœë-
+xkotlin:S1186"ZAdd a nested comment explaining why this function is empty or complete the implementation.(á–ò™ùÿÿÿÿ
+Ckotlin:S125«"Remove this commented out code.(š©Ëˆüÿÿÿÿ8ú¦Şı-
+;kotlin:S125O"Remove this commented out code.(ŠÜÒÍşÿÿÿÿ
+6kotlin:S125I"Remove this commented out code.(Â¶æ¬

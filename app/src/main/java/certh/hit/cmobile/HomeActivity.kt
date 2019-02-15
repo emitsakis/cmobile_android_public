@@ -7,6 +7,7 @@ import android.content.Context
 import android.content.Intent
 import android.content.ServiceConnection
 import android.graphics.Typeface
+import android.location.Location
 import android.os.Bundle
 import android.os.Handler
 import android.os.IBinder
@@ -14,10 +15,7 @@ import android.support.v7.app.AppCompatActivity
 import android.util.Log
 import android.view.View.GONE
 import android.view.View.VISIBLE
-import android.widget.ImageView
-import android.widget.RelativeLayout
-import android.widget.TextView
-import android.widget.Toast
+import android.widget.*
 import certh.hit.cmobile.location.GpsStatus
 import certh.hit.cmobile.location.PermissionStatus
 import certh.hit.cmobile.model.IVIUserMessage
@@ -32,11 +30,10 @@ import certh.hit.cmobile.utils.Helper
 import certh.hit.cmobile.viewmodel.MapViewModel
 import com.mapbox.android.core.permissions.PermissionsListener
 import com.mapbox.android.core.permissions.PermissionsManager
-import com.mapbox.geojson.Feature
-import com.mapbox.geojson.FeatureCollection
-import com.mapbox.geojson.LineString
-import com.mapbox.geojson.Point
 import com.mapbox.mapboxsdk.Mapbox
+import com.mapbox.mapboxsdk.camera.CameraPosition
+import com.mapbox.mapboxsdk.camera.CameraUpdateFactory
+import com.mapbox.mapboxsdk.geometry.LatLng
 import com.mapbox.mapboxsdk.location.LocationComponentOptions
 import com.mapbox.mapboxsdk.location.OnCameraTrackingChangedListener
 import com.mapbox.mapboxsdk.location.modes.CameraMode
@@ -45,14 +42,12 @@ import com.mapbox.mapboxsdk.maps.MapView
 import com.mapbox.mapboxsdk.maps.MapboxMap
 import com.mapbox.mapboxsdk.maps.OnMapReadyCallback
 import com.mapbox.mapboxsdk.maps.Style
-import com.mapbox.mapboxsdk.style.sources.GeoJsonSource
 
 
 /**
  * Created by anmpout on 21/01/2019
  */
 class HomeActivity : AppCompatActivity(),OnMapReadyCallback,PermissionsListener  {
-
 
     private var mapView: MapView? = null
     private var mapboxMap: MapboxMap? = null
@@ -107,20 +102,8 @@ class HomeActivity : AppCompatActivity(),OnMapReadyCallback,PermissionsListener 
         setupUI()
 
         mapView?.onCreate(savedInstanceState)
-        //viewModel = ViewModelProviders.of(this).get(MapViewModel::class.java)
+        viewModel = ViewModelProviders.of(this).get(MapViewModel::class.java)
         mapView?.getMapAsync(this)
-
-//        mapView?.getMapAsync { mapboxMap ->
-//            mapboxMap.setStyle(Style.DARK) {
-//                for (singleLayer in it.layers) {
-//                   // Log.d(TAG(TAG, "onMapReady: layer id = " + singleLayer.id)
-//                }
-//                Log.d(TAG(TAG, "onMapReady: layer id = " + it.layers.get(0).id)
-//                mapboxMap.style?.getLayer("water")?.setProperties(PropertyFactory.fillColor(Color.parseColor("#0e6001")))
-//
-//                // Map is set up and the style has loaded. Now you can add data or make other map adjustments
-//            }
-//        }
 
     }
 
@@ -149,17 +132,17 @@ class HomeActivity : AppCompatActivity(),OnMapReadyCallback,PermissionsListener 
 
            enableLocationComponent()
             subscribeToGpsListener()
-            subscribeToLocationPermissionListener()
+           // subscribeToLocationPermissionListener()
         }
     }
 
-    private fun subscribeToLocationUpdate() = viewModel?.lastLocation?.observe(this,lastLocationObserver)
+   // private fun subscribeToLocationUpdate() = viewModel?.lastLocation?.observe(this,lastLocationObserver)
 
 
     private fun subscribeToGpsListener() = viewModel?.gpsStatusLiveData?.observe(this, gpsObserver)
 
-    private fun subscribeToLocationPermissionListener() =
-        viewModel?.locationPermissionStatusLiveData?.observe(this, permissionObserver)
+//    private fun subscribeToLocationPermissionListener() =
+//        viewModel?.locationPermissionStatusLiveData?.observe(this, permissionObserver)
 
     @SuppressWarnings("MissingPermission")
     private fun enableLocationComponent() {
@@ -170,7 +153,8 @@ class HomeActivity : AppCompatActivity(),OnMapReadyCallback,PermissionsListener 
                 .gpsDrawable(R.drawable.ic_cursor_)
                 .bearingTintColor(R.color.primary_blue)
                 .accuracyAlpha(1.0f)
-                .trackingGesturesManagement(true)
+                .trackingGesturesManagement(false)
+                .compassAnimationEnabled(false)
                 .build()
 
             // Get an instance of the component
@@ -192,13 +176,18 @@ class HomeActivity : AppCompatActivity(),OnMapReadyCallback,PermissionsListener 
                 }
             })
 
+            val position = CameraPosition.Builder()
+                .zoom(18.0)
+                .build()
 
-            // Set the component's camera mode
+             //Set the component's camera mode
             locationComponent?.cameraMode = CameraMode.TRACKING_GPS
 
             // Set the component's render mode
             locationComponent?.renderMode = RenderMode.GPS
             locationComponent?.isLocationComponentEnabled = true
+            mapboxMap!!.cameraPosition = position
+
 
         } else {
 
@@ -258,15 +247,23 @@ class HomeActivity : AppCompatActivity(),OnMapReadyCallback,PermissionsListener 
     }
 
     override fun onExplanationNeeded(permissionsToExplain: MutableList<String>?) {
-    Toast.makeText(this, "ddd", Toast.LENGTH_LONG).show()
+
     }
 
     override fun onPermissionResult(granted: Boolean) {
         if (granted) {
             enableLocationComponent()
         } else {
-            Toast.makeText(this, "dd", Toast.LENGTH_LONG).show()
-            finish()
+            iviMessageParent!!.visibility = VISIBLE
+            var messageString = "Please go to application setting and enable location permission in order to use the service"
+            vIVIMessage!!.text =messageString
+            vIVIMessage!!.typeface = Typeface.DEFAULT
+            vIVIMessage!!.isSelected  = true
+            Handler().postDelayed({
+                iviMessageParent!!.visibility = GONE
+                finish()
+            }, 60000)
+
         }
     }
 
@@ -277,7 +274,9 @@ class HomeActivity : AppCompatActivity(),OnMapReadyCallback,PermissionsListener 
         override fun onVIVIUserMessage(message: VIVIUserMessage) {
             iviMessageParent!!.visibility = VISIBLE
             var messageString = message.route+" "+Helper.grapMinutes(message.eta)+"'"
-            vIVIMessage!!.setText(messageString)
+            vIVIMessage!!.typeface =tf
+            vIVIMessage!!.isSelected  = true
+            vIVIMessage!!.text = messageString
             Handler().postDelayed({
                 iviMessageParent!!.visibility = GONE
             }, 30000)
@@ -295,8 +294,15 @@ class HomeActivity : AppCompatActivity(),OnMapReadyCallback,PermissionsListener 
             }
         }
 
-        override fun onPositionChanged(position: Int) {
-            speedBar!!.setCurrentValues(position.toFloat())
+        override fun onPositionChanged(position: Location) {
+            speedBar!!.setCurrentValues(Helper.toKmPerHour(position.speed).toFloat())
+//            var position1 = CameraPosition.Builder()
+//.target( LatLng(position.latitude, position.longitude)) // Sets the new camera position
+//.bearing(position.bearing.toDouble()) // Rotate the camera
+//.build(); // Creates a CameraPosition from the builder
+//
+//mapboxMap!!.animateCamera(CameraUpdateFactory.newCameraPosition(position1))
+
 
         }
 

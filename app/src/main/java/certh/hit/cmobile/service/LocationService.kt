@@ -28,7 +28,7 @@ class LocationService:Service(), LocationServiceInterface {
     private lateinit var locationRequest: LocationRequest
 
     private var gpsIsEnabled = true
-
+    private  var bearing: Float = 0F
     private var permissionIsGranted = true
     private var isTrackingRunning = true
     private val locationPermission = Manifest.permission.ACCESS_FINE_LOCATION
@@ -45,7 +45,13 @@ class LocationService:Service(), LocationServiceInterface {
     private val locationCallback = object : LocationCallback() {
         override fun onLocationResult(locationResult: com.google.android.gms.location.LocationResult) {
             //Decide how to use/store location coordinates
-         mPlaybackInfoListener!!.onPositionChanged(Helper.toKmPerHour(locationResult.lastLocation.speed))
+//            Log.d(TAG, "Bearing")
+//            Log.d(TAG, locationResult.lastLocation.bearing.toString())
+//            bearing = bearing +2
+//            locationResult.lastLocation.bearing = bearing
+//            Log.d(TAG, locationResult.lastLocation.bearing.toString())
+            Helper.appendLog("onLocationResult! :"+locationResult.lastLocation.latitude.toString()+","+locationResult.lastLocation.longitude.toString()+","+locationResult.lastLocation.bearing.toString()+","+locationResult.lastLocation.speed.toString()+","+locationResult.lastLocation.altitude.toString()+","+locationResult.lastLocation.time.toString()+","+locationResult.lastLocation.accuracy.toString()+",","locations")
+         mPlaybackInfoListener!!.onPositionChanged(locationResult.lastLocation)
             var quadTree =  Helper.calculateQuadTree(locationResult.lastLocation.latitude,locationResult.lastLocation.longitude,Helper.ZOOM_LEVEL)
             checkLocationAndSubscribe2(locationResult,quadTree)
 
@@ -82,6 +88,7 @@ class LocationService:Service(), LocationServiceInterface {
     }
     override fun onCreate() {
         super.onCreate()
+        Helper.appendLog("Service onCreate","activity")
         Log.d(TAG, "Service onCreate")
         startMqtt()
         registerReceiver()
@@ -92,7 +99,7 @@ class LocationService:Service(), LocationServiceInterface {
 
     override fun onDestroy() {
         stopMqtt();
-
+        Helper.appendLog("Service onDestroy","activity")
         Log.d(TAG, "Service onDestroy")
     }
 
@@ -111,7 +118,7 @@ class LocationService:Service(), LocationServiceInterface {
         mqttHelper.connect()
         mqttHelper.setCallback(object : MqttCallbackExtended {
             override fun connectComplete(b: Boolean, s: String) {
-
+                Helper.appendLog("connectComplete! ","mqtt")
             }
 
             override fun connectionLost(throwable: Throwable) {
@@ -121,6 +128,8 @@ class LocationService:Service(), LocationServiceInterface {
             @Throws(Exception::class)
             override fun messageArrived(topic: String, mqttMessage: MqttMessage) {
                 var tmpTopic = Helper.parseTopic(topic);
+                Helper.appendLog("messageArrived! :"+tmpTopic,"mqtt")
+                Helper.appendLog("MqttMessage! :"+mqttMessage.toString(),"mqtt")
                 if(topic.contains(Topic.VIVI)){
                     handleVIVIMessage(mqttMessage,tmpTopic)
                 }else if(topic.contains(Topic.IVI)){
@@ -148,12 +157,25 @@ class LocationService:Service(), LocationServiceInterface {
     ) {
         var  mapMessage = Helper.parseMAPMessage(mqttMessage.toString(),tmpTopic)
         mapMessages.add(mapMessage)
-        createSPATTopicAndSubscribe()
+        if(mapMessage.indexNumber==1003) {
+            createSPATTopicAndSubscribe(mapMessage)
+        }
 
     }
 
-    private fun createSPATTopicAndSubscribe() {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    private fun createSPATTopicAndSubscribe(mapMessage:MAPUserMessage) {
+        var topicSpat = Topic.createSPAT(mapMessage.indexNumber.toString())
+        mqttHelper.subscribeToTopic(topicSpat.toStringSpat(), 0, object : IMqttActionListener {
+            override fun onSuccess(asyncActionToken: IMqttToken) {
+                Log.w("Mqtt", "Subscribed!")
+                Helper.appendLog("Subscribed! :"+topicSpat.toString(),"mqtt")
+                subscribedTopics.add(topicSpat)
+            }
+
+            override fun onFailure(asyncActionToken: IMqttToken, exception: Throwable) {
+                Log.w("Mqtt", "Subscribed fail!")
+            }
+        })
     }
 
     private fun handleSPATMessage(
@@ -240,6 +262,7 @@ class LocationService:Service(), LocationServiceInterface {
                 mqttHelper.subscribeToTopic(topicViv.toString(), 0, object : IMqttActionListener {
                     override fun onSuccess(asyncActionToken: IMqttToken) {
                         Log.w("Mqtt", "Subscribed!")
+                        Helper.appendLog("Subscribed! :"+topicViv.toString(),"mqtt")
                         subscribedTopics.add(topicViv)
                     }
 
@@ -250,6 +273,7 @@ class LocationService:Service(), LocationServiceInterface {
                 mqttHelper.subscribeToTopic(topicVivI.toString(), 0, object : IMqttActionListener {
                     override fun onSuccess(asyncActionToken: IMqttToken) {
                         Log.w("Mqtt", "Subscribed!")
+                        Helper.appendLog("Subscribed! :"+topicVivI.toString(),"mqtt")
                         subscribedTopics.add(topicVivI)
                     }
 
@@ -259,6 +283,8 @@ class LocationService:Service(), LocationServiceInterface {
                 })
                 mqttHelper.subscribeToTopic(topicMAP.toString(), 0, object : IMqttActionListener {
                     override fun onSuccess(asyncActionToken: IMqttToken) {
+                        Helper.appendLog("Subscribed! :"+topicMAP.toString(),"mqtt")
+
                         Log.w("Mqtt", "Subscribed!")
                         subscribedTopics.add(topicMAP)
                     }

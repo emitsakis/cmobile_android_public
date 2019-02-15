@@ -1,5 +1,6 @@
 package certh.hit.cmobile.service
 
+import android.location.Location
 import certh.hit.cmobile.model.IVIUserMessage
 import certh.hit.cmobile.model.SPATUserMessage
 import certh.hit.cmobile.model.VIVIUserMessage
@@ -13,7 +14,7 @@ public abstract class LocationServiceCallback {
      *
      * @param position the position
      */
-    abstract fun onPositionChanged(position: Int)
+    abstract fun onPositionChanged(position: Location)
 
     abstract fun onIVIMessageReceived(message: IVIUserMessage)
 
