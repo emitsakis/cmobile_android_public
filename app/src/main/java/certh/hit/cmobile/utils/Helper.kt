@@ -23,7 +23,7 @@ import java.security.interfaces.ECPublicKey
 object Helper {
     private val TAG: String = Helper::class.java.canonicalName  as String
     val mapsKey = BuildConfig.MAP_BOX_API_KEY
-    val ZOOM_LEVEL = 18
+    val ZOOM_LEVEL = 17
 
 
     fun createUID(){
@@ -150,6 +150,18 @@ object Helper {
        var topicSplit = topicString.split("/")
         topic.basePath =topicSplit.get(0)
         topic.type = topicSplit.get(1)
+        var tmpQuadtree = ""
+        for (i in 2 until  topicSplit.size-1 step 1) {
+
+            if(i==topicSplit.size-1){
+                tmpQuadtree = tmpQuadtree+ topicSplit.get(i)
+
+            }else{
+                tmpQuadtree = tmpQuadtree+ topicSplit.get(i)+"/"
+            }
+        }
+
+        topic.quadTree = tmpQuadtree
         topic.data = topicSplit.get(topicSplit.size-1)
         return topic
 

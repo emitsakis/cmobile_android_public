@@ -125,7 +125,7 @@ class MqttHelper(context: Context) {
         try {
             mqttAndroidClient.unsubscribe(topics,  null, object : IMqttActionListener {
                 override fun onSuccess(asyncActionToken: IMqttToken) {
-                    Log.w("Mqtt", "Subscribed!")
+                    Log.w("Mqtt", "UnSubscribed!")
                 }
 
                 override fun onFailure(asyncActionToken: IMqttToken, exception: Throwable) {

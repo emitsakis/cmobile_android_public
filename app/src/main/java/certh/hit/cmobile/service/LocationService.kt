@@ -38,6 +38,7 @@ class LocationService:Service(), LocationServiceInterface {
     private var availableTopics  :List<Topic> = DataFactory().getAllTopics()
 
     private val subscribedTopics :ArrayList<Topic> = ArrayList()
+    private val receiveTopics: ArrayList<String> = ArrayList()
     private val mapMessages :ArrayList<MAPUserMessage> = ArrayList()
     private val mBinder = LocationBinder()
 
@@ -53,6 +54,7 @@ class LocationService:Service(), LocationServiceInterface {
          mPlaybackInfoListener!!.onPositionChanged(locationResult.lastLocation)
             var quadTree =  Helper.calculateQuadTree(locationResult.lastLocation.latitude,locationResult.lastLocation.longitude,Helper.ZOOM_LEVEL)
             checkLocationAndSubscribe2(locationResult,quadTree)
+            checkLocationAndUnsubscribe(locationResult,quadTree)
 
     }
 
@@ -118,6 +120,7 @@ class LocationService:Service(), LocationServiceInterface {
         mqttHelper.setCallback(object : MqttCallbackExtended {
             override fun connectComplete(b: Boolean, s: String) {
                 Helper.appendLog("connectComplete! ","mqtt")
+                clearTopics()
             }
 
             override fun connectionLost(throwable: Throwable) {
@@ -127,6 +130,9 @@ class LocationService:Service(), LocationServiceInterface {
             @Throws(Exception::class)
             override fun messageArrived(topic: String, mqttMessage: MqttMessage) {
                 var tmpTopic = Helper.parseTopic(topic);
+                if(!receiveTopics.contains(topic)) {
+                    receiveTopics.add(topic)
+                }
                 Helper.appendLog("messageArrived! :"+tmpTopic,"mqtt")
                 Helper.appendLog("MqttMessage! :"+mqttMessage.toString(),"mqtt")
                 if(topic.contains(Topic.VIVI)){
@@ -173,9 +179,9 @@ class LocationService:Service(), LocationServiceInterface {
     ) {
         var  mapMessage = Helper.parseMAPMessage(mqttMessage.toString(),tmpTopic)
         mapMessages.add(mapMessage)
-        if(mapMessage.indexNumber == 1003) {
+        //if(mapMessage.indexNumber == 1003) {
             createSPATTopicAndSubscribe(mapMessage)
-        }
+        //}
 
     }
 
@@ -390,29 +396,160 @@ class LocationService:Service(), LocationServiceInterface {
         locationResult: LocationResult,
         quadTree: String
     ) {
-        for (topic in availableTopics){
-            var upperTopicQuadTree = topic.quadTree?.substring(0,15)
-            Timber.d("upperQuadTree : %s",upperTopicQuadTree)
-            Timber.d("caluclated quadTree : %s",quadTree.substring(0,15))
-            if(upperTopicQuadTree?.compareTo(quadTree.substring(0,15)) == 0 &&
-                !subscribedTopics.any { topic1 -> topic1.typeId ==topic.typeId }) {
-                if (mqttHelper.isConnected()) {
-                    mqttHelper.subscribeToTopic(topic.toString(), 0, object : IMqttActionListener {
-                        override fun onSuccess(asyncActionToken: IMqttToken) {
-                            Log.w("Mqtt", "Subscribed!")
-                            subscribedTopics.add(topic)
-                        }
+        for(topic in receiveTopics) {
+            if (!topic.contains("spat")){
+            var tmpTopic = Helper.parseTopic(topic)
+                if(!tmpTopic.quadTree.equals(quadTree)) {
+                    if (tmpTopic.type.equals(Topic.MAP)) {
+                        mqttHelper.unsubscribeToTopic(topic,object :IMqttActionListener{
+                            override fun onSuccess(asyncActionToken: IMqttToken?) {
+                                receiveTopics.remove(topic)
+                                Log.d(TAG,"map")
+                            }
 
-                        override fun onFailure(asyncActionToken: IMqttToken, exception: Throwable) {
-                            Log.w("Mqtt", "Subscribed fail!")
-                        }
-                    })
+                            override fun onFailure(asyncActionToken: IMqttToken?, exception: Throwable?) {
+                            }
+                        })
+                        val SpatTopic = receiveTopics.first { w -> w.endsWith(tmpTopic.data.toString()) }
+                        mqttHelper.unsubscribeToTopic(SpatTopic,object :IMqttActionListener{
+                            override fun onSuccess(asyncActionToken: IMqttToken?) {
+                                receiveTopics.remove(SpatTopic)
+                                Log.d(TAG,"removespat")
+                            }
+
+                            override fun onFailure(asyncActionToken: IMqttToken?, exception: Throwable?) {
+                            }
+                        })
+
+                    } else if (tmpTopic.type.equals(Topic.VIVI_EGNATIA) || tmpTopic.type.equals(Topic.VIVI) || tmpTopic.type.equals(
+                            Topic.IVI
+                        ) || tmpTopic.type.equals(Topic.DENM)
+                    ){
+                        mqttHelper.unsubscribeToTopic(topic,object :IMqttActionListener{
+                            override fun onSuccess(asyncActionToken: IMqttToken?) {
+                                receiveTopics.remove(topic)
+                                Log.d(TAG,"remove"+tmpTopic.type)
+                            }
+
+                            override fun onFailure(asyncActionToken: IMqttToken?, exception: Throwable?) {
+                            }
+                        })
+
+                    }
                 }
+
+
+                }
+        }
+
+
+
+//            var upperTopicQuadTree = topic.quadTree?.substring(0,Helper.ZOOM_LEVEL)
+//            Timber.d("upperQuadTree : %s",upperTopicQuadTree)
+//            Timber.d("caluclated quadTree : %s",quadTree.substring(0,Helper.ZOOM_LEVEL))
+//            if(upperTopicQuadTree?.compareTo(quadTree.substring(0,Helper.ZOOM_LEVEL)) == 0 &&
+//                !subscribedTopics.any { topic1 -> topic1.typeId ==topic.typeId }) {
+//                if (mqttHelper.isConnected()) {
+//                    mqttHelper.subscribeToTopic(topic.toString(), 0, object : IMqttActionListener {
+//                        override fun onSuccess(asyncActionToken: IMqttToken) {
+//                            Log.w("Mqtt", "Subscribed!")
+//                            subscribedTopics.add(topic)
+//                        }
+//
+//                        override fun onFailure(asyncActionToken: IMqttToken, exception: Throwable) {
+//                            Log.w("Mqtt", "Subscribed fail!")
+//                        }
+//                    })
+//                }
+//            }
+
+
+    }
+    fun clearTopics(){
+        mqttHelper.unsubscribeToTopic("tt/denm/0/3/1/3/3/3/1/1/1/0/2/3/1/2/2/1/0/3/1001_1001",object : IMqttActionListener {
+            override fun onSuccess(asyncActionToken: IMqttToken) {
+                Log.w("Mqtt", "UnSubscribed!")
+
             }
 
-        }
-    }
+            override fun onFailure(asyncActionToken: IMqttToken, exception: Throwable) {
+                Log.w("Mqtt", "Subscribed fail!")
+            }
+        })
+        mqttHelper.unsubscribeToTopic("egnatia_sa/v-ivi_egnatia/1/2/2/0/1/1/1/3/0/0/1/2/2/3/0/1/1/0/vms1",object : IMqttActionListener {
+            override fun onSuccess(asyncActionToken: IMqttToken) {
+                Log.w("Mqtt", "UnSubscribed!")
 
+            }
+
+            override fun onFailure(asyncActionToken: IMqttToken, exception: Throwable) {
+                Log.w("Mqtt", "Subscribed fail!")
+            }
+        })
+        mqttHelper.unsubscribeToTopic("tt/denm/0/3/1/3/3/3/1/1/1/0/2/3/1/2/1/0/3/2/1001_1001",object : IMqttActionListener {
+            override fun onSuccess(asyncActionToken: IMqttToken) {
+                Log.w("Mqtt", "UnSubscribed!")
+
+            }
+
+            override fun onFailure(asyncActionToken: IMqttToken, exception: Throwable) {
+                Log.w("Mqtt", "Subscribed fail!")
+            }
+        })
+        mqttHelper.unsubscribeToTopic("hit_certh/spat_hit/1003",object : IMqttActionListener {
+            override fun onSuccess(asyncActionToken: IMqttToken) {
+                Log.w("Mqtt", "UnSubscribed!")
+
+            }
+
+            override fun onFailure(asyncActionToken: IMqttToken, exception: Throwable) {
+                Log.w("Mqtt", "Subscribed fail!")
+            }
+        })
+        mqttHelper.unsubscribeToTopic("hit_certh/ivi_hit/1/2/2/1/0/0/0/0/0/3/2/1/1/3/2/1/1/0/666",object : IMqttActionListener {
+            override fun onSuccess(asyncActionToken: IMqttToken) {
+                Log.w("Mqtt", "UnSubscribed!")
+
+            }
+
+            override fun onFailure(asyncActionToken: IMqttToken, exception: Throwable) {
+                Log.w("Mqtt", "Subscribed fail!")
+            }
+        })
+        mqttHelper.unsubscribeToTopic("hit_certh/v-ivi_hit/1/2/2/1/0/0/0/0/0/3/0/3/0/2/3/2/3/0/v.olgas-ymca",object : IMqttActionListener {
+            override fun onSuccess(asyncActionToken: IMqttToken) {
+                Log.w("Mqtt", "UnSubscribed!")
+
+            }
+
+            override fun onFailure(asyncActionToken: IMqttToken, exception: Throwable) {
+                Log.w("Mqtt", "Subscribed fail!")
+            }
+        })
+        mqttHelper.unsubscribeToTopic("hit_certh/map_hit/1/2/2/1/0/0/0/0/0/3/0/3/0/2/1/0/2/0/1003",object : IMqttActionListener {
+            override fun onSuccess(asyncActionToken: IMqttToken) {
+                Log.w("Mqtt", "UnSubscribed!")
+
+            }
+
+            override fun onFailure(asyncActionToken: IMqttToken, exception: Throwable) {
+                Log.w("Mqtt", "Subscribed fail!")
+            }
+        })
+        mqttHelper.unsubscribeToTopic("hit_certh/map_hit/1/2/2/1/0/0/0/0/0/3/0/3/0/2/1/0/2/0/1002",object : IMqttActionListener {
+            override fun onSuccess(asyncActionToken: IMqttToken) {
+                Log.w("Mqtt", "UnSubscribed!")
+
+            }
+
+            override fun onFailure(asyncActionToken: IMqttToken, exception: Throwable) {
+                Log.w("Mqtt", "Subscribed fail!")
+            }
+        })
+
+
+
+    }
 
     inner class LocationBinder : Binder() {
         internal val service: LocationService

@@ -159,8 +159,8 @@ class HomeActivity : AppCompatActivity(),OnMapReadyCallback,PermissionsListener 
             val options = LocationComponentOptions.builder(this)
                 .elevation(5f)
                 .accuracyAlpha(.1f)
-                .accuracyColor(Color.RED)
-                .gpsDrawable(R.drawable.ic_cursor_)
+                .accuracyColor(Color.BLUE)
+              //  .gpsDrawable(R.drawable.ic_cursor_)
                 .build()
 
             // Get an instance of the component
