@@ -6,6 +6,7 @@ import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.content.ServiceConnection
+import android.graphics.Color
 import android.graphics.Typeface
 import android.location.Location
 import android.os.Bundle
@@ -18,10 +19,7 @@ import android.view.View.VISIBLE
 import android.widget.*
 import certh.hit.cmobile.location.GpsStatus
 import certh.hit.cmobile.location.PermissionStatus
-import certh.hit.cmobile.model.IVIUserMessage
-import certh.hit.cmobile.model.SPATUserMessage
-import certh.hit.cmobile.model.UserMessage
-import certh.hit.cmobile.model.VIVIUserMessage
+import certh.hit.cmobile.model.*
 import certh.hit.cmobile.service.LocationService
 import certh.hit.cmobile.service.LocationServiceCallback
 import certh.hit.cmobile.service.LocationServiceInterface
@@ -109,7 +107,7 @@ class HomeActivity : AppCompatActivity(),OnMapReadyCallback,PermissionsListener 
 
     private fun setupUI() {
         mapView = findViewById(R.id.mapView)
-        vIVIMessage =findViewById(R.id.vivi_message);
+        vIVIMessage = findViewById(R.id.vivi_message);
         tf = Typeface.createFromAsset(getAssets(),  "fonts/led.ttf");
         vIVIMessage!!.typeface =tf
         speedBar = findViewById(R.id.speed_bar)
@@ -149,12 +147,20 @@ class HomeActivity : AppCompatActivity(),OnMapReadyCallback,PermissionsListener 
 
         // Check if permissions are enabled and if not request
         if (PermissionsManager.areLocationPermissionsGranted(this)) {
-            val options = LocationComponentOptions.builder(this)
+            val options1 = LocationComponentOptions.builder(this)
                 .gpsDrawable(R.drawable.ic_cursor_)
-                .bearingTintColor(R.color.primary_blue)
-                .accuracyAlpha(1.0f)
+                .elevation(5f)
+                .accuracyAlpha(0.1f)
                 .trackingGesturesManagement(false)
                 .compassAnimationEnabled(false)
+                .build()
+
+            // Create and customize the LocationComponent's options
+            val options = LocationComponentOptions.builder(this)
+                .elevation(5f)
+                .accuracyAlpha(.1f)
+                .accuracyColor(Color.RED)
+                .gpsDrawable(R.drawable.ic_cursor_)
                 .build()
 
             // Get an instance of the component
@@ -268,7 +274,33 @@ class HomeActivity : AppCompatActivity(),OnMapReadyCallback,PermissionsListener 
     }
 
     inner class PlaybackListener : LocationServiceCallback() {
+        override fun onEgnatiaUserMessage(message: EgnatiaUserMessage) {
+            iviMessageParent!!.visibility = VISIBLE
+            var messageString = message.egantiaMessage
+            vIVIMessage!!.typeface =tf
+            vIVIMessage!!.isSelected  = true
+            vIVIMessage!!.text = messageString
+            Handler().postDelayed({
+                iviMessageParent!!.visibility = GONE
+            }, 30000)
+        }
+
+        override fun onDenmUserMessage(message: DENMUserMessage) {
+            iviMessageParent!!.visibility = VISIBLE
+            var messageString = "Vehicle Breakdown"
+            vIVIMessage!!.typeface =tf
+            vIVIMessage!!.isSelected  = true
+            vIVIMessage!!.text = messageString
+            Handler().postDelayed({
+                iviMessageParent!!.visibility = GONE
+            }, 30000)
+        }
+
         override fun onIVIMessageReceived(message: IVIUserMessage) {
+            Log.d(TAG,message.toString())
+            iviSing!!.visibility = VISIBLE
+            speedBar!!.setMaxValues(50f)
+
         }
 
         override fun onVIVIUserMessage(message: VIVIUserMessage) {

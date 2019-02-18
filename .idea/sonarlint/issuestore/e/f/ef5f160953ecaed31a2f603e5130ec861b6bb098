@@ -1,13 +1,13 @@
 
 Lkotlin:S1066ë".Merge this "if" statement with the nested one.(õÐóËÿÿÿÿÿ
-Ukotlin:S1172ä"7Remove this unused function parameter "locationResult".(ã’Ñ¦üÿÿÿÿ
-Gkotlin:S1066¶".Merge this "if" statement with the nested one.(—´·“
-}kotlin:S1192U"eDefine a constant instead of duplicating this literal "Error when registerLocationUpdates()" 3 times.(Ó¯š‰
-Lkotlin:S1066€".Merge this "if" statement with the nested one.(ô¡ï‹øÿÿÿÿ
 ekotlin:S1192ª"LDefine a constant instead of duplicating this literal "Subscribed!" 5 times.(àÁ¿
-\kotlin:S1144ã">Remove this unused private "checkLocationAndSubscribe" method.(Àâ‡÷ÿÿÿÿÿ
-Ukotlin:S1172¯"7Remove this unused function parameter "locationResult".(ã’Ñ¦üÿÿÿÿ
-skotlin:S1192«"NDefine a constant instead of duplicating this literal "Subscribed! :" 4 times.(©ê€ øÿÿÿÿ8ÙÂ¬þŽ-
+Lkotlin:S1066€".Merge this "if" statement with the nested one.(ô¡ï‹øÿÿÿÿ
+}kotlin:S1192U"eDefine a constant instead of duplicating this literal "Error when registerLocationUpdates()" 3 times.(Ó¯š‰
 Mkotlin:S1172ÿ"/Remove this unused function parameter "result".(àµÒ¹üÿÿÿÿ
-^kotlin:S1144®"@Remove this unused private "checkLocationAndUnsubscribe" method.(Â×Ø“ûÿÿÿÿ
+skotlin:S1192«"NDefine a constant instead of duplicating this literal "Subscribed! :" 4 times.(©ê€ øÿÿÿÿ8ÙÂ¬þŽ-
+Gkotlin:S1066¶".Merge this "if" statement with the nested one.(—´·“
 okotlin:S1192°"QDefine a constant instead of duplicating this literal "Subscribed fail!" 5 times.(öÀ˜Ñýÿÿÿÿ
+^kotlin:S1144®"@Remove this unused private "checkLocationAndUnsubscribe" method.(Â×Ø“ûÿÿÿÿ
+\kotlin:S1144ã">Remove this unused private "checkLocationAndSubscribe" method.(Àâ‡÷ÿÿÿÿÿ
+Ukotlin:S1172ä"7Remove this unused function parameter "locationResult".(ã’Ñ¦üÿÿÿÿ
+Ukotlin:S1172¯"7Remove this unused function parameter "locationResult".(ã’Ñ¦üÿÿÿÿ

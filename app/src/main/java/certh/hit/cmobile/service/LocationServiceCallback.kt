@@ -1,9 +1,7 @@
 package certh.hit.cmobile.service
 
 import android.location.Location
-import certh.hit.cmobile.model.IVIUserMessage
-import certh.hit.cmobile.model.SPATUserMessage
-import certh.hit.cmobile.model.VIVIUserMessage
+import certh.hit.cmobile.model.*
 
 /**
  * Created by anmpout on 09/02/2019
@@ -21,4 +19,8 @@ public abstract class LocationServiceCallback {
     abstract fun onVIVIUserMessage(message: VIVIUserMessage)
 
     abstract  fun onSPATUserMessage(message: SPATUserMessage)
+
+    abstract fun onEgnatiaUserMessage(message: EgnatiaUserMessage)
+
+    abstract fun onDenmUserMessage(message: DENMUserMessage)
 }

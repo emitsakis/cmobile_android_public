@@ -3,14 +3,13 @@ package certh.hit.cmobile.service
 import android.Manifest
 import android.app.Service
 import android.content.Intent
+import android.location.Location
 import android.os.Binder
 import android.os.IBinder
 import android.os.Looper
 import android.text.format.DateUtils
 import android.util.Log
-import certh.hit.cmobile.model.DataFactory
-import certh.hit.cmobile.model.MAPUserMessage
-import certh.hit.cmobile.model.Topic
+import certh.hit.cmobile.model.*
 import certh.hit.cmobile.utils.Helper
 import certh.hit.cmobile.utils.MqttHelper
 import com.google.android.gms.location.*
@@ -139,6 +138,11 @@ class LocationService:Service(), LocationServiceInterface {
                     handleSPATMessage(mqttMessage,tmpTopic)
                 }else if (topic.contains(Topic.MAP)){
                     handleMAPMessage(mqttMessage,tmpTopic)
+                }else if(topic.contains(Topic.VIVI_EGNATIA)){
+                    handleEgnatiaMessage(mqttMessage,tmpTopic)
+
+                }else if(topic.contains(Topic.DENM)){
+                    handleDENMMessage(mqttMessage,tmpTopic)
                 }
                 Log.d("Debug", topic)
                 Log.d("Debug", mqttMessage.toString())
@@ -151,13 +155,25 @@ class LocationService:Service(), LocationServiceInterface {
         })
     }
 
+    private fun handleDENMMessage(mqttMessage: MqttMessage, tmpTopic: Topic) {
+        var denmUserMessage = Helper.parseDENMUserMessage(mqttMessage.toString(),tmpTopic)
+        mPlaybackInfoListener!!.onDenmUserMessage(denmUserMessage)
+
+    }
+
+    private fun handleEgnatiaMessage(mqttMessage: MqttMessage, tmpTopic: Topic) {
+        var viviUserMessage = Helper.parseVIVIEgnatiaUserMessage(mqttMessage.toString(),tmpTopic)
+        mPlaybackInfoListener!!.onEgnatiaUserMessage(viviUserMessage)
+
+    }
+
     private fun handleMAPMessage(
         mqttMessage: MqttMessage,
         tmpTopic: Topic
     ) {
         var  mapMessage = Helper.parseMAPMessage(mqttMessage.toString(),tmpTopic)
         mapMessages.add(mapMessage)
-        if(mapMessage.indexNumber==1003) {
+        if(mapMessage.indexNumber == 1003) {
             createSPATTopicAndSubscribe(mapMessage)
         }
 
@@ -259,6 +275,8 @@ class LocationService:Service(), LocationServiceInterface {
                 var topicViv = Topic.createIVI(quadTree)
                 var topicVivI = Topic.createVIVI(quadTree)
                 var topicMAP = Topic.createMAP(quadTree)
+                var topicEgnatia = Topic.createEgnatia(quadTree)
+                var topicFr = Topic.createFr(quadTree)
                 mqttHelper.subscribeToTopic(topicViv.toString(), 0, object : IMqttActionListener {
                     override fun onSuccess(asyncActionToken: IMqttToken) {
                         Log.w("Mqtt", "Subscribed!")
@@ -293,7 +311,76 @@ class LocationService:Service(), LocationServiceInterface {
                         Log.w("Mqtt", "Subscribed fail!")
                     }
                 })
+                mqttHelper.subscribeToTopic(topicEgnatia.toString(), 0, object : IMqttActionListener {
+                    override fun onSuccess(asyncActionToken: IMqttToken) {
+                        Log.w("Mqtt", "Subscribed!")
+                        Helper.appendLog("Subscribed! :"+topicEgnatia.toString(),"mqtt")
+                        subscribedTopics.add(topicEgnatia)
+                    }
+
+                    override fun onFailure(asyncActionToken: IMqttToken, exception: Throwable) {
+                        Log.w("Mqtt", "Subscribed fail!")
+                    }
+                })
+                mqttHelper.subscribeToTopic(topicFr.toString(), 0, object : IMqttActionListener {
+                    override fun onSuccess(asyncActionToken: IMqttToken) {
+                        Helper.appendLog("Subscribed! :"+topicFr.toString(),"mqtt")
+
+                        Log.w("Mqtt", "Subscribed!")
+                        subscribedTopics.add(topicFr)
+                    }
+
+                    override fun onFailure(asyncActionToken: IMqttToken, exception: Throwable) {
+                        Log.w("Mqtt", "Subscribed fail!")
+                    }
+                })
+            }else{
+                var locationVIVI = Location("vivilocation")
+                locationVIVI.latitude =40.615006
+                locationVIVI.longitude =22.954195
+                var locationIVI = Location("ivilocation")
+                locationIVI.latitude =40.5549
+                locationIVI.longitude =23.0148
+                var locationSPAT = Location("trafficLight")
+                locationSPAT.latitude =40.629549
+                locationSPAT.longitude =22.947945
+                var locationEgnatia = Location("egnatia")
+                locationEgnatia.latitude =39.790804323
+                locationEgnatia.longitude =21.300095498
+                var locationFr = Location("france")
+                locationFr.latitude =44.88388823
+                locationFr.longitude =-0.5573381
+                if(result.lastLocation.distanceTo(locationVIVI)<100){
+                    var viviUserMessage = VIVIUserMessage()
+                    viviUserMessage.eta = "00:02:00"
+                    viviUserMessage.route = "V.OLGAS-YMCA"
+
+                    mPlaybackInfoListener!!.onVIVIUserMessage(viviUserMessage)
+                }else if(result.lastLocation.distanceTo(locationIVI)<100){
+                    var iviUserMessage = IVIUserMessage()
+                    mPlaybackInfoListener!!.onIVIMessageReceived(iviUserMessage)
+
+                }
+                else if(result.lastLocation.distanceTo(locationSPAT)<100){
+                    var spatUserMessage = SPATUserMessage()
+                    spatUserMessage.eventState = "green"
+                    mPlaybackInfoListener!!.onSPATUserMessage(spatUserMessage)
+
+                }else if(result.lastLocation.distanceTo(locationEgnatia)<100){
+                    var egnatiaUserMessage = EgnatiaUserMessage()
+                    egnatiaUserMessage.egantiaMessage = "IN CONGESTION DO NOT BLOCK EMERGENCY LANE "
+                    mPlaybackInfoListener!!.onEgnatiaUserMessage(egnatiaUserMessage)
+
+                }
+                else if(result.lastLocation.distanceTo(locationFr)<100){
+                    var denmUserMessage = DENMUserMessage()
+                    mPlaybackInfoListener!!.onDenmUserMessage(denmUserMessage)
+
+                }
+
             }
+
+
 
 
         }
@@ -322,7 +409,6 @@ class LocationService:Service(), LocationServiceInterface {
                     })
                 }
             }
-
 
         }
     }

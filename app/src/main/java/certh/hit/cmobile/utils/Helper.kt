@@ -15,10 +15,6 @@ import java.security.KeyPairGenerator
 import java.security.SecureRandom
 import java.security.interfaces.ECPrivateKey
 import java.security.interfaces.ECPublicKey
-import android.os.Environment.getExternalStorageDirectory
-
-
-
 
 
 /**
@@ -27,7 +23,7 @@ import android.os.Environment.getExternalStorageDirectory
 object Helper {
     private val TAG: String = Helper::class.java.canonicalName  as String
     val mapsKey = BuildConfig.MAP_BOX_API_KEY
-    val ZOOM_LEVEL = 8
+    val ZOOM_LEVEL = 18
 
 
     fun createUID(){
@@ -183,7 +179,6 @@ object Helper {
             }
             catch ( ex: IOException)
             {
-                // TODO Auto-generated catch block
                 ex.printStackTrace();
             }
         }
@@ -197,13 +192,47 @@ object Helper {
         }
         catch ( e:IOException)
         {
-            // TODO Auto-generated catch block
+
             e.printStackTrace();
         }
     }
 
+    fun parseVIVIEgnatiaUserMessage(jsonString: String, topic: Topic): EgnatiaUserMessage {
 
+        var message = EgnatiaUserMessage()
+        val rootJsonObject = JSONObject(jsonString)
+        var ivigeneralivicontainer = rootJsonObject.optJSONObject("ivigeneralivicontainer")
+        if (ivigeneralivicontainer != null){
+            var iviglcpartroadsigncode = ivigeneralivicontainer.optJSONObject("iviglcpartroadsigncode")
+            if(iviglcpartroadsigncode!=null){
+                message.name = iviglcpartroadsigncode.optString("Name","")
+                message.egantiaMessage = iviglcpartroadsigncode.optString("MESSAGE","")
+            }
+        }
 
+        message.topic =topic
+        return message
+    }
+
+    fun parseDENMUserMessage(jsonString: String, topic: Topic): DENMUserMessage {
+        var message = DENMUserMessage()
+        val rootJsonObject = JSONObject(jsonString)
+        var denm = rootJsonObject.optJSONObject("denm")
+        if(denm != null){
+            var situation = denm.optJSONObject("situation")
+            if(situation != null){
+                var eventType = situation.optJSONObject("eventType")
+                if(eventType!= null){
+                    message.causeCode = eventType.optInt("causeCode",0)
+                    message.subCauseCode = eventType.optInt("subCauseCode",0)
+                }
+
+            }
+
+        }
+        message.topic =topic
+        return message
+    }
 
 
 }

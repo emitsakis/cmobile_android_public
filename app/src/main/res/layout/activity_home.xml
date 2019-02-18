@@ -45,14 +45,13 @@
                     app:back_color="@android:color/darker_gray"
             />
             <ImageView
-                       android:id="@+id/ivi_sign"
-                       android:layout_width="50dp"
-                       android:layout_height="50dp"
-                       android:src="@drawable/speed_limit_50"
-                       android:layout_toEndOf="@id/speed_bar"
-                       android:layout_marginStart="-30dp"
-                       android:layout_marginTop="20dp"
-                        android:visibility="gone"/>
+                    android:layout_width="50dp"
+                    android:layout_height="50dp"
+                    android:src="@drawable/speed_limit_50"
+                    android:layout_toEndOf="@id/speed_bar"
+                    android:layout_marginStart="-30dp"
+                    android:layout_marginTop="20dp"
+                    android:visibility="gone" android:id="@+id/ivi_sign"/>
 
 
         </RelativeLayout>
