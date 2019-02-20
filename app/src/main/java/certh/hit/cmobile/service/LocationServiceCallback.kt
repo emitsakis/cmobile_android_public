@@ -23,4 +23,8 @@ public abstract class LocationServiceCallback {
     abstract fun onEgnatiaUserMessage(message: EgnatiaUserMessage)
 
     abstract fun onDenmUserMessage(message: DENMUserMessage)
+
+    abstract fun onIVIUnsubscribe()
+
+    abstract fun onSPATUnsubscribe()
 }

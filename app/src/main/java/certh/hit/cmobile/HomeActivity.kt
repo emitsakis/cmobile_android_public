@@ -274,6 +274,15 @@ class HomeActivity : AppCompatActivity(),OnMapReadyCallback,PermissionsListener 
     }
 
     inner class PlaybackListener : LocationServiceCallback() {
+        override fun onSPATUnsubscribe() {
+            trafficLight!!.visibility = GONE
+        }
+
+        override fun onIVIUnsubscribe() {
+            iviSing!!.visibility = GONE
+
+        }
+
         override fun onEgnatiaUserMessage(message: EgnatiaUserMessage) {
             iviMessageParent!!.visibility = VISIBLE
             var messageString = message.egantiaMessage
@@ -328,15 +337,10 @@ class HomeActivity : AppCompatActivity(),OnMapReadyCallback,PermissionsListener 
 
         override fun onPositionChanged(position: Location) {
             speedBar!!.setCurrentValues(Helper.toKmPerHour(position.speed).toFloat())
-//            var position1 = CameraPosition.Builder()
-//.target( LatLng(position.latitude, position.longitude)) // Sets the new camera position
-//.bearing(position.bearing.toDouble()) // Rotate the camera
-//.build(); // Creates a CameraPosition from the builder
-//
-//mapboxMap!!.animateCamera(CameraUpdateFactory.newCameraPosition(position1))
 
 
         }
+
 
 
     }

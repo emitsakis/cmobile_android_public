@@ -1,13 +1,16 @@
 
-Lkotlin:S1066ë".Merge this "if" statement with the nested one.(õÐóËÿÿÿÿÿ
-ekotlin:S1192ª"LDefine a constant instead of duplicating this literal "Subscribed!" 5 times.(àÁ¿
-Lkotlin:S1066€".Merge this "if" statement with the nested one.(ô¡ï‹øÿÿÿÿ
-}kotlin:S1192U"eDefine a constant instead of duplicating this literal "Error when registerLocationUpdates()" 3 times.(Ó¯š‰
-Mkotlin:S1172ÿ"/Remove this unused function parameter "result".(àµÒ¹üÿÿÿÿ
-skotlin:S1192«"NDefine a constant instead of duplicating this literal "Subscribed! :" 4 times.(©ê€ øÿÿÿÿ8ÙÂ¬þŽ-
-Gkotlin:S1066¶".Merge this "if" statement with the nested one.(—´·“
-okotlin:S1192°"QDefine a constant instead of duplicating this literal "Subscribed fail!" 5 times.(öÀ˜Ñýÿÿÿÿ
-^kotlin:S1144®"@Remove this unused private "checkLocationAndUnsubscribe" method.(Â×Ø“ûÿÿÿÿ
-\kotlin:S1144ã">Remove this unused private "checkLocationAndSubscribe" method.(Àâ‡÷ÿÿÿÿÿ
-Ukotlin:S1172ä"7Remove this unused function parameter "locationResult".(ã’Ñ¦üÿÿÿÿ
-Ukotlin:S1172¯"7Remove this unused function parameter "locationResult".(ã’Ñ¦üÿÿÿÿ
+skotlin:S1192Á"NDefine a constant instead of duplicating this literal "Subscribed! :" 6 times.(©ê€ øÿÿÿÿ8ÙÂ¬þŽ-
+Ckotlin:S125¿"Remove this commented out code.(Ã€Â‘þÿÿÿÿ8Úùå-
+pkotlin:S1192Æ"RDefine a constant instead of duplicating this literal "Subscribed fail!" 14 times.(öÀ˜Ñýÿÿÿÿ
+ekotlin:S1192À"LDefine a constant instead of duplicating this literal "Subscribed!" 6 times.(àÁ¿
+\kotlin:S1144ù">Remove this unused private "checkLocationAndSubscribe" method.(Àâ‡÷ÿÿÿÿÿ
+<kotlin:S2757æ"Was "-=" meant instead?(Ø¼‰µùÿÿÿÿ8Úùå-
+nkotlin:S1192…"NDefine a constant instead of duplicating this literal "UnSubscribed!" 9 times.( µËÇ8Úùå-
+Ukotlin:S1172Œ"7Remove this unused function parameter "locationResult".(ã’Ñ¦üÿÿÿÿ
+zkotlin:S1186¤"ZAdd a nested comment explaining why this function is empty or complete the implementation.(È…Öà8Úùå-
+qkotlin:S117"RRename this local variable to match the regular expression "^[_a-z][a-zA-Z0-9]*$".(¿Œå‘8Úùå-
+Ukotlin:S1172ú"7Remove this unused function parameter "locationResult".(ã’Ñ¦üÿÿÿÿ
+Lkotlin:S1066".Merge this "if" statement with the nested one.(õÐóËÿÿÿÿÿ
+}kotlin:S1192V"eDefine a constant instead of duplicating this literal "Error when registerLocationUpdates()" 3 times.(Ó¯š‰
+zkotlin:S1186š"ZAdd a nested comment explaining why this function is empty or complete the implementation.(È…Öà8Úùå-
+zkotlin:S1186²"ZAdd a nested comment explaining why this function is empty or complete the implementation.(È…Öà8Úùå-

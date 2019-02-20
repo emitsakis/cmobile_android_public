@@ -15,7 +15,7 @@ class MqttHelper(context: Context) {
 
     internal val serverUri = "tcp://mqttcits.imet.gr:1883"
 
-    internal val clientId = "js-utility-SY0NY"
+    internal val clientId = "anmpoutPhone"
     //internal val subscriptionTopic = "hit_certh/ivi_hit/1/2/2/1/0/0/0/0/0/3/2/1/1/3/2/1/1/0/666"
     //internal val subscriptionTopic = "hit_certh/v-ivi_hit/1/2/2/1/0/0/0/0/0/3/0/3/0/2/3/2/3/0/v.olgas-ymca"
     //internal val subscriptionTopic = "hit_certh/spat_hit/1002"
@@ -52,7 +52,7 @@ class MqttHelper(context: Context) {
     public fun connect() {
         val mqttConnectOptions = MqttConnectOptions()
         mqttConnectOptions.isAutomaticReconnect = true
-        mqttConnectOptions.isCleanSession = false
+        mqttConnectOptions.isCleanSession = true
         mqttConnectOptions.userName = username
         mqttConnectOptions.password = password.toCharArray()
 

@@ -25,3 +25,7 @@ n
 >app/src/main/java/certh/hit/cmobile/service/LocationService.kt,e\f\ef5f160953ecaed31a2f603e5130ec861b6bb098
 c
 3app/src/main/java/certh/hit/cmobile/utils/Helper.kt,d\d\dd3eaacede272a481b9542ce599eac6a017cac6c
+@
+local.properties,0\7\0712df971a99ac4d2fccb8e0fb19f377f3374cca
+X
+(gradle/wrapper/gradle-wrapper.properties,f\b\fbe448ebfc3eb2d4e308f6b8b043666f5b57235e

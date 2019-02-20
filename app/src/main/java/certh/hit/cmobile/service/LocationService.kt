@@ -162,8 +162,7 @@ class LocationService:Service(), LocationServiceInterface {
     }
 
     private fun handleDENMMessage(mqttMessage: MqttMessage, tmpTopic: Topic) {
-        var denmUserMessage = Helper.parseDENMUserMessage(mqttMessage.toString(),tmpTopic)
-        mPlaybackInfoListener!!.onDenmUserMessage(denmUserMessage)
+        mPlaybackInfoListener!!.onDenmUserMessage(DENMUserMessage())
 
     }
 
@@ -191,7 +190,7 @@ class LocationService:Service(), LocationServiceInterface {
             override fun onSuccess(asyncActionToken: IMqttToken) {
                 Log.w("Mqtt", "Subscribed!")
                 Helper.appendLog("Subscribed! :"+topicSpat.toString(),"mqtt")
-                subscribedTopics.add(topicSpat)
+                //subscribedTopics.add(topicSpat)
             }
 
             override fun onFailure(asyncActionToken: IMqttToken, exception: Throwable) {
@@ -246,36 +245,13 @@ class LocationService:Service(), LocationServiceInterface {
 
     }
 
-    private fun checkLocationAndSubscribe(
-        locationResult: LocationResult,
-        quadTree: String
-    ) {
-        for (topic in subscribedTopics) {
-            var upperTopicQuadTree = topic.quadTree?.substring(0,15)
-            Timber.d("upperQuadTree : %s",upperTopicQuadTree)
-            Timber.d("caluclated quadTree : %s",quadTree.substring(0,15))
-            if(upperTopicQuadTree?.compareTo(quadTree.substring(0,15)) != 0){
-                if (mqttHelper.isConnected()) {
-                    mqttHelper.unsubscribeToTopic(topic.toString(), object : IMqttActionListener {
-                        override fun onSuccess(asyncActionToken: IMqttToken) {
-                            Log.w("Mqtt", "UnSubscribed!")
-                            subscribedTopics.remove(topic)
-                        }
 
-                        override fun onFailure(asyncActionToken: IMqttToken, exception: Throwable) {
-                            Log.w("Mqtt", "UnSubscribed fail!")
-                        }
-                    })
-                }
-
-
-            }
-
-        }
-    }
 
     private fun checkLocationAndSubscribe2(result: LocationResult, quadTree: String) {
         if(!currentQuadTree.contentEquals(quadTree)){
+            Log.w("c quadtree", currentQuadTree)
+            Log.w("n quadtree", quadTree)
+            Log.w("quadtree", "------------------------------------------------------------------------")
             if (mqttHelper.isConnected()) {
                 currentQuadTree = quadTree
                 var topicViv = Topic.createIVI(quadTree)
@@ -285,9 +261,8 @@ class LocationService:Service(), LocationServiceInterface {
                 var topicFr = Topic.createFr(quadTree)
                 mqttHelper.subscribeToTopic(topicViv.toString(), 0, object : IMqttActionListener {
                     override fun onSuccess(asyncActionToken: IMqttToken) {
-                        Log.w("Mqtt", "Subscribed!")
                         Helper.appendLog("Subscribed! :"+topicViv.toString(),"mqtt")
-                        subscribedTopics.add(topicViv)
+                       // subscribedTopics.add(topicViv)
                     }
 
                     override fun onFailure(asyncActionToken: IMqttToken, exception: Throwable) {
@@ -296,9 +271,8 @@ class LocationService:Service(), LocationServiceInterface {
                 })
                 mqttHelper.subscribeToTopic(topicVivI.toString(), 0, object : IMqttActionListener {
                     override fun onSuccess(asyncActionToken: IMqttToken) {
-                        Log.w("Mqtt", "Subscribed!")
                         Helper.appendLog("Subscribed! :"+topicVivI.toString(),"mqtt")
-                        subscribedTopics.add(topicVivI)
+                        //subscribedTopics.add(topicVivI)
                     }
 
                     override fun onFailure(asyncActionToken: IMqttToken, exception: Throwable) {
@@ -309,8 +283,7 @@ class LocationService:Service(), LocationServiceInterface {
                     override fun onSuccess(asyncActionToken: IMqttToken) {
                         Helper.appendLog("Subscribed! :"+topicMAP.toString(),"mqtt")
 
-                        Log.w("Mqtt", "Subscribed!")
-                        subscribedTopics.add(topicMAP)
+                        //subscribedTopics.add(topicMAP)
                     }
 
                     override fun onFailure(asyncActionToken: IMqttToken, exception: Throwable) {
@@ -319,9 +292,8 @@ class LocationService:Service(), LocationServiceInterface {
                 })
                 mqttHelper.subscribeToTopic(topicEgnatia.toString(), 0, object : IMqttActionListener {
                     override fun onSuccess(asyncActionToken: IMqttToken) {
-                        Log.w("Mqtt", "Subscribed!")
                         Helper.appendLog("Subscribed! :"+topicEgnatia.toString(),"mqtt")
-                        subscribedTopics.add(topicEgnatia)
+                        //subscribedTopics.add(topicEgnatia)
                     }
 
                     override fun onFailure(asyncActionToken: IMqttToken, exception: Throwable) {
@@ -331,9 +303,8 @@ class LocationService:Service(), LocationServiceInterface {
                 mqttHelper.subscribeToTopic(topicFr.toString(), 0, object : IMqttActionListener {
                     override fun onSuccess(asyncActionToken: IMqttToken) {
                         Helper.appendLog("Subscribed! :"+topicFr.toString(),"mqtt")
-
-                        Log.w("Mqtt", "Subscribed!")
-                        subscribedTopics.add(topicFr)
+                        Log.w("Mqtt", "Subscribed! :"+topicFr.toString())
+                        //subscribedTopics.add(topicFr)
                     }
 
                     override fun onFailure(asyncActionToken: IMqttToken, exception: Throwable) {
@@ -399,22 +370,31 @@ class LocationService:Service(), LocationServiceInterface {
         for(topic in receiveTopics) {
             if (!topic.contains("spat")){
             var tmpTopic = Helper.parseTopic(topic)
-                if(!tmpTopic.quadTree.equals(quadTree)) {
+                var topicQuadTreeRmvSlash = tmpTopic.quadTree!!.replace("/","")
+
+                var quadTreeRmvSlash = quadTree!!.replace("/","")
+                Log.w("quad t",topicQuadTreeRmvSlash.substring(0,Helper.ZOOM_LEVEL))
+                Log.w("quad i",quadTreeRmvSlash)
+
+                if(!quadTreeRmvSlash.equals(topicQuadTreeRmvSlash.substring(0,Helper.ZOOM_LEVEL))) {
+                    Log.w("quad m","in")
                     if (tmpTopic.type.equals(Topic.MAP)) {
                         mqttHelper.unsubscribeToTopic(topic,object :IMqttActionListener{
                             override fun onSuccess(asyncActionToken: IMqttToken?) {
                                 receiveTopics.remove(topic)
                                 Log.d(TAG,"map")
-                            }
+                                val SpatTopic = receiveTopics.first { w -> w.endsWith(tmpTopic.data.toString()) }
+                                mqttHelper.unsubscribeToTopic(SpatTopic,object :IMqttActionListener{
+                                    override fun onSuccess(asyncActionToken: IMqttToken?) {
+                                        receiveTopics.remove(SpatTopic)
+                                        mPlaybackInfoListener!!.onSPATUnsubscribe()
+                                        Log.d(TAG,"remove spat")
+                                    }
 
-                            override fun onFailure(asyncActionToken: IMqttToken?, exception: Throwable?) {
-                            }
-                        })
-                        val SpatTopic = receiveTopics.first { w -> w.endsWith(tmpTopic.data.toString()) }
-                        mqttHelper.unsubscribeToTopic(SpatTopic,object :IMqttActionListener{
-                            override fun onSuccess(asyncActionToken: IMqttToken?) {
-                                receiveTopics.remove(SpatTopic)
-                                Log.d(TAG,"removespat")
+                                    override fun onFailure(asyncActionToken: IMqttToken?, exception: Throwable?) {
+                                    }
+                                })
+
                             }
 
                             override fun onFailure(asyncActionToken: IMqttToken?, exception: Throwable?) {
@@ -428,6 +408,9 @@ class LocationService:Service(), LocationServiceInterface {
                         mqttHelper.unsubscribeToTopic(topic,object :IMqttActionListener{
                             override fun onSuccess(asyncActionToken: IMqttToken?) {
                                 receiveTopics.remove(topic)
+                                if(tmpTopic.type.equals( Topic.IVI)) {
+                                        mPlaybackInfoListener!!.onIVIUnsubscribe()
+                                    }
                                 Log.d(TAG,"remove"+tmpTopic.type)
                             }
 
@@ -466,89 +449,106 @@ class LocationService:Service(), LocationServiceInterface {
 
     }
     fun clearTopics(){
-        mqttHelper.unsubscribeToTopic("tt/denm/0/3/1/3/3/3/1/1/1/0/2/3/1/2/2/1/0/3/1001_1001",object : IMqttActionListener {
-            override fun onSuccess(asyncActionToken: IMqttToken) {
-                Log.w("Mqtt", "UnSubscribed!")
+        for (i in 1..20) {
+            mqttHelper.unsubscribeToTopic("tt/denm/0/3/1/3/3/3/1/1/1/0/2/3/1/2/2/1/0/3/1001_1001",
+                object : IMqttActionListener {
+                    override fun onSuccess(asyncActionToken: IMqttToken) {
+                        Log.w("Mqtt", "UnSubscribed!")
 
-            }
+                    }
 
-            override fun onFailure(asyncActionToken: IMqttToken, exception: Throwable) {
-                Log.w("Mqtt", "Subscribed fail!")
-            }
-        })
-        mqttHelper.unsubscribeToTopic("egnatia_sa/v-ivi_egnatia/1/2/2/0/1/1/1/3/0/0/1/2/2/3/0/1/1/0/vms1",object : IMqttActionListener {
-            override fun onSuccess(asyncActionToken: IMqttToken) {
-                Log.w("Mqtt", "UnSubscribed!")
+                    override fun onFailure(asyncActionToken: IMqttToken, exception: Throwable) {
+                        Log.w("Mqtt", "Subscribed fail!")
+                    }
+                })
+            mqttHelper.unsubscribeToTopic("egnatia_sa/v-ivi_egnatia/1/2/2/0/1/1/1/3/0/0/1/2/2/3/0/1/1/0/vms1",
+                object : IMqttActionListener {
+                    override fun onSuccess(asyncActionToken: IMqttToken) {
+                        Log.w("Mqtt", "UnSubscribed!")
 
-            }
+                    }
 
-            override fun onFailure(asyncActionToken: IMqttToken, exception: Throwable) {
-                Log.w("Mqtt", "Subscribed fail!")
-            }
-        })
-        mqttHelper.unsubscribeToTopic("tt/denm/0/3/1/3/3/3/1/1/1/0/2/3/1/2/1/0/3/2/1001_1001",object : IMqttActionListener {
-            override fun onSuccess(asyncActionToken: IMqttToken) {
-                Log.w("Mqtt", "UnSubscribed!")
+                    override fun onFailure(asyncActionToken: IMqttToken, exception: Throwable) {
+                        Log.w("Mqtt", "Subscribed fail!")
+                    }
+                })
+            mqttHelper.unsubscribeToTopic("tt/denm/0/3/1/3/3/3/1/1/1/0/2/3/1/2/1/0/3/2/1001_1001",
+                object : IMqttActionListener {
+                    override fun onSuccess(asyncActionToken: IMqttToken) {
+                        Log.w("Mqtt", "UnSubscribed!")
 
-            }
+                    }
 
-            override fun onFailure(asyncActionToken: IMqttToken, exception: Throwable) {
-                Log.w("Mqtt", "Subscribed fail!")
-            }
-        })
-        mqttHelper.unsubscribeToTopic("hit_certh/spat_hit/1003",object : IMqttActionListener {
-            override fun onSuccess(asyncActionToken: IMqttToken) {
-                Log.w("Mqtt", "UnSubscribed!")
+                    override fun onFailure(asyncActionToken: IMqttToken, exception: Throwable) {
+                        Log.w("Mqtt", "Subscribed fail!")
+                    }
+                })
+            mqttHelper.unsubscribeToTopic("hit_certh/spat_hit/1003", object : IMqttActionListener {
+                override fun onSuccess(asyncActionToken: IMqttToken) {
+                    Log.w("Mqtt", "UnSubscribed!")
 
-            }
+                }
 
-            override fun onFailure(asyncActionToken: IMqttToken, exception: Throwable) {
-                Log.w("Mqtt", "Subscribed fail!")
-            }
-        })
-        mqttHelper.unsubscribeToTopic("hit_certh/ivi_hit/1/2/2/1/0/0/0/0/0/3/2/1/1/3/2/1/1/0/666",object : IMqttActionListener {
-            override fun onSuccess(asyncActionToken: IMqttToken) {
-                Log.w("Mqtt", "UnSubscribed!")
+                override fun onFailure(asyncActionToken: IMqttToken, exception: Throwable) {
+                    Log.w("Mqtt", "Subscribed fail!")
+                }
+            })
+            mqttHelper.unsubscribeToTopic("hit_certh/ivi_hit/1/2/2/1/0/0/0/0/0/3/2/1/1/3/2/1/1/0/666",
+                object : IMqttActionListener {
+                    override fun onSuccess(asyncActionToken: IMqttToken) {
+                        Log.w("Mqtt", "UnSubscribed!")
 
-            }
+                    }
 
-            override fun onFailure(asyncActionToken: IMqttToken, exception: Throwable) {
-                Log.w("Mqtt", "Subscribed fail!")
-            }
-        })
-        mqttHelper.unsubscribeToTopic("hit_certh/v-ivi_hit/1/2/2/1/0/0/0/0/0/3/0/3/0/2/3/2/3/0/v.olgas-ymca",object : IMqttActionListener {
-            override fun onSuccess(asyncActionToken: IMqttToken) {
-                Log.w("Mqtt", "UnSubscribed!")
+                    override fun onFailure(asyncActionToken: IMqttToken, exception: Throwable) {
+                        Log.w("Mqtt", "Subscribed fail!")
+                    }
+                })
+            mqttHelper.unsubscribeToTopic("hit_certh/v-ivi_hit/1/2/2/1/0/0/0/0/0/3/0/3/0/2/3/2/3/0/v.olgas-ymca",
+                object : IMqttActionListener {
+                    override fun onSuccess(asyncActionToken: IMqttToken) {
+                        Log.w("Mqtt", "UnSubscribed!")
 
-            }
+                    }
 
-            override fun onFailure(asyncActionToken: IMqttToken, exception: Throwable) {
-                Log.w("Mqtt", "Subscribed fail!")
-            }
-        })
-        mqttHelper.unsubscribeToTopic("hit_certh/map_hit/1/2/2/1/0/0/0/0/0/3/0/3/0/2/1/0/2/0/1003",object : IMqttActionListener {
-            override fun onSuccess(asyncActionToken: IMqttToken) {
-                Log.w("Mqtt", "UnSubscribed!")
+                    override fun onFailure(asyncActionToken: IMqttToken, exception: Throwable) {
+                        Log.w("Mqtt", "Subscribed fail!")
+                    }
+                })
+            mqttHelper.unsubscribeToTopic("hit_certh/map_hit/1/2/2/1/0/0/0/0/0/3/0/3/0/2/1/0/2/0/1003",
+                object : IMqttActionListener {
+                    override fun onSuccess(asyncActionToken: IMqttToken) {
+                        Log.w("Mqtt", "UnSubscribed!")
 
-            }
+                    }
 
-            override fun onFailure(asyncActionToken: IMqttToken, exception: Throwable) {
-                Log.w("Mqtt", "Subscribed fail!")
-            }
-        })
-        mqttHelper.unsubscribeToTopic("hit_certh/map_hit/1/2/2/1/0/0/0/0/0/3/0/3/0/2/1/0/2/0/1002",object : IMqttActionListener {
-            override fun onSuccess(asyncActionToken: IMqttToken) {
-                Log.w("Mqtt", "UnSubscribed!")
+                    override fun onFailure(asyncActionToken: IMqttToken, exception: Throwable) {
+                        Log.w("Mqtt", "Subscribed fail!")
+                    }
+                })
+            mqttHelper.unsubscribeToTopic("hit_certh/map_hit/1/2/2/1/0/0/0/0/0/3/0/3/0/2/1/0/2/0/1002",
+                object : IMqttActionListener {
+                    override fun onSuccess(asyncActionToken: IMqttToken) {
+                        Log.w("Mqtt", "UnSubscribed!")
 
-            }
+                    }
 
-            override fun onFailure(asyncActionToken: IMqttToken, exception: Throwable) {
-                Log.w("Mqtt", "Subscribed fail!")
-            }
-        })
+                    override fun onFailure(asyncActionToken: IMqttToken, exception: Throwable) {
+                        Log.w("Mqtt", "Subscribed fail!")
+                    }
+                })
 
+            mqttHelper.unsubscribeToTopic("hit_certh/spat_hit/1002", object : IMqttActionListener {
+                override fun onSuccess(asyncActionToken: IMqttToken) {
+                    Log.w("Mqtt", "UnSubscribed!")
 
+                }
 
+                override fun onFailure(asyncActionToken: IMqttToken, exception: Throwable) {
+                    Log.w("Mqtt", "Subscribed fail!")
+                }
+            })
+        }
     }
 
     inner class LocationBinder : Binder() {
