@@ -29,3 +29,11 @@ c
 local.properties,0\7\0712df971a99ac4d2fccb8e0fb19f377f3374cca
 X
 (gradle/wrapper/gradle-wrapper.properties,f\b\fbe448ebfc3eb2d4e308f6b8b043666f5b57235e
+w
+Gapp/src/main/java/certh/hit/cmobile/service/LocationServiceInterface.kt,0\c\0cca547535c4de61f5d85446869e58b0fee3481b
+g
+7app/src/main/java/certh/hit/cmobile/utils/MqttHelper.kt,f\1\f162d18592a8a4d820649d878cd781328e5a55a5
+v
+Fapp/src/main/java/certh/hit/cmobile/service/LocationServiceCallback.kt,e\f\ef5d7a7ba8e8d1c03bd2f8d0ecad90a17997f294
+z
+Japp/src/main/java/certh/hit/cmobile/utils/NotificationManager_CMobile.java,1\e\1e53f20ce9b38f2b6ee6cfad3d18c73e101ebb90

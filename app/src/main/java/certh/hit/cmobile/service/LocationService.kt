@@ -7,11 +7,13 @@ import android.location.Location
 import android.os.Binder
 import android.os.IBinder
 import android.os.Looper
+import android.os.RemoteException
 import android.text.format.DateUtils
 import android.util.Log
 import certh.hit.cmobile.model.*
 import certh.hit.cmobile.utils.Helper
 import certh.hit.cmobile.utils.MqttHelper
+import certh.hit.cmobile.utils.NotificationManager_CMobile
 import com.google.android.gms.location.*
 import org.eclipse.paho.client.mqttv3.*
 import timber.log.Timber
@@ -41,6 +43,7 @@ class LocationService:Service(), LocationServiceInterface {
     private val receiveTopics: ArrayList<String> = ArrayList()
     private val mapMessages :ArrayList<MAPUserMessage> = ArrayList()
     private val mBinder = LocationBinder()
+    private var mMediaNotificationManager: NotificationManager_CMobile? = null
 
     private val locationCallback = object : LocationCallback() {
         override fun onLocationResult(locationResult: com.google.android.gms.location.LocationResult) {
@@ -99,7 +102,8 @@ class LocationService:Service(), LocationServiceInterface {
 
 
     override fun onDestroy() {
-        stopMqtt();
+        stopMqtt()
+        mMediaNotificationManager!!.stopNotification()
         Helper.appendLog("Service onDestroy","activity")
         Log.d(TAG, "Service onDestroy")
     }
@@ -111,6 +115,13 @@ class LocationService:Service(), LocationServiceInterface {
 
     fun setPlaybackInfoListener(listener: LocationServiceCallback) {
         mPlaybackInfoListener = listener
+        try {
+            mMediaNotificationManager = NotificationManager_CMobile(this)
+            mMediaNotificationManager!!.startNotification("C- Mobile", "C- Mobile")
+        } catch (e: RemoteException) {
+            throw IllegalStateException("Could not create a MediaNotificationManager", e)
+        }
+
 
     }
 

@@ -1,0 +1,16 @@
+
+Osquid:S1481õ"0Remove this unused "fetchArtUrl" local variable.(ÜçÍ‡8±¡Ô∞í-
+Tsquid:S1068$"6Remove this unused "mNotificationColor" private field.(Âﬁò∫8±¡Ô∞í-
+jsquid:CommentedOutCodeLine÷"<This block of commented-out lines of code should be removed.(‘ˇ±˚8˘Ì•±í-
+jsquid:CommentedOutCodeLineÃ"<This block of commented-out lines of code should be removed.(òÆ–ê8±¡Ô∞í-
+nsquid:CommentedOutCodeLine|"<This block of commented-out lines of code should be removed.(¶æ¯•˙ˇˇˇˇ8±¡Ô∞í-
+qsquid:S00101"MRename this class name to match the regular expression '^[A-Z][a-zA-Z0-9]*$'.(≥√≥¡˙ˇˇˇˇ8±¡Ô∞í-
+_squid:S1854ö";Remove this useless assignment to local variable "iconUrl".(≤∫›Ú˙ˇˇˇˇ8±¡Ô∞í-
+Ssquid:S1068""0Remove this unused "mPauseIntent" private field.(æË€’˚ˇˇˇˇ8±¡Ô∞í-
+osquid:CommentedOutCodeLineÄ"<This block of commented-out lines of code should be removed.(†»ÕÃ˝ˇˇˇˇ8±¡Ô∞í-
+isquid:CommentedOutCodeLiney"<This block of commented-out lines of code should be removed.(´âºÛ8±¡Ô∞í-
+osquid:CommentedOutCodeLine‘"<This block of commented-out lines of code should be removed.(Èÿª⁄˚ˇˇˇˇ8±¡Ô∞í-
+Psquid:S1481ö",Remove this unused "iconUrl" local variable.(≤∫›Ú˙ˇˇˇˇ8±¡Ô∞í-
+esquid:S2259‚"FA "NullPointerException" could be thrown; "mService" is nullable here.(”∫Á…8±¡Ô∞í-
+asquid:UnusedPrivateMethod≈"/Remove this unused private "addActions" method.(¯æ¥ ˝ˇˇˇˇ8öôß±í-
+osquid:CommentedOutCodeLine©"<This block of commented-out lines of code should be removed.(‘±πµˇˇˇˇˇ8öôß±í-
