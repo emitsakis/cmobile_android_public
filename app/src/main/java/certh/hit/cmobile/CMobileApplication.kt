@@ -12,9 +12,16 @@ class CMobileApplication : Application(){
 
     override fun onCreate() {
         super.onCreate()
+            instance = this;
 
 // Mapbox Access token
         Mapbox.getInstance(getApplicationContext(), Helper.mapsKey);
+    }
+    companion object {
+        private var instance: CMobileApplication? = null
+        fun getInstance(): CMobileApplication? {
+            return instance
+        }
     }
 
 

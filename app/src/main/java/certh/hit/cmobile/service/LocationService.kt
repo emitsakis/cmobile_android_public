@@ -10,6 +10,10 @@ import android.os.Looper
 import android.os.RemoteException
 import android.text.format.DateUtils
 import android.util.Log
+import certh.hit.cmobile.CMobileApplication
+import certh.hit.cmobile.logs.GPSLogger
+import certh.hit.cmobile.logs.LogDao
+import certh.hit.cmobile.logs.LogDatabase
 import certh.hit.cmobile.model.*
 import certh.hit.cmobile.utils.Helper
 import certh.hit.cmobile.utils.MqttHelper
@@ -44,6 +48,7 @@ class LocationService:Service(), LocationServiceInterface {
     private val mapMessages :ArrayList<MAPUserMessage> = ArrayList()
     private val mBinder = LocationBinder()
     private var mMediaNotificationManager: NotificationManager_CMobile? = null
+    private var logDao: LogDao? = null
 
     private val locationCallback = object : LocationCallback() {
         override fun onLocationResult(locationResult: com.google.android.gms.location.LocationResult) {
@@ -53,6 +58,11 @@ class LocationService:Service(), LocationServiceInterface {
 //            bearing = bearing +2
 //            locationResult.lastLocation.bearing = bearing
 //            Log.d(TAG, locationResult.lastLocation.bearing.toString())
+            var tmpGPSLogger = GPSLogger()
+            tmpGPSLogger.latitude = locationResult.lastLocation.latitude
+            tmpGPSLogger.longitude = locationResult.lastLocation.longitude
+            tmpGPSLogger.altitude = locationResult.lastLocation.altitude
+            logDao!!.insert(tmpGPSLogger)
             Helper.appendLog("onLocationResult! :"+locationResult.lastLocation.latitude.toString()+","+locationResult.lastLocation.longitude.toString()+","+locationResult.lastLocation.bearing.toString()+","+locationResult.lastLocation.speed.toString()+","+locationResult.lastLocation.altitude.toString()+","+locationResult.lastLocation.time.toString()+","+locationResult.lastLocation.accuracy.toString()+",","locations")
          mPlaybackInfoListener!!.onPositionChanged(locationResult.lastLocation)
             var quadTree =  Helper.calculateQuadTree(locationResult.lastLocation.latitude,locationResult.lastLocation.longitude,Helper.ZOOM_LEVEL)
@@ -97,6 +107,8 @@ class LocationService:Service(), LocationServiceInterface {
         startMqtt()
         registerReceiver()
         checkGpsAndReact()
+        logDao = LogDatabase.getDatabase(this)!!.logDao()
+
     }
 
 
@@ -189,9 +201,7 @@ class LocationService:Service(), LocationServiceInterface {
     ) {
         var  mapMessage = Helper.parseMAPMessage(mqttMessage.toString(),tmpTopic)
         mapMessages.add(mapMessage)
-        //if(mapMessage.indexNumber == 1003) {
             createSPATTopicAndSubscribe(mapMessage)
-        //}
 
     }
 
@@ -230,6 +240,7 @@ class LocationService:Service(), LocationServiceInterface {
         mqttMessage: MqttMessage,
         tmpTopic: Topic
     ) {
+
         var viviUserMessage = Helper.parseVIVIUserMessage(mqttMessage.toString(),tmpTopic)
         mPlaybackInfoListener!!.onVIVIUserMessage(viviUserMessage)
 
@@ -273,7 +284,7 @@ class LocationService:Service(), LocationServiceInterface {
                 mqttHelper.subscribeToTopic(topicViv.toString(), 0, object : IMqttActionListener {
                     override fun onSuccess(asyncActionToken: IMqttToken) {
                         Helper.appendLog("Subscribed! :"+topicViv.toString(),"mqtt")
-                       // subscribedTopics.add(topicViv)
+                       //
                     }
 
                     override fun onFailure(asyncActionToken: IMqttToken, exception: Throwable) {

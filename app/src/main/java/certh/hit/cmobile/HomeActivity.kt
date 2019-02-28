@@ -12,8 +12,10 @@ import android.location.Location
 import android.os.Bundle
 import android.os.Handler
 import android.os.IBinder
+import android.support.design.widget.FloatingActionButton
 import android.support.v7.app.AppCompatActivity
 import android.util.Log
+import android.view.View
 import android.view.View.GONE
 import android.view.View.VISIBLE
 import android.widget.*
@@ -62,6 +64,7 @@ class HomeActivity : AppCompatActivity(),OnMapReadyCallback,PermissionsListener 
     private var trafficLightRed :ImageView? = null
     private var trafficLightYellow :ImageView? = null
     private var trafficLightGreen :ImageView? = null
+    private var settings :FloatingActionButton? = null
     private var  tf : Typeface? = null
     private var speedBar : ColorArcProgressBar? = null
     private var iviSing : ImageView? =null
@@ -117,6 +120,13 @@ class HomeActivity : AppCompatActivity(),OnMapReadyCallback,PermissionsListener 
         trafficLightYellow = findViewById(R.id.yellow_light)
         trafficLightGreen = findViewById(R.id.green_light)
         iviSing = findViewById(R.id.ivi_sign)
+        settings = findViewById(R.id.settings)
+        settings!!.setOnClickListener(object : View.OnClickListener {
+            override fun onClick(v: View?) {
+                //Go to next page i.e, start the next activity.
+                val intent = Intent(applicationContext, SettingsActivity::class.java)
+                startActivity(intent)
+            }})
 
     }
 
