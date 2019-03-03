@@ -4,20 +4,15 @@ import android.Manifest
 import android.app.Service
 import android.content.Intent
 import android.location.Location
-import android.os.Binder
-import android.os.IBinder
-import android.os.Looper
-import android.os.RemoteException
+import android.os.*
 import android.text.format.DateUtils
 import android.util.Log
-import certh.hit.cmobile.CMobileApplication
-import certh.hit.cmobile.logs.GPSLogger
-import certh.hit.cmobile.logs.LogDao
-import certh.hit.cmobile.logs.LogDatabase
+import certh.hit.cmobile.logs.*
 import certh.hit.cmobile.model.*
 import certh.hit.cmobile.utils.Helper
 import certh.hit.cmobile.utils.MqttHelper
 import certh.hit.cmobile.utils.NotificationManager_CMobile
+import certh.hit.cmobile.utils.PreferencesHelper
 import com.google.android.gms.location.*
 import org.eclipse.paho.client.mqttv3.*
 import timber.log.Timber
@@ -33,7 +28,6 @@ class LocationService:Service(), LocationServiceInterface {
     private lateinit var locationRequest: LocationRequest
 
     private var gpsIsEnabled = true
-    private  var bearing: Float = 0F
     private var permissionIsGranted = true
     private var isTrackingRunning = true
     private val locationPermission = Manifest.permission.ACCESS_FINE_LOCATION
@@ -49,6 +43,10 @@ class LocationService:Service(), LocationServiceInterface {
     private val mBinder = LocationBinder()
     private var mMediaNotificationManager: NotificationManager_CMobile? = null
     private var logDao: LogDao? = null
+    private lateinit var mDbWorkerThread: DbWorkerThread
+    private var dataCollection = false
+    private var preferencesHelper :PreferencesHelper? = null
+    private val mUiHandler = Handler()
 
     private val locationCallback = object : LocationCallback() {
         override fun onLocationResult(locationResult: com.google.android.gms.location.LocationResult) {
@@ -62,18 +60,28 @@ class LocationService:Service(), LocationServiceInterface {
             tmpGPSLogger.latitude = locationResult.lastLocation.latitude
             tmpGPSLogger.longitude = locationResult.lastLocation.longitude
             tmpGPSLogger.altitude = locationResult.lastLocation.altitude
-            logDao!!.insert(tmpGPSLogger)
-            Helper.appendLog("onLocationResult! :"+locationResult.lastLocation.latitude.toString()+","+locationResult.lastLocation.longitude.toString()+","+locationResult.lastLocation.bearing.toString()+","+locationResult.lastLocation.speed.toString()+","+locationResult.lastLocation.altitude.toString()+","+locationResult.lastLocation.time.toString()+","+locationResult.lastLocation.accuracy.toString()+",","locations")
-         mPlaybackInfoListener!!.onPositionChanged(locationResult.lastLocation)
-            var quadTree =  Helper.calculateQuadTree(locationResult.lastLocation.latitude,locationResult.lastLocation.longitude,Helper.ZOOM_LEVEL)
-            checkLocationAndSubscribe2(locationResult,quadTree)
-            checkLocationAndUnsubscribe(locationResult,quadTree)
+            tmpGPSLogger.timestamp = locationResult.lastLocation.time
+            tmpGPSLogger.orientation = locationResult.lastLocation.bearing.toDouble()
+            tmpGPSLogger.speed = locationResult.lastLocation.speed.toDouble()
 
+
+            val task = Runnable { logDao!!.insertGPSLogger(tmpGPSLogger) }
+            if(mDbWorkerThread.isAlive && dataCollection) {
+                mDbWorkerThread.postTask(task)
+            }
+           if( mPlaybackInfoListener != null) {
+               mPlaybackInfoListener!!.onPositionChanged(locationResult.lastLocation)
+               var quadTree = Helper.calculateQuadTree(
+                   locationResult.lastLocation.latitude,
+                   locationResult.lastLocation.longitude,
+                   Helper.ZOOM_LEVEL
+               )
+               checkLocationAndSubscribe2(locationResult, quadTree)
+               checkLocationAndUnsubscribe(locationResult, quadTree)
+           }
     }
 
     }
-
-
 
     override fun setupNotification(noLecture: String, lectureTitle: String) {
 
@@ -102,13 +110,16 @@ class LocationService:Service(), LocationServiceInterface {
     }
     override fun onCreate() {
         super.onCreate()
-        Helper.appendLog("Service onCreate","activity")
+        //Helper.appendLog("Service onCreate","activity")
         Log.d(TAG, "Service onCreate")
         startMqtt()
         registerReceiver()
         checkGpsAndReact()
+        mDbWorkerThread = DbWorkerThread("dbWorkerThread")
+        mDbWorkerThread.start()
         logDao = LogDatabase.getDatabase(this)!!.logDao()
-
+        preferencesHelper = PreferencesHelper(this)
+        dataCollection = preferencesHelper!!.dataCollection
     }
 
 
@@ -116,7 +127,9 @@ class LocationService:Service(), LocationServiceInterface {
     override fun onDestroy() {
         stopMqtt()
         mMediaNotificationManager!!.stopNotification()
-        Helper.appendLog("Service onDestroy","activity")
+        LogDatabase.destroyInstance()
+        mDbWorkerThread.quit()
+       // Helper.appendLog("Service onDestroy","activity")
         Log.d(TAG, "Service onDestroy")
     }
 
@@ -142,8 +155,8 @@ class LocationService:Service(), LocationServiceInterface {
         mqttHelper.connect()
         mqttHelper.setCallback(object : MqttCallbackExtended {
             override fun connectComplete(b: Boolean, s: String) {
-                Helper.appendLog("connectComplete! ","mqtt")
-                clearTopics()
+                //Helper.appendLog("connectComplete! ","mqtt")
+              //  clearTopics()
             }
 
             override fun connectionLost(throwable: Throwable) {
@@ -156,8 +169,14 @@ class LocationService:Service(), LocationServiceInterface {
                 if(!receiveTopics.contains(topic)) {
                     receiveTopics.add(topic)
                 }
-                Helper.appendLog("messageArrived! :"+tmpTopic,"mqtt")
-                Helper.appendLog("MqttMessage! :"+mqttMessage.toString(),"mqtt")
+                var tmpMessage = MessageLogger()
+                tmpMessage.timestamp = System.currentTimeMillis();
+                tmpMessage.topic = topic
+                tmpMessage.message = mqttMessage.toString()
+                val task = Runnable { logDao!!.insertMessage(tmpMessage) }
+                if(mDbWorkerThread.isAlive && dataCollection) {
+                    mDbWorkerThread.postTask(task)
+                }
                 if(topic.contains(Topic.VIVI)){
                     handleVIVIMessage(mqttMessage,tmpTopic)
                 }else if(topic.contains(Topic.IVI)){
@@ -210,7 +229,7 @@ class LocationService:Service(), LocationServiceInterface {
         mqttHelper.subscribeToTopic(topicSpat.toStringSpat(), 0, object : IMqttActionListener {
             override fun onSuccess(asyncActionToken: IMqttToken) {
                 Log.w("Mqtt", "Subscribed!")
-                Helper.appendLog("Subscribed! :"+topicSpat.toString(),"mqtt")
+                //Helper.appendLog("Subscribed! :"+topicSpat.toString(),"mqtt")
                 //subscribedTopics.add(topicSpat)
             }
 
@@ -283,8 +302,8 @@ class LocationService:Service(), LocationServiceInterface {
                 var topicFr = Topic.createFr(quadTree)
                 mqttHelper.subscribeToTopic(topicViv.toString(), 0, object : IMqttActionListener {
                     override fun onSuccess(asyncActionToken: IMqttToken) {
-                        Helper.appendLog("Subscribed! :"+topicViv.toString(),"mqtt")
-                       //
+                        //Helper.appendLog("Subscribed! :"+topicViv.toString(),"mqtt")
+
                     }
 
                     override fun onFailure(asyncActionToken: IMqttToken, exception: Throwable) {
@@ -293,7 +312,7 @@ class LocationService:Service(), LocationServiceInterface {
                 })
                 mqttHelper.subscribeToTopic(topicVivI.toString(), 0, object : IMqttActionListener {
                     override fun onSuccess(asyncActionToken: IMqttToken) {
-                        Helper.appendLog("Subscribed! :"+topicVivI.toString(),"mqtt")
+                        //Helper.appendLog("Subscribed! :"+topicVivI.toString(),"mqtt")
                         //subscribedTopics.add(topicVivI)
                     }
 
@@ -303,7 +322,7 @@ class LocationService:Service(), LocationServiceInterface {
                 })
                 mqttHelper.subscribeToTopic(topicMAP.toString(), 0, object : IMqttActionListener {
                     override fun onSuccess(asyncActionToken: IMqttToken) {
-                        Helper.appendLog("Subscribed! :"+topicMAP.toString(),"mqtt")
+                       //Helper.appendLog("Subscribed! :"+topicMAP.toString(),"mqtt")
 
                         //subscribedTopics.add(topicMAP)
                     }
@@ -314,7 +333,7 @@ class LocationService:Service(), LocationServiceInterface {
                 })
                 mqttHelper.subscribeToTopic(topicEgnatia.toString(), 0, object : IMqttActionListener {
                     override fun onSuccess(asyncActionToken: IMqttToken) {
-                        Helper.appendLog("Subscribed! :"+topicEgnatia.toString(),"mqtt")
+                        //Helper.appendLog("Subscribed! :"+topicEgnatia.toString(),"mqtt")
                         //subscribedTopics.add(topicEgnatia)
                     }
 
@@ -324,7 +343,7 @@ class LocationService:Service(), LocationServiceInterface {
                 })
                 mqttHelper.subscribeToTopic(topicFr.toString(), 0, object : IMqttActionListener {
                     override fun onSuccess(asyncActionToken: IMqttToken) {
-                        Helper.appendLog("Subscribed! :"+topicFr.toString(),"mqtt")
+                        //Helper.appendLog("Subscribed! :"+topicFr.toString(),"mqtt")
                         Log.w("Mqtt", "Subscribed! :"+topicFr.toString())
                         //subscribedTopics.add(topicFr)
                     }
@@ -404,24 +423,28 @@ class LocationService:Service(), LocationServiceInterface {
                         mqttHelper.unsubscribeToTopic(topic,object :IMqttActionListener{
                             override fun onSuccess(asyncActionToken: IMqttToken?) {
                                 receiveTopics.remove(topic)
-                                Log.d(TAG,"map")
-                                val SpatTopic = receiveTopics.first { w -> w.endsWith(tmpTopic.data.toString()) }
-                                mqttHelper.unsubscribeToTopic(SpatTopic,object :IMqttActionListener{
-                                    override fun onSuccess(asyncActionToken: IMqttToken?) {
-                                        receiveTopics.remove(SpatTopic)
-                                        mPlaybackInfoListener!!.onSPATUnsubscribe()
-                                        Log.d(TAG,"remove spat")
-                                    }
+                                Log.d(TAG, "map")
+                                val SpatTopic =
+                                    receiveTopics.firstOrNull() { w -> w.endsWith(tmpTopic.data.toString()) }
+                                if (SpatTopic != null) {
+                                    mqttHelper.unsubscribeToTopic(SpatTopic, object : IMqttActionListener {
+                                        override fun onSuccess(asyncActionToken: IMqttToken?) {
+                                            receiveTopics.remove(SpatTopic)
+                                            mPlaybackInfoListener!!.onSPATUnsubscribe()
+                                            Log.d(TAG, "remove spat")
+                                        }
 
-                                    override fun onFailure(asyncActionToken: IMqttToken?, exception: Throwable?) {
-                                    }
-                                })
+                                        override fun onFailure(asyncActionToken: IMqttToken?, exception: Throwable?) {
+                                        }
+                                    })
 
+                                }
                             }
 
                             override fun onFailure(asyncActionToken: IMqttToken?, exception: Throwable?) {
                             }
                         })
+
 
                     } else if (tmpTopic.type.equals(Topic.VIVI_EGNATIA) || tmpTopic.type.equals(Topic.VIVI) || tmpTopic.type.equals(
                             Topic.IVI

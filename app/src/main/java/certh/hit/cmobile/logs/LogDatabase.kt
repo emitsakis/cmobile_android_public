@@ -8,7 +8,7 @@ import android.content.Context
 /**
  * Created by anmpout on 28/02/2019
  */
-@Database(entities = arrayOf(GPSLogger::class), version = 1)
+@Database(entities = arrayOf(GPSLogger::class,MessageLogger::class), version = 1)
 abstract class LogDatabase : RoomDatabase() {
     abstract fun logDao(): LogDao
 
@@ -23,7 +23,7 @@ abstract class LogDatabase : RoomDatabase() {
                     if (INSTANCE == null) {
                         INSTANCE = Room.databaseBuilder<LogDatabase>(
                             context.applicationContext,
-                            LogDatabase::class.java!!, "database_offline")
+                            LogDatabase::class.java!!, "database_cmobile")
                             .build()
 
                     }

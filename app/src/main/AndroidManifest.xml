@@ -19,7 +19,9 @@
             android:supportsRtl="true"
             android:theme="@style/AppTheme"
             tools:replace="android:icon">
-        <activity android:name=".SettingsActivity">
+        <activity
+                android:name=".SettingsActivity"
+                android:parentActivityName=".HomeActivity">
         </activity>
         <activity
                 android:name=".SplashScreenActivity"
@@ -34,15 +36,16 @@
                 android:name=".HomeActivity"
                 android:theme="@style/Theme.AppCompat.NoActionBar">
             <intent-filter>
-                <action android:name="android.intent.action.VIEW" />
-                <category android:name="android.intent.category.DEFAULT" />
-                <category android:name="android.intent.category.BROWSABLE" />
-                <data android:scheme="http"
-                      android:host="c-mobile-project.eu"
-                      android:pathPrefix="/" />
+                <action android:name="android.intent.action.VIEW"/>
 
+                <category android:name="android.intent.category.DEFAULT"/>
+                <category android:name="android.intent.category.BROWSABLE"/>
+
+                <data
+                        android:host="c-mobile-project.eu"
+                        android:pathPrefix="/"
+                        android:scheme="http"/>
             </intent-filter>
-
         </activity>
 
         <service android:name=".service.LocationService">

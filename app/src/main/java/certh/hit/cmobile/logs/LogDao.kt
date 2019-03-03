@@ -17,8 +17,20 @@ interface LogDao {
     fun deleteAllGPSLogger()
 
     @Insert
-    fun insertAll(vararg logs :GPSLogger)
+    fun insertAllGPS(vararg logs: GPSLogger)
 
     @Insert
-    fun insert(user:GPSLogger)
+    fun insertGPSLogger(log: GPSLogger)
+
+    @Query("SELECT * FROM MessageLogger")
+    fun getAllMessages(): List<MessageLogger>
+
+    @Query("DELETE FROM MessageLogger")
+    fun deleteAllMessage()
+
+    @Insert
+    fun insertAllMessages(vararg messages: MessageLogger)
+
+    @Insert
+    fun insertMessage(message: MessageLogger)
 }

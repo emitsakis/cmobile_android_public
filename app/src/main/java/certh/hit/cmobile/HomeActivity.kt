@@ -13,6 +13,7 @@ import android.os.Bundle
 import android.os.Handler
 import android.os.IBinder
 import android.support.design.widget.FloatingActionButton
+import android.support.v7.app.AlertDialog
 import android.support.v7.app.AppCompatActivity
 import android.util.Log
 import android.view.View
@@ -389,5 +390,24 @@ class HomeActivity : AppCompatActivity(),OnMapReadyCallback,PermissionsListener 
         }
     }
 
+    override fun onBackPressed() {
+
+        val builder = AlertDialog.Builder(this@HomeActivity)
+        builder.setTitle("App background color")
+        builder.setMessage("Are you want to set the app background color to RED?")
+        builder.setPositiveButton("YES"){dialog, which ->
+            moveTaskToBack(true);
+            android.os.Process.killProcess(android.os.Process.myPid());
+            System.exit(1);
+        }
+        builder.setNegativeButton("No"){dialog,which ->
+        dialog.dismiss()
+
+        }
+        val dialog: AlertDialog = builder.create()
+
+        // Display the alert dialog on app interface
+        dialog.show()
+    }
 }
 

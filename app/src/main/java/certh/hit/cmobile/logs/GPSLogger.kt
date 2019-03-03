@@ -10,7 +10,7 @@ import android.arch.persistence.room.PrimaryKey
 @Entity(tableName = "GPSLogger")
 data class GPSLogger(
     @PrimaryKey(autoGenerate = true) var id: Long?,
-    @ColumnInfo(name = "timestamp") var timestamp: String?,
+    @ColumnInfo(name = "timestamp") var timestamp: Long?,
     @ColumnInfo(name = "latitude") var latitude: Double?,
     @ColumnInfo(name = "longitude") var longitude: Double?,
     @ColumnInfo(name = "altitude") var altitude: Double?,
@@ -19,6 +19,6 @@ data class GPSLogger(
     @ColumnInfo(name = "polygonId") var polygonId: Int?
 
 ) {
-    constructor() : this(null,"",0.0,0.0,0.0,0.0,
+    constructor() : this(null,0,0.0,0.0,0.0,0.0,
         0.0,0)
 }

@@ -16,9 +16,6 @@ class MqttHelper(context: Context) {
     internal val serverUri = "tcp://mqttcits.imet.gr:1883"
 
     internal val clientId = "anmpoutPhone"
-    //internal val subscriptionTopic = "hit_certh/ivi_hit/1/2/2/1/0/0/0/0/0/3/2/1/1/3/2/1/1/0/666"
-    //internal val subscriptionTopic = "hit_certh/v-ivi_hit/1/2/2/1/0/0/0/0/0/3/0/3/0/2/3/2/3/0/v.olgas-ymca"
-    //internal val subscriptionTopic = "hit_certh/spat_hit/1002"
     internal val username = "cmobile"
     internal val password = "antonis"
 
@@ -153,6 +150,12 @@ class MqttHelper(context: Context) {
     }
 
     fun isConnected():Boolean{
-        return mqttAndroidClient.isConnected
+        try {
+            return mqttAndroidClient.isConnected
+        }catch (ex: IllegalArgumentException){
+            ex.printStackTrace()
+            return false
+        }
+
     }
 }
