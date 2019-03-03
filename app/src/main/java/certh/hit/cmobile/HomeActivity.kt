@@ -112,8 +112,8 @@ class HomeActivity : AppCompatActivity(),OnMapReadyCallback,PermissionsListener 
     private fun setupUI() {
         mapView = findViewById(R.id.mapView)
         vIVIMessage = findViewById(R.id.vivi_message);
-        tf = Typeface.createFromAsset(getAssets(),  "fonts/led.ttf");
-        vIVIMessage!!.typeface =tf
+       // tf = Typeface.createFromAsset(assets,  "fonts/led.ttf");
+       // vIVIMessage!!.typeface =tf
         speedBar = findViewById(R.id.speed_bar)
         iviMessageParent = findViewById(R.id.vivi_message_parent)
         trafficLight = findViewById(R.id.traffic_light)
@@ -300,6 +300,7 @@ class HomeActivity : AppCompatActivity(),OnMapReadyCallback,PermissionsListener 
             vIVIMessage!!.typeface =tf
             vIVIMessage!!.isSelected  = true
             vIVIMessage!!.text = messageString
+            vIVIMessage!!.setTextColor(resources.getColor(R.color.gold));
             Handler().postDelayed({
                 iviMessageParent!!.visibility = GONE
             }, 30000)
@@ -311,6 +312,7 @@ class HomeActivity : AppCompatActivity(),OnMapReadyCallback,PermissionsListener 
             vIVIMessage!!.typeface =tf
             vIVIMessage!!.isSelected  = true
             vIVIMessage!!.text = messageString
+            vIVIMessage!!.setTextColor(resources.getColor(R.color.gold));
             Handler().postDelayed({
                 iviMessageParent!!.visibility = GONE
             }, 30000)
@@ -329,6 +331,7 @@ class HomeActivity : AppCompatActivity(),OnMapReadyCallback,PermissionsListener 
             vIVIMessage!!.typeface =tf
             vIVIMessage!!.isSelected  = true
             vIVIMessage!!.text = messageString
+            vIVIMessage!!.setTextColor(resources.getColor(R.color.white));
             Handler().postDelayed({
                 iviMessageParent!!.visibility = GONE
             }, 30000)

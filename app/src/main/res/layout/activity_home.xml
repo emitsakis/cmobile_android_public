@@ -110,7 +110,7 @@
                 android:textColor="@color/white"
                 android:layout_centerHorizontal="true"
                 android:freezesText="true"
-        />
+                android:fontFamily="sans-serif"/>
 
     </RelativeLayout>
     <android.support.design.widget.FloatingActionButton

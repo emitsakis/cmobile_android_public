@@ -204,7 +204,8 @@ class LocationService:Service(), LocationServiceInterface {
     }
 
     private fun handleDENMMessage(mqttMessage: MqttMessage, tmpTopic: Topic) {
-        mPlaybackInfoListener!!.onDenmUserMessage(DENMUserMessage())
+        var denmUserMessage = Helper.parseDENMUserMessage(mqttMessage.toString(),tmpTopic)
+        mPlaybackInfoListener!!.onDenmUserMessage(denmUserMessage)
 
     }
 

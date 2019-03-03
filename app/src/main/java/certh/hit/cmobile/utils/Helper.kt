@@ -240,11 +240,34 @@ object Helper {
                 }
 
             }
+            var management =  denm.optJSONObject("management")
+            if(management != null){
+              var eventPosition =  management.optJSONObject("eventPosition")
+                if(eventPosition != null){
+                  var lat =  eventPosition.optInt("latitude")
+                  var digits = countDigits(lat)
+                    message.latitude =  lat/  Math.pow(10.0,digits-1)
+                    var long =  eventPosition.optInt("longitude")
+                    digits = countDigits(long)
+                    message.longitude =  long/ Math.pow(10.0,digits-1)
+                }
+
+            }
 
         }
         message.topic =topic
         return message
     }
+        fun countDigits (number:Int):Double{
+            var count = 0
+            var num = number
 
+            while (num != 0) {
+                // num = num/10
+                num /= 10
+                ++count
+            }
+            return count.toDouble()
+        }
 
 }

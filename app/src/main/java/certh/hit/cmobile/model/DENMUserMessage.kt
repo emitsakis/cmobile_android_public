@@ -7,5 +7,4 @@ class DENMUserMessage : UserMessage(){
     var name :String? = null
     var causeCode :Int? =null
     var subCauseCode :Int? =null
-
 }
