@@ -12,7 +12,7 @@
             android:layout_height="match_parent"
             mapbox:mapbox_cameraTargetLat="40.633499"
             mapbox:mapbox_cameraTargetLng="22.945576"
-            mapbox:mapbox_cameraZoom="14"
+            mapbox:mapbox_cameraZoom="8"
             mapbox:mapbox_cameraBearing="120.33"
             mapbox:mapbox_cameraTilt="60.25"
             mapbox:mapbox_cameraZoomMax="20">

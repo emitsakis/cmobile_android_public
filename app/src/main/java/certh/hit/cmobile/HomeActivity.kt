@@ -19,7 +19,9 @@ import android.util.Log
 import android.view.View
 import android.view.View.GONE
 import android.view.View.VISIBLE
-import android.widget.*
+import android.widget.ImageView
+import android.widget.RelativeLayout
+import android.widget.TextView
 import certh.hit.cmobile.location.GpsStatus
 import certh.hit.cmobile.location.PermissionStatus
 import certh.hit.cmobile.model.*
@@ -33,7 +35,6 @@ import com.mapbox.android.core.permissions.PermissionsListener
 import com.mapbox.android.core.permissions.PermissionsManager
 import com.mapbox.mapboxsdk.Mapbox
 import com.mapbox.mapboxsdk.camera.CameraPosition
-import com.mapbox.mapboxsdk.camera.CameraUpdateFactory
 import com.mapbox.mapboxsdk.geometry.LatLng
 import com.mapbox.mapboxsdk.location.LocationComponentOptions
 import com.mapbox.mapboxsdk.location.OnCameraTrackingChangedListener
@@ -43,12 +44,16 @@ import com.mapbox.mapboxsdk.maps.MapView
 import com.mapbox.mapboxsdk.maps.MapboxMap
 import com.mapbox.mapboxsdk.maps.OnMapReadyCallback
 import com.mapbox.mapboxsdk.maps.Style
+import retrofit2.Call
+import retrofit2.Callback
+import retrofit2.Response
 
 
 /**
  * Created by anmpout on 21/01/2019
  */
-class HomeActivity : AppCompatActivity(),OnMapReadyCallback,PermissionsListener  {
+class HomeActivity : AppCompatActivity(),OnMapReadyCallback,PermissionsListener, MapboxMap.OnMapClickListener {
+
 
     private var mapView: MapView? = null
     private var mapboxMap: MapboxMap? = null
@@ -135,7 +140,7 @@ class HomeActivity : AppCompatActivity(),OnMapReadyCallback,PermissionsListener 
         Log.d(TAG, "onMapReady:")
         this.mapboxMap = mapboxMap
         mapboxMap.setStyle(Style.DARK){
-
+            this.mapboxMap!!.addOnMapClickListener(this);
             this.style = style
 
 
@@ -396,8 +401,8 @@ class HomeActivity : AppCompatActivity(),OnMapReadyCallback,PermissionsListener 
     override fun onBackPressed() {
 
         val builder = AlertDialog.Builder(this@HomeActivity)
-        builder.setTitle("App background color")
-        builder.setMessage("Are you want to set the app background color to RED?")
+        builder.setTitle("C- Mobile")
+        builder.setMessage("Exit application")
         builder.setPositiveButton("YES"){dialog, which ->
             moveTaskToBack(true);
             android.os.Process.killProcess(android.os.Process.myPid());
@@ -411,6 +416,40 @@ class HomeActivity : AppCompatActivity(),OnMapReadyCallback,PermissionsListener 
 
         // Display the alert dialog on app interface
         dialog.show()
+    }
+
+    override fun onMapClick(point: LatLng): Boolean {
+
+        // Convert LatLng coordinates to screen pixel and only query the rendered features.
+        val pixel = mapboxMap!!.projection.toScreenLocation(point)
+        val features = mapboxMap!!.queryRenderedFeatures(pixel)
+      //  map
+
+        // Get the first feature within the list if one exist
+        if (features.size > 0) {
+            val feature = features[0]
+            val call = CMobileApplication.getService()!!.listRepos("388917284")
+            call.enqueue(object : Callback<Osm> {
+                override fun onResponse(call: Call<Osm>, response: Response<Osm>) {
+                    println(response.body().toString())
+
+                }
+
+                override fun onFailure(call: Call<Osm>, t: Throwable) {
+
+                    println(t.localizedMessage)
+                }
+            })
+            // Ensure the feature has properties defined
+            if (feature.properties() != null) {
+                Log.d(TAG, String.format("Id = %s", feature.toString()))
+                for ((key, value) in feature.properties()!!.entrySet()) {
+                    // Log all the properties
+                    Log.d(TAG, String.format("%s = %s", key, value))
+                }
+            }
+        }
+        return false
     }
 }
 
