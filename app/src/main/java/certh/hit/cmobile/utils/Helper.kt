@@ -7,10 +7,7 @@ import android.util.Log
 import certh.hit.cmobile.BuildConfig
 import certh.hit.cmobile.model.*
 import org.json.JSONObject
-import java.io.BufferedWriter
-import java.io.File
-import java.io.FileWriter
-import java.io.IOException
+import java.io.*
 import java.security.KeyPairGenerator
 import java.security.SecureRandom
 import java.security.interfaces.ECPrivateKey
@@ -125,10 +122,53 @@ object Helper {
         var message = MAPUserMessage()
         val rootJsonObject = JSONObject(jsonString)
         if(rootJsonObject != null){
-            message.indexNumber = rootJsonObject.optInt("indexnumber",0)
-            message.latitude = rootJsonObject.optDouble("latitude",0.0)
-            message.longitude = rootJsonObject.optDouble("longitude",0.0)
+            if(rootJsonObject.has("map") && rootJsonObject.optJSONObject("map") != null){
+                var mapJSONObject = rootJsonObject.optJSONObject("map")
+                if(mapJSONObject.has("header")&& mapJSONObject.optJSONObject("header")!= null){
+                    var headerJSONObject = mapJSONObject.optJSONObject("header")
+                    message.indexNumber = headerJSONObject.optInt("indexnumber",0)
+                    message.latitude = headerJSONObject.optDouble("latitude",0.0)
+                    message.longitude = headerJSONObject.optDouble("longitude",0.0)
+
+                }
+
+                if(mapJSONObject.has("location") && mapJSONObject.optJSONObject("location") != null){
+                    var locationJSONObject = mapJSONObject.optJSONObject("location")
+                    if(locationJSONObject.has("osm")&& locationJSONObject.optJSONArray("osm")!= null){
+                        var osmJSONArray = locationJSONObject.optJSONArray("osm")
+                        if(osmJSONArray.length()==2){
+                            var osmStartJSONObject = osmJSONArray.optJSONObject(0)
+                            if(osmStartJSONObject!= null){
+                                if(osmStartJSONObject.has("osmtagstart")){
+                                    message.osmTagsStart = osmStartJSONObject.optInt("osmtagstart",0)
+                                }
+                                if(osmStartJSONObject.has("latitude")){
+                                    message.osmTagsStartLat = osmStartJSONObject.optDouble("latitude",0.0)
+                                }
+                                if(osmStartJSONObject.has("longitude")){
+                                    message.osmTagsStartLon = osmStartJSONObject.optDouble("longitude",0.0)
+                                }
+                            }
+                            var osmStopJSONObject = osmJSONArray.optJSONObject(1)
+                            if(osmStopJSONObject!= null){
+                                if(osmStopJSONObject.has("osmtagstop")){
+                                    message.osmTagsStop = osmStopJSONObject.optInt("osmtagstop",0)
+                                }
+                                if(osmStopJSONObject.has("latitude")){
+                                    message.osmTagsStopLat = osmStopJSONObject.optDouble("latitude",0.0)
+                                }
+                                if(osmStopJSONObject.has("longitude")){
+                                    message.osmTagsStopLon = osmStopJSONObject.optDouble("longitude",0.0)
+                                }
+                            }
+                        }
+                  }
+
+                }
+            }
+
         }
+
         message.topic =topic
         return message
     }
@@ -269,5 +309,21 @@ object Helper {
             }
             return count.toDouble()
         }
+
+    public String readFile(String fileName) throws IOException
+    {
+        BufferedReader reader = null;
+        reader = new BufferedReader(new InputStreamReader(getAssets().open(fileName), "UTF-8"));
+
+        String content = "";
+        String line;
+        while ((line = reader.readLine()) != null)
+        {
+            content = content + line
+        }
+
+        return content;
+
+    }
 
 }

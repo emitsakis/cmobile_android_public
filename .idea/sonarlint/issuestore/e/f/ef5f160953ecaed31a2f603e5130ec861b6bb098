@@ -1,16 +1,16 @@
 
->kotlin:S125¼"Remove this commented out code.(–…ß‹8²ì—”-
-}kotlin:S1192k"eDefine a constant instead of duplicating this literal "Error when registerLocationUpdates()" 3 times.(Ó¯š‰
-Ukotlin:S1172™"7Remove this unused function parameter "locationResult".(ã’Ñ¦üÿÿÿÿ
-pkotlin:S3776˜"RRefactor this method to reduce its Cognitive Complexity from 25 to the 15 allowed.(Â×Ø“ûÿÿÿÿ
-skotlin:S1186¶"ZAdd a nested comment explaining why this function is empty or complete the implementation.(È…Öà
-skotlin:S1186Ï"ZAdd a nested comment explaining why this function is empty or complete the implementation.(È…Öà
-<kotlin:S125Ü"Remove this commented out code.(Ã€Â‘şÿÿÿÿ
+Ckotlin:S125Ø"Remove this commented out code.(£ìÄ³ùÿÿÿÿ8Ë®ë—”-
+}kotlin:S1192n"eDefine a constant instead of duplicating this literal "Error when registerLocationUpdates()" 3 times.(Ó¯š‰
+Ukotlin:S1172 "7Remove this unused function parameter "locationResult".(ã’Ñ¦üÿÿÿÿ
+pkotlin:S3776Ÿ"RRefactor this method to reduce its Cognitive Complexity from 25 to the 15 allowed.(Â×Ø“ûÿÿÿÿ
+skotlin:S1186Ä"ZAdd a nested comment explaining why this function is empty or complete the implementation.(È…Öà
+>kotlin:S125Ã"Remove this commented out code.(–…ß‹8²ì—”-
 skotlin:S1186½"ZAdd a nested comment explaining why this function is empty or complete the implementation.(È…Öà
-Ckotlin:S125"Remove this commented out code.(àıÃ¹úÿÿÿÿ8 ­™”-
->kotlin:S125é"Remove this commented out code.(›İéÅ8ñÔí—”-
-Ckotlin:S125Ñ"Remove this commented out code.(£ìÄ³ùÿÿÿÿ8Ë®ë—”-
-5kotlin:S2757ó"Was "-=" meant instead?(Ø¼‰µùÿÿÿÿ
-pkotlin:S1192î"RDefine a constant instead of duplicating this literal "Subscribed fail!" 15 times.(öÀ˜Ñıÿÿÿÿ
-jkotlin:S117¬"RRename this local variable to match the regular expression "^[_a-z][a-zA-Z0-9]*$".(Ò¸è®
-gkotlin:S1192ö"NDefine a constant instead of duplicating this literal "UnSubscribed!" 9 times.( µËÇ
+jkotlin:S117³"RRename this local variable to match the regular expression "^[_a-z][a-zA-Z0-9]*$".(Ò¸è®
+>kotlin:S125ğ"Remove this commented out code.(›İéÅ8ñÔí—”-
+skotlin:S1186Ö"ZAdd a nested comment explaining why this function is empty or complete the implementation.(È…Öà
+5kotlin:S2757ú"Was "-=" meant instead?(Ø¼‰µùÿÿÿÿ
+gkotlin:S1192ı"NDefine a constant instead of duplicating this literal "UnSubscribed!" 9 times.( µËÇ
+Ckotlin:S125¡"Remove this commented out code.(àıÃ¹úÿÿÿÿ8 ­™”-
+pkotlin:S1192õ"RDefine a constant instead of duplicating this literal "Subscribed fail!" 15 times.(öÀ˜Ñıÿÿÿÿ
+<kotlin:S125ã"Remove this commented out code.(Ã€Â‘şÿÿÿÿ

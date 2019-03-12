@@ -39,3 +39,17 @@ l
 <app/src/main/java/certh/hit/cmobile/model/DENMUserMessage.kt,a\c\ac07a9a27b4c0f88f4722751046b86f8efad9e3c
 c
 3app/src/main/java/certh/hit/cmobile/utils/Helper.kt,d\d\dd3eaacede272a481b9542ce599eac6a017cac6c
+i
+9app/src/main/java/certh/hit/cmobile/CMobileApplication.kt,5\1\5163a0352a23285397e9b5de40f6fa67a8bd414b
+?
+settings.gradle,0\5\05efc8b1657769a27696d478ded1e95f38737233
+d
+4app/src/main/java/certh/hit/cmobile/utils/GetData.kt,8\8\886bfdc4349473541b35816406d345df107a4a6b
+b
+2app/src/main/java/certh/hit/cmobile/model/Osm.java,3\f\3fa4345fdfe22a86782741c7ffdccfdbe30a199e
+w
+Gapp/src/main/java/certh/hit/cmobile/service/LocationServiceInterface.kt,0\c\0cca547535c4de61f5d85446869e58b0fee3481b
+k
+;app/src/main/java/certh/hit/cmobile/model/MAPUserMessage.kt,6\e\6edd289f5d1871495960b0f370944826d7c1b132
+v
+Fapp/src/main/java/certh/hit/cmobile/service/LocationServiceCallback.kt,e\f\ef5d7a7ba8e8d1c03bd2f8d0ecad90a17997f294

@@ -25,9 +25,9 @@ class CMobileApplication : Application(){
     override fun onCreate() {
         super.onCreate()
             instance = this;
+
         retrofit = Retrofit.Builder()
             .baseUrl("https://www.openstreetmap.org/")
-            .client(OkHttpClient())
             .addConverterFactory(SimpleXmlConverterFactory.createNonStrict(
                      Persister(
                          AnnotationStrategy() // important part!

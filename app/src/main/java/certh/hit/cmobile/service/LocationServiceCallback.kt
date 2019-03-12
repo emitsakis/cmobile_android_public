@@ -18,7 +18,10 @@ public abstract class LocationServiceCallback {
 
     abstract fun onVIVIUserMessage(message: VIVIUserMessage)
 
-    abstract  fun onSPATUserMessage(message: SPATUserMessage)
+    abstract  fun onSPATUserMessage(
+        message: SPATUserMessage,
+        lastLocation: Location
+    )
 
     abstract fun onEgnatiaUserMessage(message: EgnatiaUserMessage)
 
@@ -27,4 +30,5 @@ public abstract class LocationServiceCallback {
     abstract fun onIVIUnsubscribe()
 
     abstract fun onSPATUnsubscribe()
+
 }

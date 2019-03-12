@@ -29,6 +29,7 @@ import certh.hit.cmobile.service.LocationService
 import certh.hit.cmobile.service.LocationServiceCallback
 import certh.hit.cmobile.service.LocationServiceInterface
 import certh.hit.cmobile.utils.ColorArcProgressBar
+import certh.hit.cmobile.utils.GeoHelper
 import certh.hit.cmobile.utils.Helper
 import certh.hit.cmobile.viewmodel.MapViewModel
 import com.mapbox.android.core.permissions.PermissionsListener
@@ -344,8 +345,11 @@ class HomeActivity : AppCompatActivity(),OnMapReadyCallback,PermissionsListener,
 
         }
 
-        override fun onSPATUserMessage(message: SPATUserMessage) {
-            if(message.eventState.equals("green",ignoreCase = true)){
+        override fun onSPATUserMessage(
+            message: SPATUserMessage,
+            lastLocation: Location
+        ) {
+            if(GeoHelper.isLocationInsideLineBox(message.mapMessage!!.osmTagsStartLat,message.mapMessage!!.osmTagsStartLon,message.mapMessage!!.osmTagsStopLat,message.mapMessage!!.osmTagsStopLon,lastLocation.latitude,lastLocation.longitude)&& message.eventState.equals("green",ignoreCase = true)){
                 trafficLight!!.visibility = VISIBLE
 
             }else{
@@ -359,6 +363,7 @@ class HomeActivity : AppCompatActivity(),OnMapReadyCallback,PermissionsListener,
 
 
         }
+
 
 
 
@@ -420,18 +425,22 @@ class HomeActivity : AppCompatActivity(),OnMapReadyCallback,PermissionsListener,
 
     override fun onMapClick(point: LatLng): Boolean {
 
-        // Convert LatLng coordinates to screen pixel and only query the rendered features.
+
+        return false
+    }
+
+    fun culculateOsmId(position: Location){
+        var point = LatLng(position.latitude,position.longitude)
         val pixel = mapboxMap!!.projection.toScreenLocation(point)
         val features = mapboxMap!!.queryRenderedFeatures(pixel)
-      //  map
+        //  map
 
         // Get the first feature within the list if one exist
         if (features.size > 0) {
             val feature = features[0]
-            val call = CMobileApplication.getService()!!.listRepos("388917284")
+            val call = CMobileApplication.getService()!!.listRepos(feature.id().toString())
             call.enqueue(object : Callback<Osm> {
                 override fun onResponse(call: Call<Osm>, response: Response<Osm>) {
-                    println(response.body().toString())
 
                 }
 
@@ -440,6 +449,7 @@ class HomeActivity : AppCompatActivity(),OnMapReadyCallback,PermissionsListener,
                     println(t.localizedMessage)
                 }
             })
+
             // Ensure the feature has properties defined
             if (feature.properties() != null) {
                 Log.d(TAG, String.format("Id = %s", feature.toString()))
@@ -449,7 +459,8 @@ class HomeActivity : AppCompatActivity(),OnMapReadyCallback,PermissionsListener,
                 }
             }
         }
-        return false
+
+
     }
 }
 

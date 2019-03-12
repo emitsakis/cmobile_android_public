@@ -33,6 +33,7 @@ class LocationService:Service(), LocationServiceInterface {
     private val locationPermission = Manifest.permission.ACCESS_FINE_LOCATION
 
     private lateinit var mqttHelper: MqttHelper
+    private  lateinit var lastLocation: Location
     private  var currentQuadTree :String  = ""
 
     private var availableTopics  :List<Topic> = DataFactory().getAllTopics()
@@ -76,8 +77,10 @@ class LocationService:Service(), LocationServiceInterface {
                    locationResult.lastLocation.longitude,
                    Helper.ZOOM_LEVEL
                )
+               lastLocation =locationResult.lastLocation
                checkLocationAndSubscribe2(locationResult, quadTree)
                checkLocationAndUnsubscribe(locationResult, quadTree)
+
            }
     }
 
@@ -186,6 +189,8 @@ class LocationService:Service(), LocationServiceInterface {
                     handleSPATMessage(mqttMessage,tmpTopic)
                 }else if (topic.contains(Topic.MAP)){
                     handleMAPMessage(mqttMessage,tmpTopic)
+
+
                 }else if(topic.contains(Topic.VIVI_EGNATIA)){
                     handleEgnatiaMessage(mqttMessage,tmpTopic)
 
@@ -202,6 +207,8 @@ class LocationService:Service(), LocationServiceInterface {
             }
         })
     }
+
+
 
     private fun handleDENMMessage(mqttMessage: MqttMessage, tmpTopic: Topic) {
         var denmUserMessage = Helper.parseDENMUserMessage(mqttMessage.toString(),tmpTopic)
@@ -247,7 +254,7 @@ class LocationService:Service(), LocationServiceInterface {
         var spatUserMessage = Helper.parseSPATMessage(mqttMessage.toString(),tmpTopic)
          var mapMessage = mapMessages.find { msg -> msg.indexNumber==spatUserMessage.indexNumber }
         spatUserMessage.mapMessage = mapMessage
-        mPlaybackInfoListener!!.onSPATUserMessage(spatUserMessage)
+        mPlaybackInfoListener!!.onSPATUserMessage(spatUserMessage,lastLocation)
 
     }
 
@@ -383,7 +390,7 @@ class LocationService:Service(), LocationServiceInterface {
                 else if(result.lastLocation.distanceTo(locationSPAT)<100){
                     var spatUserMessage = SPATUserMessage()
                     spatUserMessage.eventState = "green"
-                    mPlaybackInfoListener!!.onSPATUserMessage(spatUserMessage)
+                    mPlaybackInfoListener!!.onSPATUserMessage(spatUserMessage, lastLocation)
 
                 }else if(result.lastLocation.distanceTo(locationEgnatia)<100){
                     var egnatiaUserMessage = EgnatiaUserMessage()

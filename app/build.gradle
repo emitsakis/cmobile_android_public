@@ -68,6 +68,9 @@ dependencies {
     implementation 'com.android.support:multidex:1.0.3'
     // Add dependency
     implementation 'com.crashlytics.sdk.android:crashlytics:2.9.9'
+    // https://mvnrepository.com/artifact/com.spatial4j/spatial4j
+    implementation group: 'com.spatial4j', name: 'spatial4j', version: '0.5'
+
 
 
 

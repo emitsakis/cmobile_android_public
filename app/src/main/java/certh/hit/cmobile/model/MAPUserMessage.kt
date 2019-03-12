@@ -5,5 +5,12 @@ package certh.hit.cmobile.model
  */
 class MAPUserMessage: UserMessage(){
     var indexNumber: Int? = null
+    var osmTagsStart: Int? = null
+    var osmTagsStartLat: Double? = null
+    var osmTagsStartLon: Double? = null
+    var osmTagsStop: Int? = null
+    var osmTagsStopLat: Double? = null
+    var osmTagsStopLon: Double? = null
+
 
 }
