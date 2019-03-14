@@ -32,6 +32,8 @@ import certh.hit.cmobile.utils.ColorArcProgressBar
 import certh.hit.cmobile.utils.GeoHelper
 import certh.hit.cmobile.utils.Helper
 import certh.hit.cmobile.viewmodel.MapViewModel
+import com.google.gson.Gson
+import com.google.gson.reflect.TypeToken
 import com.mapbox.android.core.permissions.PermissionsListener
 import com.mapbox.android.core.permissions.PermissionsManager
 import com.mapbox.mapboxsdk.Mapbox
@@ -75,6 +77,7 @@ class HomeActivity : AppCompatActivity(),OnMapReadyCallback,PermissionsListener,
     private var  tf : Typeface? = null
     private var speedBar : ColorArcProgressBar? = null
     private var iviSing : ImageView? =null
+    private lateinit var  denmStaticMessages :DENMStaticMessage
     private val gpsObserver = Observer<GpsStatus> { status ->
         status?.let {
             Log.d(TAG,status.toString())
@@ -108,7 +111,8 @@ class HomeActivity : AppCompatActivity(),OnMapReadyCallback,PermissionsListener,
         Mapbox.getInstance(this, Helper.mapsKey)
         setContentView(R.layout.activity_home)
         setupUI()
-
+        var data = Helper.getAssetJsonData(applicationContext,"data.json")
+        denmStaticMessages = Gson().fromJson<DENMStaticMessage>(data,DENMStaticMessage::class.java)
         mapView?.onCreate(savedInstanceState)
         viewModel = ViewModelProviders.of(this).get(MapViewModel::class.java)
         mapView?.getMapAsync(this)
@@ -313,15 +317,19 @@ class HomeActivity : AppCompatActivity(),OnMapReadyCallback,PermissionsListener,
         }
 
         override fun onDenmUserMessage(message: DENMUserMessage) {
-            iviMessageParent!!.visibility = VISIBLE
-            var messageString = "Vehicle Breakdown"
-            vIVIMessage!!.typeface =tf
-            vIVIMessage!!.isSelected  = true
-            vIVIMessage!!.text = messageString
-            vIVIMessage!!.setTextColor(resources.getColor(R.color.gold));
-            Handler().postDelayed({
-                iviMessageParent!!.visibility = GONE
-            }, 30000)
+
+           var messageToShow = denmStaticMessages!!.list!!.firstOrNull() { w -> w.code==message.causeCode && w.subcode==message.subCauseCode }
+            if(messageToShow!= null) {
+                iviMessageParent!!.visibility = VISIBLE
+                var messageString = messageToShow.message
+                vIVIMessage!!.typeface = tf
+                vIVIMessage!!.isSelected = true
+                vIVIMessage!!.text = messageString
+                vIVIMessage!!.setTextColor(resources.getColor(R.color.gold));
+                Handler().postDelayed({
+                    iviMessageParent!!.visibility = GONE
+                }, 30000)
+            }
         }
 
         override fun onIVIMessageReceived(message: IVIUserMessage) {
@@ -377,7 +385,7 @@ class HomeActivity : AppCompatActivity(),OnMapReadyCallback,PermissionsListener,
     private val locationConnection = object : ServiceConnection {
 
         override fun onServiceConnected(name: ComponentName, service: IBinder) {
-            Log.d(TAG,"onStart: create MediaPlayer")
+            Log.d(TAG,"onStart: create service")
             val binder = service as LocationService.LocationBinder
             //get service
             locationSrv = binder.service

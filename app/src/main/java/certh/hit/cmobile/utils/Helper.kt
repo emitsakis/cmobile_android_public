@@ -1,6 +1,7 @@
 package certh.hit.cmobile.utils
 
 
+import android.content.Context
 import android.os.Environment
 import android.util.Base64
 import android.util.Log
@@ -310,20 +311,25 @@ object Helper {
             return count.toDouble()
         }
 
-    public String readFile(String fileName) throws IOException
-    {
-        BufferedReader reader = null;
-        reader = new BufferedReader(new InputStreamReader(getAssets().open(fileName), "UTF-8"));
-
-        String content = "";
-        String line;
-        while ((line = reader.readLine()) != null)
-        {
-            content = content + line
+    fun getAssetJsonData(context: Context,filename:String): String? {
+        var json: String? = null
+        try {
+            val inStream = context.getAssets().open(filename)
+            val size =  inStream.available()
+            val buffer = ByteArray(size)
+            inStream.read(buffer)
+            inStream.close()
+            json = String(buffer)
+        } catch (ex: IOException) {
+            ex.printStackTrace()
+            return null
         }
 
-        return content;
+        Log.e("data", json)
+        return json
 
     }
+
+
 
 }

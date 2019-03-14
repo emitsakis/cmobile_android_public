@@ -17,7 +17,7 @@ class DENMStaticMessage {
         @SerializedName("subcode")
         var subcode: Int = 0
         @SerializedName("message")
-        var message: Int = 0
+        var message: String = ""
     }
 }
 

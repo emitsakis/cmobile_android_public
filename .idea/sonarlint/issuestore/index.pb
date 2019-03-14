@@ -53,3 +53,9 @@ k
 ;app/src/main/java/certh/hit/cmobile/model/MAPUserMessage.kt,6\e\6edd289f5d1871495960b0f370944826d7c1b132
 v
 Fapp/src/main/java/certh/hit/cmobile/service/LocationServiceCallback.kt,e\f\ef5d7a7ba8e8d1c03bd2f8d0ecad90a17997f294
+h
+8app/src/main/java/certh/hit/cmobile/utils/GeoHelper.java,e\2\e248b0aa3d642bcd5b8dbc088b0c73f5debb583a
+k
+;app/src/main/java/certh/hit/cmobile/SplashScreenActivity.kt,6\7\673065af307d621994cc2912fdb486abc2414190
+n
+>app/src/main/java/certh/hit/cmobile/model/DENMStaticMessage.kt,e\5\e54784cbe4a296adfa31d6c11db916c30b035c8c
