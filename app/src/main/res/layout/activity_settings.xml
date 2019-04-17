@@ -7,7 +7,9 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:id="@+id/data_collection_parent"
-            android:layout_marginStart="16dp" android:layout_marginEnd="16dp" android:layout_marginTop="8dp"
+            android:layout_marginStart="16dp"
+            android:layout_marginEnd="16dp"
+            android:layout_marginTop="8dp"
             android:layout_marginBottom="8dp">
         <TextView
                 android:id="@+id/data_collection_title"
@@ -15,11 +17,13 @@
                 android:layout_height="wrap_content"
                 android:text="Data collection"
                 android:textSize="16sp"
-                android:textFontWeight="bold"
+                android:textStyle="bold"
                 android:textColor="@color/primary_blue"
         />
-        <RelativeLayout android:layout_width="match_parent" android:layout_height="wrap_content"
-                        android:layout_below="@+id/data_collection_title" android:layout_marginTop="8dp">
+        <RelativeLayout android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_below="@+id/data_collection_title"
+                        android:layout_marginTop="8dp">
             <TextView android:id="@+id/data_collection_description"
                       android:layout_width="wrap_content"
                       android:layout_height="wrap_content"

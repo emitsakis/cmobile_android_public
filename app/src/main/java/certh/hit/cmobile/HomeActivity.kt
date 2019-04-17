@@ -6,6 +6,7 @@ import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.content.ServiceConnection
+import android.content.pm.ActivityInfo
 import android.graphics.Color
 import android.graphics.Typeface
 import android.location.Location
@@ -74,9 +75,11 @@ class HomeActivity : AppCompatActivity(),OnMapReadyCallback,PermissionsListener,
     private var trafficLightYellow :ImageView? = null
     private var trafficLightGreen :ImageView? = null
     private var settings :FloatingActionButton? = null
+    private var flip :FloatingActionButton? = null
     private var  tf : Typeface? = null
     private var speedBar : ColorArcProgressBar? = null
-    private var iviSing : ImageView? =null
+    private var iviSing : ImageView? = null
+    private var  root : RelativeLayout? = null
     private lateinit var  denmStaticMessages :DENMStaticMessage
     private val gpsObserver = Observer<GpsStatus> { status ->
         status?.let {
@@ -138,7 +141,14 @@ class HomeActivity : AppCompatActivity(),OnMapReadyCallback,PermissionsListener,
                 val intent = Intent(applicationContext, SettingsActivity::class.java)
                 startActivity(intent)
             }})
-
+        flip = findViewById(R.id.flip)
+        flip!!.setOnClickListener(object : View.OnClickListener{
+            override fun onClick(p0: View?) {
+                requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_REVERSE_PORTRAIT
+                root!!.scaleX = 1.0f
+            }
+        })
+        root = findViewById(R.id.root)
     }
 
     override fun onMapReady(mapboxMap: MapboxMap) {
