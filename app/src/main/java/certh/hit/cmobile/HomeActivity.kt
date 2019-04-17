@@ -2,27 +2,44 @@ package certh.hit.cmobile
 
 import android.arch.lifecycle.Observer
 import android.arch.lifecycle.ViewModelProviders
+import android.content.ComponentName
+import android.content.Context
+import android.content.Intent
+import android.content.ServiceConnection
+import android.content.pm.ActivityInfo
+import android.graphics.Color
 import android.graphics.Typeface
 import android.location.Location
 import android.os.Bundle
+import android.os.Handler
+import android.os.IBinder
+import android.support.design.widget.FloatingActionButton
+import android.support.v7.app.AlertDialog
 import android.support.v7.app.AppCompatActivity
 import android.util.Log
+import android.view.View
+import android.view.View.GONE
 import android.view.View.VISIBLE
+import android.widget.ImageView
 import android.widget.RelativeLayout
 import android.widget.TextView
-import android.widget.Toast
 import certh.hit.cmobile.location.GpsStatus
 import certh.hit.cmobile.location.PermissionStatus
-import certh.hit.cmobile.model.UserMessage
+import certh.hit.cmobile.model.*
+import certh.hit.cmobile.service.LocationService
+import certh.hit.cmobile.service.LocationServiceCallback
+import certh.hit.cmobile.service.LocationServiceInterface
+import certh.hit.cmobile.utils.ColorArcProgressBar
+import certh.hit.cmobile.utils.GeoHelper
 import certh.hit.cmobile.utils.Helper
 import certh.hit.cmobile.viewmodel.MapViewModel
+import com.google.gson.Gson
+import com.google.gson.reflect.TypeToken
 import com.mapbox.android.core.permissions.PermissionsListener
 import com.mapbox.android.core.permissions.PermissionsManager
-import com.mapbox.geojson.Feature
-import com.mapbox.geojson.FeatureCollection
-import com.mapbox.geojson.LineString
-import com.mapbox.geojson.Point
 import com.mapbox.mapboxsdk.Mapbox
+import com.mapbox.mapboxsdk.camera.CameraPosition
+import com.mapbox.mapboxsdk.geometry.LatLng
 import com.mapbox.mapboxsdk.location.LocationComponentOptions
 import com.mapbox.mapboxsdk.location.OnCameraTrackingChangedListener
 import com.mapbox.mapboxsdk.location.modes.CameraMode
@@ -31,14 +48,15 @@ import com.mapbox.mapboxsdk.maps.MapView
 import com.mapbox.mapboxsdk.maps.MapboxMap
 import com.mapbox.mapboxsdk.maps.OnMapReadyCallback
 import com.mapbox.mapboxsdk.maps.Style
-import com.mapbox.mapboxsdk.style.sources.GeoJsonSource
-import timber.log.Timber
+import retrofit2.Call
+import retrofit2.Callback
+import retrofit2.Response
 
 
 /**
  * Created by anmpout on 21/01/2019
  */
-class HomeActivity : AppCompatActivity(),OnMapReadyCallback,PermissionsListener  {
+class HomeActivity : AppCompatActivity(),OnMapReadyCallback,PermissionsListener, MapboxMap.OnMapClickListener {
 
 
     private var mapView: MapView? = null
@@ -47,9 +65,22 @@ class HomeActivity : AppCompatActivity(),OnMapReadyCallback,PermissionsListener 
     private var style :Style? = null
     private val TAG: String = HomeActivity::class.java.canonicalName  as String
     private var viewModel: MapViewModel? = null
-    private var vmsRelative :RelativeLayout? = null
-    private var  tx :TextView? = null
+    private var locationIntent :Intent? = null
+    private var locationSrv: LocationService? = null
+    private var mLocationAdapter:LocationServiceInterface? = null
+    private var  vIVIMessage :TextView? = null
+    private var iviMessageParent :RelativeLayout? = null
+    private var trafficLight :RelativeLayout? = null
+    private var trafficLightRed :ImageView? = null
+    private var trafficLightYellow :ImageView? = null
+    private var trafficLightGreen :ImageView? = null
+    private var settings :FloatingActionButton? = null
+    private var flip :FloatingActionButton? = null
     private var  tf : Typeface? = null
+    private var speedBar : ColorArcProgressBar? = null
+    private var iviSing : ImageView? = null
+    private var  root : RelativeLayout? = null
+    private lateinit var  denmStaticMessages :DENMStaticMessage
     private val gpsObserver = Observer<GpsStatus> { status ->
         status?.let {
             Log.d(TAG,status.toString())
@@ -71,9 +102,7 @@ class HomeActivity : AppCompatActivity(),OnMapReadyCallback,PermissionsListener 
 
     private val lastLocationObserver = Observer<UserMessage> { userMessage ->
         userMessage?.let {
-            if(userMessage.topic?.type.equals("v-ivi_hit",true)){
-              //  vmsRelative!!.visibility = VISIBLE
-            }
+
 
         }
     }
@@ -84,63 +113,85 @@ class HomeActivity : AppCompatActivity(),OnMapReadyCallback,PermissionsListener 
         super.onCreate(savedInstanceState)
         Mapbox.getInstance(this, Helper.mapsKey)
         setContentView(R.layout.activity_home)
-        mapView = findViewById(R.id.mapView)
-        //vmsRelative = findViewById(R.id.vms)
-        tx =findViewById(R.id.textview1);
-
-        tf = Typeface.createFromAsset(getAssets(),  "fonts/led.ttf");
-
-        tx!!.typeface =tf
+        setupUI()
+        var data = Helper.getAssetJsonData(applicationContext,"data.json")
+        denmStaticMessages = Gson().fromJson<DENMStaticMessage>(data,DENMStaticMessage::class.java)
         mapView?.onCreate(savedInstanceState)
         viewModel = ViewModelProviders.of(this).get(MapViewModel::class.java)
         mapView?.getMapAsync(this)
 
-//        mapView?.getMapAsync { mapboxMap ->
-//            mapboxMap.setStyle(Style.DARK) {
-//                for (singleLayer in it.layers) {
-//                   // Log.d(TAG, "onMapReady: layer id = " + singleLayer.id)
-//                }
-//                Log.d(TAG, "onMapReady: layer id = " + it.layers.get(0).id)
-//                mapboxMap.style?.getLayer("water")?.setProperties(PropertyFactory.fillColor(Color.parseColor("#0e6001")))
-//
-//                // Map is set up and the style has loaded. Now you can add data or make other map adjustments
-//            }
-//        }
+    }
 
+    private fun setupUI() {
+        mapView = findViewById(R.id.mapView)
+        vIVIMessage = findViewById(R.id.vivi_message);
+       // tf = Typeface.createFromAsset(assets,  "fonts/led.ttf");
+       // vIVIMessage!!.typeface =tf
+        speedBar = findViewById(R.id.speed_bar)
+        iviMessageParent = findViewById(R.id.vivi_message_parent)
+        trafficLight = findViewById(R.id.traffic_light)
+        trafficLightRed = findViewById(R.id.red_light)
+        trafficLightYellow = findViewById(R.id.yellow_light)
+        trafficLightGreen = findViewById(R.id.green_light)
+        iviSing = findViewById(R.id.ivi_sign)
+        settings = findViewById(R.id.settings)
+        settings!!.setOnClickListener(object : View.OnClickListener {
+            override fun onClick(v: View?) {
+                //Go to next page i.e, start the next activity.
+                val intent = Intent(applicationContext, SettingsActivity::class.java)
+                startActivity(intent)
+            }})
+        flip = findViewById(R.id.flip)
+        flip!!.setOnClickListener(object : View.OnClickListener{
+            override fun onClick(p0: View?) {
+                requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_REVERSE_PORTRAIT
+                root!!.scaleX = 1.0f
+            }
+        })
+        root = findViewById(R.id.root)
     }
 
     override fun onMapReady(mapboxMap: MapboxMap) {
         Log.d(TAG, "onMapReady:")
         this.mapboxMap = mapboxMap
         mapboxMap.setStyle(Style.DARK){
-
+            this.mapboxMap!!.addOnMapClickListener(this);
             this.style = style
+
 
            enableLocationComponent()
             subscribeToGpsListener()
-            subscribeToLocationPermissionListener()
-            subscribeToLocationUpdate()
+           // subscribeToLocationPermissionListener()
         }
     }
 
-    private fun subscribeToLocationUpdate() = viewModel?.lastLocation?.observe(this,lastLocationObserver)
+   // private fun subscribeToLocationUpdate() = viewModel?.lastLocation?.observe(this,lastLocationObserver)
 
 
     private fun subscribeToGpsListener() = viewModel?.gpsStatusLiveData?.observe(this, gpsObserver)
 
-    private fun subscribeToLocationPermissionListener() =
-        viewModel?.locationPermissionStatusLiveData?.observe(this, permissionObserver)
+//    private fun subscribeToLocationPermissionListener() =
+//        viewModel?.locationPermissionStatusLiveData?.observe(this, permissionObserver)
 
     @SuppressWarnings("MissingPermission")
     private fun enableLocationComponent() {
 
         // Check if permissions are enabled and if not request
         if (PermissionsManager.areLocationPermissionsGranted(this)) {
+            val options1 = LocationComponentOptions.builder(this)
+                .gpsDrawable(R.drawable.ic_cursor_)
+                .elevation(5f)
+                .accuracyAlpha(0.1f)
+                .trackingGesturesManagement(false)
+                .compassAnimationEnabled(false)
+                .build()
+
+            // Create and customize the LocationComponent's options
             val options = LocationComponentOptions.builder(this)
-                .gpsDrawable(R.drawable.ic_cursor)
-                .bearingTintColor(R.color.primary_blue)
-                .accuracyAlpha(1.0f)
-                .trackingGesturesManagement(true)
+                .elevation(5f)
+                .accuracyAlpha(.1f)
+                .accuracyColor(Color.BLUE)
+              //  .gpsDrawable(R.drawable.ic_cursor_)
                 .build()
 
             // Get an instance of the component
@@ -162,25 +213,18 @@ class HomeActivity : AppCompatActivity(),OnMapReadyCallback,PermissionsListener 
                 }
             })
 
+            val position = CameraPosition.Builder()
+                .zoom(18.0)
+                .build()
 
-            // Set the component's camera mode
-            locationComponent?.cameraMode = CameraMode.TRACKING_GPS_NORTH
+             //Set the component's camera mode
+            locationComponent?.cameraMode = CameraMode.TRACKING_GPS
 
             // Set the component's render mode
             locationComponent?.renderMode = RenderMode.GPS
             locationComponent?.isLocationComponentEnabled = true
-            val routeCoordinates = ArrayList<Point>()
-            routeCoordinates.add(Point.fromLngLat(-118.394391, 33.397676))
-            routeCoordinates.add(Point.fromLngLat(-100.370917, 20.391142))
+            mapboxMap!!.cameraPosition = position
 
-// Create the LineString from the list of coordinates and then make a GeoJSON FeatureCollection so that we can add the line to our map as a layer.
-
-            val lineString = LineString.fromLngLats(routeCoordinates)
-            val featureCollection = FeatureCollection.fromFeatures(
-                arrayOf(Feature.fromGeometry(lineString)))
-
-            val geoJsonSource = GeoJsonSource("geojson-source", featureCollection)
-            mapboxMap?.style!!.addSource(geoJsonSource)
 
         } else {
 
@@ -198,6 +242,10 @@ class HomeActivity : AppCompatActivity(),OnMapReadyCallback,PermissionsListener 
     public override fun onResume() {
         super.onResume()
         mapView?.onResume()
+        if (mLocationAdapter == null) {
+            initializeService()
+
+        }
     }
 
     public override fun onPause() {
@@ -216,6 +264,11 @@ class HomeActivity : AppCompatActivity(),OnMapReadyCallback,PermissionsListener 
     }
 
     override fun onDestroy() {
+        if (mLocationAdapter != null) {
+        unbindService(locationConnection)
+        stopService(locationIntent)
+
+    }
         super.onDestroy()
         mapView?.onDestroy()
 
@@ -225,21 +278,207 @@ class HomeActivity : AppCompatActivity(),OnMapReadyCallback,PermissionsListener 
         super.onSaveInstanceState(outState)
         mapView?.onSaveInstanceState(outState)
     }
+
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<String>, grantResults: IntArray) {
         permissionsManager?.onRequestPermissionsResult(requestCode, permissions, grantResults)
     }
 
     override fun onExplanationNeeded(permissionsToExplain: MutableList<String>?) {
-    Toast.makeText(this, "ddd", Toast.LENGTH_LONG).show()
+
     }
 
     override fun onPermissionResult(granted: Boolean) {
         if (granted) {
             enableLocationComponent()
         } else {
-            Toast.makeText(this, "dd", Toast.LENGTH_LONG).show()
-            finish()
+            iviMessageParent!!.visibility = VISIBLE
+            var messageString = "Please go to application setting and enable location permission in order to use the service"
+            vIVIMessage!!.text =messageString
+            vIVIMessage!!.typeface = Typeface.DEFAULT
+            vIVIMessage!!.isSelected  = true
+            Handler().postDelayed({
+                iviMessageParent!!.visibility = GONE
+                finish()
+            }, 60000)
+
         }
+    }
+
+    inner class PlaybackListener : LocationServiceCallback() {
+        override fun onSPATUnsubscribe() {
+            trafficLight!!.visibility = GONE
+        }
+
+        override fun onIVIUnsubscribe() {
+            iviSing!!.visibility = GONE
+
+        }
+
+        override fun onEgnatiaUserMessage(message: EgnatiaUserMessage) {
+            iviMessageParent!!.visibility = VISIBLE
+            var messageString = message.egantiaMessage
+            vIVIMessage!!.typeface =tf
+            vIVIMessage!!.isSelected  = true
+            vIVIMessage!!.text = messageString
+            vIVIMessage!!.setTextColor(resources.getColor(R.color.gold));
+            Handler().postDelayed({
+                iviMessageParent!!.visibility = GONE
+            }, 30000)
+        }
+
+        override fun onDenmUserMessage(message: DENMUserMessage) {
+
+           var messageToShow = denmStaticMessages!!.list!!.firstOrNull() { w -> w.code==message.causeCode && w.subcode==message.subCauseCode }
+            if(messageToShow!= null) {
+                iviMessageParent!!.visibility = VISIBLE
+                var messageString = messageToShow.message
+                vIVIMessage!!.typeface = tf
+                vIVIMessage!!.isSelected = true
+                vIVIMessage!!.text = messageString
+                vIVIMessage!!.setTextColor(resources.getColor(R.color.gold));
+                Handler().postDelayed({
+                    iviMessageParent!!.visibility = GONE
+                }, 30000)
+            }
+        }
+
+        override fun onIVIMessageReceived(message: IVIUserMessage) {
+            Log.d(TAG,message.toString())
+            iviSing!!.visibility = VISIBLE
+            speedBar!!.setMaxValues(50f)
+
+        }
+
+        override fun onVIVIUserMessage(message: VIVIUserMessage) {
+            iviMessageParent!!.visibility = VISIBLE
+            var messageString = message.route+" "+Helper.grapMinutes(message.eta)+"'"
+            vIVIMessage!!.typeface =tf
+            vIVIMessage!!.isSelected  = true
+            vIVIMessage!!.text = messageString
+            vIVIMessage!!.setTextColor(resources.getColor(R.color.white));
+            Handler().postDelayed({
+                iviMessageParent!!.visibility = GONE
+            }, 30000)
+
+
+        }
+
+        override fun onSPATUserMessage(
+            message: SPATUserMessage,
+            lastLocation: Location
+        ) {
+            if(GeoHelper.isLocationInsideLineBox(message.mapMessage!!.osmTagsStartLat,message.mapMessage!!.osmTagsStartLon,message.mapMessage!!.osmTagsStopLat,message.mapMessage!!.osmTagsStopLon,lastLocation.latitude,lastLocation.longitude)&& message.eventState.equals("green",ignoreCase = true)){
+                trafficLight!!.visibility = VISIBLE
+
+            }else{
+                trafficLight!!.visibility = GONE
+
+            }
+        }
+
+        override fun onPositionChanged(position: Location) {
+            speedBar!!.setCurrentValues(Helper.toKmPerHour(position.speed).toFloat())
+
+
+        }
+
+
+
+
+    }
+
+    /**
+     * Connect to the service
+     *
+     *
+     */
+    private val locationConnection = object : ServiceConnection {
+
+        override fun onServiceConnected(name: ComponentName, service: IBinder) {
+            Log.d(TAG,"onStart: create service")
+            val binder = service as LocationService.LocationBinder
+            //get service
+            locationSrv = binder.service
+            locationSrv!!.setPlaybackInfoListener(PlaybackListener())
+            mLocationAdapter = locationSrv
+            mLocationAdapter!!.setupNotification("","")
+            Log.d(TAG,"connectied")
+
+
+        }
+
+        override fun onServiceDisconnected(name: ComponentName) {
+            Log.d(TAG,"onServiceDisconnected")
+            mLocationAdapter = null
+            //  musicBound = false;
+        }
+    }
+
+    private fun initializeService() {
+        if (locationIntent == null) {
+            locationIntent = Intent(this, LocationService::class.java)
+            bindService(locationIntent, locationConnection, Context.BIND_AUTO_CREATE)
+        }
+    }
+
+    override fun onBackPressed() {
+
+        val builder = AlertDialog.Builder(this@HomeActivity)
+        builder.setTitle("C- Mobile")
+        builder.setMessage("Exit application")
+        builder.setPositiveButton("YES"){dialog, which ->
+            moveTaskToBack(true);
+            android.os.Process.killProcess(android.os.Process.myPid());
+            System.exit(1);
+        }
+        builder.setNegativeButton("No"){dialog,which ->
+        dialog.dismiss()
+
+        }
+        val dialog: AlertDialog = builder.create()
+
+        // Display the alert dialog on app interface
+        dialog.show()
+    }
+
+    override fun onMapClick(point: LatLng): Boolean {
+
+
+        return false
+    }
+
+    fun culculateOsmId(position: Location){
+        var point = LatLng(position.latitude,position.longitude)
+        val pixel = mapboxMap!!.projection.toScreenLocation(point)
+        val features = mapboxMap!!.queryRenderedFeatures(pixel)
+        //  map
+
+        // Get the first feature within the list if one exist
+        if (features.size > 0) {
+            val feature = features[0]
+            val call = CMobileApplication.getService()!!.listRepos(feature.id().toString())
+            call.enqueue(object : Callback<Osm> {
+                override fun onResponse(call: Call<Osm>, response: Response<Osm>) {
+
+                }
+
+                override fun onFailure(call: Call<Osm>, t: Throwable) {
+
+                    println(t.localizedMessage)
+                }
+            })
+
+            // Ensure the feature has properties defined
+            if (feature.properties() != null) {
+                Log.d(TAG, String.format("Id = %s", feature.toString()))
+                for ((key, value) in feature.properties()!!.entrySet()) {
+                    // Log all the properties
+                    Log.d(TAG, String.format("%s = %s", key, value))
+                }
+            }
+        }
+
+
     }
 }
 

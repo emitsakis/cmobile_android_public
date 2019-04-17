@@ -15,10 +15,7 @@ class MqttHelper(context: Context) {
 
     internal val serverUri = "tcp://mqttcits.imet.gr:1883"
 
-    internal val clientId = "js-utility-SY0NY"
-    //internal val subscriptionTopic = "hit_certh/ivi_hit/1/2/2/1/0/0/0/0/0/3/2/1/1/3/2/1/1/0/666"
-    //internal val subscriptionTopic = "hit_certh/v-ivi_hit/1/2/2/1/0/0/0/0/0/3/0/3/0/2/3/2/3/0/v.olgas-ymca"
-    //internal val subscriptionTopic = "hit_certh/spat_hit/1002"
+    internal val clientId = "anmpoutPhone"
     internal val username = "cmobile"
     internal val password = "antonis"
 
@@ -45,7 +42,6 @@ class MqttHelper(context: Context) {
         })
         connect()
     }
-
     fun setCallback(callback: MqttCallbackExtended) {
         mqttAndroidClient.setCallback(callback)
     }
@@ -53,7 +49,7 @@ class MqttHelper(context: Context) {
     public fun connect() {
         val mqttConnectOptions = MqttConnectOptions()
         mqttConnectOptions.isAutomaticReconnect = true
-        mqttConnectOptions.isCleanSession = false
+        mqttConnectOptions.isCleanSession = true
         mqttConnectOptions.userName = username
         mqttConnectOptions.password = password.toCharArray()
 
@@ -126,7 +122,7 @@ class MqttHelper(context: Context) {
         try {
             mqttAndroidClient.unsubscribe(topics,  null, object : IMqttActionListener {
                 override fun onSuccess(asyncActionToken: IMqttToken) {
-                    Log.w("Mqtt", "Subscribed!")
+                    Log.w("Mqtt", "UnSubscribed!")
                 }
 
                 override fun onFailure(asyncActionToken: IMqttToken, exception: Throwable) {
@@ -141,13 +137,12 @@ class MqttHelper(context: Context) {
     }
 
     public fun disconnect(){
+        mqttAndroidClient.unregisterResources()
         mqttAndroidClient.disconnect(null,object:IMqttActionListener{
             override fun onSuccess(asyncActionToken: IMqttToken?) {
-                TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
             }
 
             override fun onFailure(asyncActionToken: IMqttToken?, exception: Throwable?) {
-                TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
             }
 
         })
@@ -155,6 +150,12 @@ class MqttHelper(context: Context) {
     }
 
     fun isConnected():Boolean{
-        return mqttAndroidClient.isConnected
+        try {
+            return mqttAndroidClient.isConnected
+        }catch (ex: IllegalArgumentException){
+            ex.printStackTrace()
+            return false
+        }
+
     }
 }

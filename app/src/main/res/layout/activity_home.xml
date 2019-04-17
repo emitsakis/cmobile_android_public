@@ -1,23 +1,26 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout
+        android:id="@+id/root"
         xmlns:android="http://schemas.android.com/apk/res/android"
         xmlns:mapbox="http://schemas.android.com/apk/res-auto"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        xmlns:app="http://schemas.android.com/apk/res-auto">
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        android:keepScreenOn="true">
     <com.mapbox.mapboxsdk.maps.MapView
             android:id="@+id/mapView"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            mapbox:mapbox_cameraTargetLat="40.73581"
-            mapbox:mapbox_cameraTargetLng="-73.99155"
-            mapbox:mapbox_cameraZoom="18"
+            mapbox:mapbox_cameraTargetLat="40.633499"
+            mapbox:mapbox_cameraTargetLng="22.945576"
+            mapbox:mapbox_cameraZoom="8"
             mapbox:mapbox_cameraBearing="120.33"
             mapbox:mapbox_cameraTilt="60.25"
-            mapbox:mapbox_cameraZoomMax="20"
-            mapbox:mapbox_uiRotateGestures="true"
-    >
+            mapbox:mapbox_cameraZoomMax="20">
     </com.mapbox.mapboxsdk.maps.MapView>
+    <RelativeLayout android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:background="@drawable/gradient_map_background">
     <RelativeLayout android:id="@+id/billboard"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -31,12 +34,12 @@
                     android:layout_width="50dp"
                     android:layout_height="50dp"
                     android:layout_gravity="center_horizontal"
-                    android:id="@+id/bar2"
+                    android:id="@+id/speed_bar"
                     app:is_need_content="true"
-                    app:front_color1="#69cbd2"
-                    app:front_color2="#7eb6e2"
-                    app:front_color3="#989df7"
-                    app:max_value="100"
+                    app:front_color1="#00ff00"
+                    app:front_color2="#ffff00"
+                    app:front_color3="#ff0000"
+                    app:max_value="150"
                     app:back_width="5dp"
                     app:front_width="5dp"
                     app:total_engle="270"
@@ -45,22 +48,29 @@
                     app:is_need_title="false"
                     app:back_color="@android:color/darker_gray"
             />
-            <ImageView android:layout_width="50dp"
-                       android:layout_height="50dp"
-                       android:src="@drawable/speed_limit_50"
-                       android:layout_toEndOf="@id/bar2"
-                       android:layout_marginStart="-30dp"
-                       android:layout_marginTop="20dp"/>
+            <ImageView
+                    android:layout_width="50dp"
+                    android:layout_height="50dp"
+                    android:src="@drawable/speed_limit_50"
+                    android:layout_toEndOf="@id/speed_bar"
+                    android:layout_marginStart="-30dp"
+                    android:layout_marginTop="20dp"
+                    android:visibility="gone" android:id="@+id/ivi_sign"/>
+
 
         </RelativeLayout>
-        <RelativeLayout android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_alignParentEnd="true" android:layout_marginTop="20dp"
-                        android:layout_marginEnd="10dp">
+        <RelativeLayout
+                android:id="@+id/traffic_light"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentEnd="true"
+                android:layout_marginTop="60dp"
+                android:layout_marginEnd="10dp"
+                android:visibility="gone">
             <ImageView android:id="@+id/red_light"
-                       android:layout_width="wrap_content"
-                       android:layout_height="wrap_content"
-                       android:src="@drawable/red_lighter"
+                       android:layout_width="50dp"
+                       android:layout_height="50dp"
+                       android:src="@drawable/ic_sea_waves"
                        android:layout_marginBottom="10dp"/>
 
             <ImageView android:id="@+id/yellow_light"
@@ -68,33 +78,73 @@
                        android:layout_height="wrap_content"
                        android:src="@drawable/yellow_lighter"
                        android:layout_below="@id/red_light"
-                       android:layout_marginBottom="10dp"/>
+                       android:layout_marginBottom="10dp"
+            android:visibility="gone"/>
 
             <ImageView android:id="@+id/green_light"
                        android:layout_width="wrap_content"
                        android:layout_height="wrap_content"
                        android:src="@drawable/green_lighter"
                        android:layout_below="@id/yellow_light"
-                       android:layout_marginBottom="10dp"/>
+                       android:layout_marginBottom="10dp"
+                       android:visibility="gone"/>
 
         </RelativeLayout>
     </RelativeLayout>
-
     <RelativeLayout
+            android:id="@+id/vivi_message_parent"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="@color/blackColor"
-    android:layout_alignParentBottom="true">
+            android:background="@color/blackColorTransparent"
+            android:layout_alignParentBottom="true"
+            android:visibility="gone">
         <TextView
-                android:id="@+id/textview1"
+                android:id="@+id/vivi_message"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="XANTH 2'"
-                android:textSize="40sp"
-                android:textColor="#ffd700"
+                android:text="lease go to application setting and enable location permission in order to use the service"
+                android:singleLine="true"
+                android:ellipsize="marquee"
+                android:marqueeRepeatLimit="marquee_forever"
+                android:focusable="true"
+                android:focusableInTouchMode="true"
+                android:scrollHorizontally="true"
+                android:textSize="35sp"
+                android:textColor="@color/white"
                 android:layout_centerHorizontal="true"
-        />
+                android:freezesText="true"
+                android:fontFamily="sans-serif"/>
 
     </RelativeLayout>
-
+    <android.support.design.widget.FloatingActionButton
+            android:id="@+id/settings"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentEnd="true"
+            android:layout_alignParentBottom="true"
+            android:layout_marginBottom="30dp"
+            android:layout_marginRight="8dp"
+            android:layout_marginEnd="8dp"
+            android:src="@drawable/ic_settings"
+            android:visibility="visible"
+            app:backgroundTint="@color/blackColorTransparent"
+            app:layout_anchorGravity="bottom|right|end"
+            app:fabSize="normal"
+            app:useCompatPadding="true"/>
+    <android.support.design.widget.FloatingActionButton
+            android:id="@+id/flip"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentEnd="true"
+            android:layout_alignParentBottom="true"
+            android:layout_marginBottom="100dp"
+            android:layout_marginRight="8dp"
+            android:layout_marginEnd="8dp"
+            android:src="@drawable/ic_sea_waves"
+            android:visibility="visible"
+            app:backgroundTint="@color/blackColorTransparent"
+            app:layout_anchorGravity="bottom|right|end"
+            app:fabSize="normal"
+            app:useCompatPadding="true"/>
+    </RelativeLayout>
 </RelativeLayout>

@@ -1,20 +1,18 @@
 package certh.hit.cmobile.utils
 
 
-import android.os.Build
+import android.content.Context
+import android.os.Environment
 import android.util.Base64
 import android.util.Log
 import certh.hit.cmobile.BuildConfig
-import certh.hit.cmobile.model.IVIUserMessage
-import certh.hit.cmobile.model.Topic
-import certh.hit.cmobile.model.VIVIUserMessage
+import certh.hit.cmobile.model.*
 import org.json.JSONObject
-import java.io.UnsupportedEncodingException
+import java.io.*
 import java.security.KeyPairGenerator
 import java.security.SecureRandom
 import java.security.interfaces.ECPrivateKey
 import java.security.interfaces.ECPublicKey
-
 
 
 /**
@@ -23,6 +21,7 @@ import java.security.interfaces.ECPublicKey
 object Helper {
     private val TAG: String = Helper::class.java.canonicalName  as String
     val mapsKey = BuildConfig.MAP_BOX_API_KEY
+    val ZOOM_LEVEL = 17
 
 
     fun createUID(){
@@ -89,6 +88,11 @@ object Helper {
 
             }
         }
+        var ivigeographiclocationcontainer = rootJsonObject.optJSONObject("ivigeographiclocationcontainer")
+        if (ivigeographiclocationcontainer != null){
+            message.latitude = ivigeographiclocationcontainer.optDouble("POINT_X",0.0)
+            message.longitude = ivigeographiclocationcontainer.optDouble("POINT_Y",0.0)
+        }
         message.topic =topic
         return message
     }
@@ -105,9 +109,81 @@ object Helper {
 
             }
         }
+        var ivigeographiclocationcontainer = rootJsonObject.optJSONObject("ivigeographiclocationcontainer")
+        if (ivigeographiclocationcontainer != null){
+            message.latitude = ivigeographiclocationcontainer.optDouble("latitude",0.0)
+            message.longitude = ivigeographiclocationcontainer.optDouble("longitude",0.0)
+        }
         message.topic =topic
         return message
 
+    }
+
+    fun parseMAPMessage(jsonString:String,topic:Topic): MAPUserMessage {
+        var message = MAPUserMessage()
+        val rootJsonObject = JSONObject(jsonString)
+        if(rootJsonObject != null){
+            if(rootJsonObject.has("map") && rootJsonObject.optJSONObject("map") != null){
+                var mapJSONObject = rootJsonObject.optJSONObject("map")
+                if(mapJSONObject.has("header")&& mapJSONObject.optJSONObject("header")!= null){
+                    var headerJSONObject = mapJSONObject.optJSONObject("header")
+                    message.indexNumber = headerJSONObject.optInt("indexnumber",0)
+                    message.latitude = headerJSONObject.optDouble("latitude",0.0)
+                    message.longitude = headerJSONObject.optDouble("longitude",0.0)
+
+                }
+
+                if(mapJSONObject.has("location") && mapJSONObject.optJSONObject("location") != null){
+                    var locationJSONObject = mapJSONObject.optJSONObject("location")
+                    if(locationJSONObject.has("osm")&& locationJSONObject.optJSONArray("osm")!= null){
+                        var osmJSONArray = locationJSONObject.optJSONArray("osm")
+                        if(osmJSONArray.length()==2){
+                            var osmStartJSONObject = osmJSONArray.optJSONObject(0)
+                            if(osmStartJSONObject!= null){
+                                if(osmStartJSONObject.has("osmtagstart")){
+                                    message.osmTagsStart = osmStartJSONObject.optInt("osmtagstart",0)
+                                }
+                                if(osmStartJSONObject.has("latitude")){
+                                    message.osmTagsStartLat = osmStartJSONObject.optDouble("latitude",0.0)
+                                }
+                                if(osmStartJSONObject.has("longitude")){
+                                    message.osmTagsStartLon = osmStartJSONObject.optDouble("longitude",0.0)
+                                }
+                            }
+                            var osmStopJSONObject = osmJSONArray.optJSONObject(1)
+                            if(osmStopJSONObject!= null){
+                                if(osmStopJSONObject.has("osmtagstop")){
+                                    message.osmTagsStop = osmStopJSONObject.optInt("osmtagstop",0)
+                                }
+                                if(osmStopJSONObject.has("latitude")){
+                                    message.osmTagsStopLat = osmStopJSONObject.optDouble("latitude",0.0)
+                                }
+                                if(osmStopJSONObject.has("longitude")){
+                                    message.osmTagsStopLon = osmStopJSONObject.optDouble("longitude",0.0)
+                                }
+                            }
+                        }
+                  }
+
+                }
+            }
+
+        }
+
+        message.topic =topic
+        return message
+    }
+
+    fun parseSPATMessage(jsonString:String,topic:Topic): SPATUserMessage {
+        var message = SPATUserMessage()
+        val rootJsonObject = JSONObject(jsonString)
+        if(rootJsonObject != null){
+            message.indexNumber = rootJsonObject.optInt("indexnumber",0)
+            message.eventState = rootJsonObject.optString("eventstate")
+            message.likelyTime = rootJsonObject.optString("likelytime")
+        }
+        message.topic =topic
+        return message
     }
 
     fun parseTopic(topicString:String): Topic{
@@ -115,8 +191,145 @@ object Helper {
        var topicSplit = topicString.split("/")
         topic.basePath =topicSplit.get(0)
         topic.type = topicSplit.get(1)
+        var tmpQuadtree = ""
+        for (i in 2 until  topicSplit.size-1 step 1) {
+
+            if(i==topicSplit.size-1){
+                tmpQuadtree = tmpQuadtree+ topicSplit.get(i)
+
+            }else{
+                tmpQuadtree = tmpQuadtree+ topicSplit.get(i)+"/"
+            }
+        }
+
+        topic.quadTree = tmpQuadtree
         topic.data = topicSplit.get(topicSplit.size-1)
         return topic
 
     }
+
+    fun toKmPerHour(speed: Float): Int {
+        return (speed *3.6).toInt()
+    }
+
+    fun grapMinutes(eta: String?): String? {
+        var parts = eta!!.split(":")
+        var minutes = parts.get(1)
+        return minutes;
+
+    }
+
+
+    fun appendLog(text:String,filename:String)
+    {
+        val externalStorageDir = Environment.getExternalStorageDirectory()
+        val logFile = File(externalStorageDir, filename+".txt")
+        if (!logFile.exists())
+        {
+            try
+            {
+                logFile.createNewFile();
+            }
+            catch ( ex: IOException)
+            {
+                ex.printStackTrace();
+            }
+        }
+        try
+        {
+            //BufferedWriter for performance, true to set append to file flag
+            var buf = BufferedWriter( FileWriter(logFile, true));
+            buf.append(text);
+            buf.newLine();
+            buf.close();
+        }
+        catch ( e:IOException)
+        {
+
+            e.printStackTrace();
+        }
+    }
+
+    fun parseVIVIEgnatiaUserMessage(jsonString: String, topic: Topic): EgnatiaUserMessage {
+
+        var message = EgnatiaUserMessage()
+        val rootJsonObject = JSONObject(jsonString)
+        var ivigeneralivicontainer = rootJsonObject.optJSONObject("ivigeneralivicontainer")
+        if (ivigeneralivicontainer != null){
+            var iviglcpartroadsigncode = ivigeneralivicontainer.optJSONObject("iviglcpartroadsigncode")
+            if(iviglcpartroadsigncode!=null){
+                message.name = iviglcpartroadsigncode.optString("Name","")
+                message.egantiaMessage = iviglcpartroadsigncode.optString("MESSAGE","")
+            }
+        }
+
+        message.topic =topic
+        return message
+    }
+
+    fun parseDENMUserMessage(jsonString: String, topic: Topic): DENMUserMessage {
+        var message = DENMUserMessage()
+        val rootJsonObject = JSONObject(jsonString)
+        var denm = rootJsonObject.optJSONObject("denm")
+        if(denm != null){
+            var situation = denm.optJSONObject("situation")
+            if(situation != null){
+                var eventType = situation.optJSONObject("eventType")
+                if(eventType!= null){
+                    message.causeCode = eventType.optInt("causeCode",0)
+                    message.subCauseCode = eventType.optInt("subCauseCode",0)
+                }
+
+            }
+            var management =  denm.optJSONObject("management")
+            if(management != null){
+              var eventPosition =  management.optJSONObject("eventPosition")
+                if(eventPosition != null){
+                  var lat =  eventPosition.optInt("latitude")
+                  var digits = countDigits(lat)
+                    message.latitude =  lat/  Math.pow(10.0,digits-1)
+                    var long =  eventPosition.optInt("longitude")
+                    digits = countDigits(long)
+                    message.longitude =  long/ Math.pow(10.0,digits-1)
+                }
+
+            }
+
+        }
+        message.topic =topic
+        return message
+    }
+        fun countDigits (number:Int):Double{
+            var count = 0
+            var num = number
+
+            while (num != 0) {
+                // num = num/10
+                num /= 10
+                ++count
+            }
+            return count.toDouble()
+        }
+
+    fun getAssetJsonData(context: Context,filename:String): String? {
+        var json: String? = null
+        try {
+            val inStream = context.getAssets().open(filename)
+            val size =  inStream.available()
+            val buffer = ByteArray(size)
+            inStream.read(buffer)
+            inStream.close()
+            json = String(buffer)
+        } catch (ex: IOException) {
+            ex.printStackTrace()
+            return null
+        }
+
+        Log.e("data", json)
+        return json
+
+    }
+
+
+
 }
