@@ -3,6 +3,7 @@ package certh.hit.cmobile.utils
 
 import android.content.Context
 import android.os.Environment
+import android.os.Message
 import android.util.Base64
 import android.util.Log
 import certh.hit.cmobile.BuildConfig
@@ -77,24 +78,79 @@ object Helper {
     fun parseIVIUserMessage(jsonString:String,topic:Topic):IVIUserMessage{
         var message = IVIUserMessage()
         val rootJsonObject = JSONObject(jsonString)
-        var ivigeneralivicontainer = rootJsonObject.optJSONObject("ivigeneralivicontainer")
-        if (ivigeneralivicontainer != null){
-            var iviglcpartroadsigncode = ivigeneralivicontainer.optJSONObject("iviglcpartroadsigncode")
-            if(iviglcpartroadsigncode!=null){
-                message.name = iviglcpartroadsigncode.optString("Name","")
-                message.trafficSingDescription = iviglcpartroadsigncode.optString("Trafficsigndescription","")
-                message.ServiceCategoryCode = iviglcpartroadsigncode.optInt("ServiceCategoryCode",0)
-                message.serviceCategory = iviglcpartroadsigncode.optString("serviceCategory","")
+        if(rootJsonObject.has("header") && rootJsonObject.optJSONObject("header")!= null){
+            message.header = parseHeaderUserMessage(rootJsonObject.optJSONObject("header").toString())
+        }
+        if(rootJsonObject.has("location") && rootJsonObject.optJSONObject("location")!= null){
+           var locationJson = rootJsonObject.optJSONObject("location")
+            if(locationJson.has("relevanceZoneNr")) {
+                message.relevanceZoneNr = locationJson.optInt("relevanceZoneNr")
+            }
+            if(locationJson.has("latitude")) {
+                message.latitude = locationJson.optInt("latitude")
+            }
+            if(locationJson.has("longitude")) {
+                message.longitude = locationJson.optInt("longitude")
+            }
+            if(locationJson.has("relevanceZone") && locationJson.optJSONArray("relevanceZone")!= null) {
+              message.relevanceZones = ArrayList<RelevanceZone>()
+                var relevanceZoneJson = locationJson.optJSONArray("relevanceZone")
+                for(i in 0 until relevanceZoneJson.length()){
+                    var tmpRelevanceZone = parseRelevanceZone(relevanceZoneJson.get(i).toString())
+                    (message.relevanceZones as ArrayList<RelevanceZone>).add(tmpRelevanceZone)
+                }
 
             }
+
         }
-        var ivigeographiclocationcontainer = rootJsonObject.optJSONObject("ivigeographiclocationcontainer")
-        if (ivigeographiclocationcontainer != null){
-            message.latitude = ivigeographiclocationcontainer.optDouble("POINT_X",0.0)
-            message.longitude = ivigeographiclocationcontainer.optDouble("POINT_Y",0.0)
-        }
+//        {"location":{"relevanceZone":[{"zone":[{"deltaLongitude":96,"deltaLatitude":680},{"zoneId":1,"type":"area"}]}]},"ivi":{"iviIdentificationNumber":7,"iviStatus":0,"timestamp":1555504200,"iviType":2,"travelTime":150,"serviceCategoryCode":13,"pictogramCategoryCode":887,"extraText":[{"textContent":"","language":"EN"},{"textContent":"","language":"EN"},{"textContent":"","language":"EN"},{"textContent":"","language":"EN"}]}}
+//        var ivigeneralivicontainer = rootJsonObject.optJSONObject("ivigeneralivicontainer")
+//        if (ivigeneralivicontainer != null){
+//            var iviglcpartroadsigncode = ivigeneralivicontainer.optJSONObject("iviglcpartroadsigncode")
+//            if(iviglcpartroadsigncode!=null){
+//                message.name = iviglcpartroadsigncode.optString("Name","")
+//                message.trafficSingDescription = iviglcpartroadsigncode.optString("Trafficsigndescription","")
+//                message.ServiceCategoryCode = iviglcpartroadsigncode.optInt("ServiceCategoryCode",0)
+//                message.serviceCategory = iviglcpartroadsigncode.optString("serviceCategory","")
+//
+//            }
+//        }
+//        var ivigeographiclocationcontainer = rootJsonObject.optJSONObject("ivigeographiclocationcontainer")
+//        if (ivigeographiclocationcontainer != null){
+//            message.latitude = ivigeographiclocationcontainer.optDouble("POINT_X",0.0)
+//            message.longitude = ivigeographiclocationcontainer.optDouble("POINT_Y",0.0)
+//        }
         message.topic =topic
         return message
+    }
+    fun parseRelevanceZone(jsonString: String):RelevanceZone{
+        var relevanceZone = RelevanceZone()
+
+
+        return relevanceZone
+    }
+    fun parseHeaderUserMessage(jsonString: String):MessageHeader{
+        var header = MessageHeader()
+        val rootJsonObject = JSONObject(jsonString)
+        if(rootJsonObject.has("stationID")) {
+            header.stationID = rootJsonObject.optInt("stationID")
+        }
+        if(rootJsonObject.has("messageID")) {
+            header.messageID = rootJsonObject.optInt("messageID")
+        }
+        if(rootJsonObject.has("protocolVersion")) {
+            header.protocolVersion = rootJsonObject.optInt("protocolVersion")
+        }
+        if (rootJsonObject.has("serviceProviderId") && rootJsonObject.optJSONObject("serviceProviderId")!= null){
+            var serviceProviderIdJson = rootJsonObject.optJSONObject("serviceProviderId")
+            if(serviceProviderIdJson.has("providerIdentifier") && serviceProviderIdJson.optString("providerIdentifier")!=null){
+                header.providerIdentifier = serviceProviderIdJson.optString("providerIdentifier")
+            }
+            if(serviceProviderIdJson.has("countryCode") && serviceProviderIdJson.optString("countryCode")!=null){
+                header.countryCode = serviceProviderIdJson.optString("countryCode")
+            }
+        }
+        return header
     }
 
     fun parseVIVIUserMessage(jsonString: String,topic: Topic):VIVIUserMessage{

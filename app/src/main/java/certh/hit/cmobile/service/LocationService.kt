@@ -158,7 +158,8 @@ class LocationService:Service(), LocationServiceInterface {
         mqttHelper.connect()
         mqttHelper.setCallback(object : MqttCallbackExtended {
             override fun connectComplete(b: Boolean, s: String) {
-                //Helper.appendLog("connectComplete! ","mqtt")
+
+                Log.d("Debug", "connectComplete")
               //  clearTopics()
             }
 
@@ -304,10 +305,8 @@ class LocationService:Service(), LocationServiceInterface {
             if (mqttHelper.isConnected()) {
                 currentQuadTree = quadTree
                 var topicViv = Topic.createIVI(quadTree)
-                var topicVivI = Topic.createVIVI(quadTree)
                 var topicMAP = Topic.createMAP(quadTree)
-                var topicEgnatia = Topic.createEgnatia(quadTree)
-                var topicFr = Topic.createFr(quadTree)
+                var topicDenm = Topic.createDenm(quadTree)
                 mqttHelper.subscribeToTopic(topicViv.toString(), 0, object : IMqttActionListener {
                     override fun onSuccess(asyncActionToken: IMqttToken) {
                         //Helper.appendLog("Subscribed! :"+topicViv.toString(),"mqtt")
@@ -318,16 +317,16 @@ class LocationService:Service(), LocationServiceInterface {
                         Log.w("Mqtt", "Subscribed fail!")
                     }
                 })
-                mqttHelper.subscribeToTopic(topicVivI.toString(), 0, object : IMqttActionListener {
-                    override fun onSuccess(asyncActionToken: IMqttToken) {
-                        //Helper.appendLog("Subscribed! :"+topicVivI.toString(),"mqtt")
-                        //subscribedTopics.add(topicVivI)
-                    }
-
-                    override fun onFailure(asyncActionToken: IMqttToken, exception: Throwable) {
-                        Log.w("Mqtt", "Subscribed fail!")
-                    }
-                })
+//                mqttHelper.subscribeToTopic(topicVivI.toString(), 0, object : IMqttActionListener {
+//                    override fun onSuccess(asyncActionToken: IMqttToken) {
+//                        //Helper.appendLog("Subscribed! :"+topicVivI.toString(),"mqtt")
+//                        //subscribedTopics.add(topicVivI)
+//                    }
+//
+//                    override fun onFailure(asyncActionToken: IMqttToken, exception: Throwable) {
+//                        Log.w("Mqtt", "Subscribed fail!")
+//                    }
+//                })
                 mqttHelper.subscribeToTopic(topicMAP.toString(), 0, object : IMqttActionListener {
                     override fun onSuccess(asyncActionToken: IMqttToken) {
                        //Helper.appendLog("Subscribed! :"+topicMAP.toString(),"mqtt")
@@ -339,20 +338,20 @@ class LocationService:Service(), LocationServiceInterface {
                         Log.w("Mqtt", "Subscribed fail!")
                     }
                 })
-                mqttHelper.subscribeToTopic(topicEgnatia.toString(), 0, object : IMqttActionListener {
-                    override fun onSuccess(asyncActionToken: IMqttToken) {
-                        //Helper.appendLog("Subscribed! :"+topicEgnatia.toString(),"mqtt")
-                        //subscribedTopics.add(topicEgnatia)
-                    }
-
-                    override fun onFailure(asyncActionToken: IMqttToken, exception: Throwable) {
-                        Log.w("Mqtt", "Subscribed fail!")
-                    }
-                })
-                mqttHelper.subscribeToTopic(topicFr.toString(), 0, object : IMqttActionListener {
+//                mqttHelper.subscribeToTopic(topicEgnatia.toString(), 0, object : IMqttActionListener {
+//                    override fun onSuccess(asyncActionToken: IMqttToken) {
+//                        //Helper.appendLog("Subscribed! :"+topicEgnatia.toString(),"mqtt")
+//                        //subscribedTopics.add(topicEgnatia)
+//                    }
+//
+//                    override fun onFailure(asyncActionToken: IMqttToken, exception: Throwable) {
+//                        Log.w("Mqtt", "Subscribed fail!")
+//                    }
+//                })
+                mqttHelper.subscribeToTopic(topicDenm.toString(), 0, object : IMqttActionListener {
                     override fun onSuccess(asyncActionToken: IMqttToken) {
                         //Helper.appendLog("Subscribed! :"+topicFr.toString(),"mqtt")
-                        Log.w("Mqtt", "Subscribed! :"+topicFr.toString())
+                        Log.w("Mqtt", "Subscribed! :"+topicDenm.toString())
                         //subscribedTopics.add(topicFr)
                     }
 
@@ -361,48 +360,48 @@ class LocationService:Service(), LocationServiceInterface {
                     }
                 })
             }else{
-                var locationVIVI = Location("vivilocation")
-                locationVIVI.latitude =40.615006
-                locationVIVI.longitude =22.954195
-                var locationIVI = Location("ivilocation")
-                locationIVI.latitude =40.5549
-                locationIVI.longitude =23.0148
-                var locationSPAT = Location("trafficLight")
-                locationSPAT.latitude =40.629549
-                locationSPAT.longitude =22.947945
-                var locationEgnatia = Location("egnatia")
-                locationEgnatia.latitude =39.790804323
-                locationEgnatia.longitude =21.300095498
-                var locationFr = Location("france")
-                locationFr.latitude =44.88388823
-                locationFr.longitude =-0.5573381
-                if(result.lastLocation.distanceTo(locationVIVI)<100){
-                    var viviUserMessage = VIVIUserMessage()
-                    viviUserMessage.eta = "00:02:00"
-                    viviUserMessage.route = "V.OLGAS-YMCA"
-
-                    mPlaybackInfoListener!!.onVIVIUserMessage(viviUserMessage)
-                }else if(result.lastLocation.distanceTo(locationIVI)<100){
-                    var iviUserMessage = IVIUserMessage()
-                    mPlaybackInfoListener!!.onIVIMessageReceived(iviUserMessage)
-
-                }
-                else if(result.lastLocation.distanceTo(locationSPAT)<100){
-                    var spatUserMessage = SPATUserMessage()
-                    spatUserMessage.eventState = "green"
-                    mPlaybackInfoListener!!.onSPATUserMessage(spatUserMessage, lastLocation)
-
-                }else if(result.lastLocation.distanceTo(locationEgnatia)<100){
-                    var egnatiaUserMessage = EgnatiaUserMessage()
-                    egnatiaUserMessage.egantiaMessage = "IN CONGESTION DO NOT BLOCK EMERGENCY LANE "
-                    mPlaybackInfoListener!!.onEgnatiaUserMessage(egnatiaUserMessage)
-
-                }
-                else if(result.lastLocation.distanceTo(locationFr)<100){
-                    var denmUserMessage = DENMUserMessage()
-                    mPlaybackInfoListener!!.onDenmUserMessage(denmUserMessage)
-
-                }
+//                var locationVIVI = Location("vivilocation")
+//                locationVIVI.latitude =40.615006
+//                locationVIVI.longitude =22.954195
+//                var locationIVI = Location("ivilocation")
+//                locationIVI.latitude =40.5549
+//                locationIVI.longitude =23.0148
+//                var locationSPAT = Location("trafficLight")
+//                locationSPAT.latitude =40.629549
+//                locationSPAT.longitude =22.947945
+//                var locationEgnatia = Location("egnatia")
+//                locationEgnatia.latitude =39.790804323
+//                locationEgnatia.longitude =21.300095498
+//                var locationFr = Location("france")
+//                locationFr.latitude =44.88388823
+//                locationFr.longitude =-0.5573381
+//                if(result.lastLocation.distanceTo(locationVIVI)<100){
+//                    var viviUserMessage = VIVIUserMessage()
+//                    viviUserMessage.eta = "00:02:00"
+//                    viviUserMessage.route = "V.OLGAS-YMCA"
+//
+//                    mPlaybackInfoListener!!.onVIVIUserMessage(viviUserMessage)
+//                }else if(result.lastLocation.distanceTo(locationIVI)<100){
+//                    var iviUserMessage = IVIUserMessage()
+//                    mPlaybackInfoListener!!.onIVIMessageReceived(iviUserMessage)
+//
+//                }
+//                else if(result.lastLocation.distanceTo(locationSPAT)<100){
+//                    var spatUserMessage = SPATUserMessage()
+//                    spatUserMessage.eventState = "green"
+//                    mPlaybackInfoListener!!.onSPATUserMessage(spatUserMessage, lastLocation)
+//
+//                }else if(result.lastLocation.distanceTo(locationEgnatia)<100){
+//                    var egnatiaUserMessage = EgnatiaUserMessage()
+//                    egnatiaUserMessage.egantiaMessage = "IN CONGESTION DO NOT BLOCK EMERGENCY LANE "
+//                    mPlaybackInfoListener!!.onEgnatiaUserMessage(egnatiaUserMessage)
+//
+//                }
+//                else if(result.lastLocation.distanceTo(locationFr)<100){
+//                    var denmUserMessage = DENMUserMessage()
+//                    mPlaybackInfoListener!!.onDenmUserMessage(denmUserMessage)
+//
+//                }
 
             }
 
