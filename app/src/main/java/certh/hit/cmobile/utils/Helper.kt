@@ -41,7 +41,7 @@ object Helper {
 
     }
 
-     fun calculateQuadTree(latitude:Double, longitude:Double, zoom :Int):String{
+    fun calculateQuadTree(latitude:Double, longitude:Double, zoom :Int):String{
          var quadTreeCalculator  = GlobalMercator()
         val googleTile1 = quadTreeCalculator.GoogleTile(latitude, longitude, zoom)
         val tmsTile = quadTreeCalculator.TMSTileFromGoogleTile(googleTile1[0], googleTile1[1], zoom)
@@ -50,9 +50,7 @@ object Helper {
         return insertPeriodically(quadtree,"/",1)
     }
 
-    private fun insertPeriodically(
-        text: String, insert: String, period: Int
-    ): String {
+    private fun insertPeriodically(text: String, insert: String, period: Int): String {
         val builder = StringBuilder(
             text.length + insert.length * (text.length / period) + 1
         )
@@ -103,32 +101,88 @@ object Helper {
             }
 
         }
-//        {"location":{"relevanceZone":[{"zone":[{"deltaLongitude":96,"deltaLatitude":680},{"zoneId":1,"type":"area"}]}]},"ivi":{"iviIdentificationNumber":7,"iviStatus":0,"timestamp":1555504200,"iviType":2,"travelTime":150,"serviceCategoryCode":13,"pictogramCategoryCode":887,"extraText":[{"textContent":"","language":"EN"},{"textContent":"","language":"EN"},{"textContent":"","language":"EN"},{"textContent":"","language":"EN"}]}}
-//        var ivigeneralivicontainer = rootJsonObject.optJSONObject("ivigeneralivicontainer")
-//        if (ivigeneralivicontainer != null){
-//            var iviglcpartroadsigncode = ivigeneralivicontainer.optJSONObject("iviglcpartroadsigncode")
-//            if(iviglcpartroadsigncode!=null){
-//                message.name = iviglcpartroadsigncode.optString("Name","")
-//                message.trafficSingDescription = iviglcpartroadsigncode.optString("Trafficsigndescription","")
-//                message.ServiceCategoryCode = iviglcpartroadsigncode.optInt("ServiceCategoryCode",0)
-//                message.serviceCategory = iviglcpartroadsigncode.optString("serviceCategory","")
-//
-//            }
-//        }
-//        var ivigeographiclocationcontainer = rootJsonObject.optJSONObject("ivigeographiclocationcontainer")
-//        if (ivigeographiclocationcontainer != null){
-//            message.latitude = ivigeographiclocationcontainer.optDouble("POINT_X",0.0)
-//            message.longitude = ivigeographiclocationcontainer.optDouble("POINT_Y",0.0)
-//        }
+        if(rootJsonObject.has("ivi") && rootJsonObject.optJSONObject("ivi")!= null){
+            var iviJson = rootJsonObject.optJSONObject("ivi")
+            if(iviJson.has("iviIdentificationNumber")){
+                message.iviIdentificationNumber = iviJson.optInt("iviIdentificationNumber")
+            }
+            if(iviJson.has("iviStatus")){
+                message.iviStatus = iviJson.optInt("iviStatus")
+            }
+            if(iviJson.has("timestamp")){
+                message.timestamp = iviJson.optLong("timestamp")
+            }
+            if(iviJson.has("iviType")){
+                message.iviType = iviJson.optInt("iviType")
+            }
+            if(iviJson.has("travelTime")){
+                message.travelTime = iviJson.optInt("travelTime")
+            }
+            if(iviJson.has("serviceCategoryCode")){
+                message.serviceCategoryCode = iviJson.optInt("serviceCategoryCode")
+            }
+            if(iviJson.has("pictogramCategoryCode")){
+                message.pictogramCategoryCode = iviJson.optInt("pictogramCategoryCode")
+            }
+
+        if(iviJson.has("extraText") && iviJson.optJSONArray("extraText")!= null) {
+            var extraTextJson = iviJson.optJSONArray("extraText")
+                message.extraTexts = ArrayList()
+                for (i in 0 until extraTextJson.length()) {
+                var tmpExtraText =  parseExtraText(extraTextJson.get(i).toString())
+                    (message.extraTexts as ArrayList<ExtraText>).add(tmpExtraText)
+                }
+        }
+        }
         message.topic =topic
         return message
     }
+
+    private fun parseExtraText(jsonString: String): ExtraText {
+        var extraText = ExtraText()
+        val rootJsonObject = JSONObject(jsonString)
+        if(rootJsonObject.has("textContent")){
+            extraText.textContent = rootJsonObject.optString("textContent","")
+        }
+        if(rootJsonObject.has("language")){
+            extraText.language = rootJsonObject.optString("language","")
+        }
+        return extraText
+    }
+
     fun parseRelevanceZone(jsonString: String):RelevanceZone{
         var relevanceZone = RelevanceZone()
+        val rootJsonObject = JSONObject(jsonString)
+        if(rootJsonObject.has("zone") && rootJsonObject.optJSONArray("zone") != null){
+            var zoneArray = rootJsonObject.optJSONArray("zone")
+            var zoneCoordinates = zoneArray.optJSONObject(0)
+            var zoneDescription = zoneArray.optJSONObject(1)
+            if(zoneCoordinates != null){
+                if(zoneCoordinates.has("deltaLongitude")){
+                    relevanceZone.deltaLongitude = zoneCoordinates.optInt("deltaLongitude",0)
+
+                }
+                if(zoneCoordinates.has("deltaLatitude")){
+                    relevanceZone.deltaLatitude = zoneCoordinates.optInt("deltaLatitude",0)
+
+                }
+            }
+            if(zoneDescription != null){
+                if(zoneCoordinates.has("zoneId")){
+                    relevanceZone.zoneId = zoneCoordinates.optInt("zoneId",0)
+
+                }
+                if(zoneCoordinates.has("type")){
+                    relevanceZone.type = zoneCoordinates.optString("type","")
+
+                }
 
 
+            }
+        }
         return relevanceZone
     }
+
     fun parseHeaderUserMessage(jsonString: String):MessageHeader{
         var header = MessageHeader()
         val rootJsonObject = JSONObject(jsonString)
@@ -155,21 +209,21 @@ object Helper {
 
     fun parseVIVIUserMessage(jsonString: String,topic: Topic):VIVIUserMessage{
         var message = VIVIUserMessage()
-        val rootJsonObject = JSONObject(jsonString)
-        var ivigeneralivicontainer = rootJsonObject.optJSONObject("ivigeneralivicontainer")
-        if (ivigeneralivicontainer != null){
-            var iviglcpartroadsigncode = ivigeneralivicontainer.optJSONObject("iviglcpartroadsigncode")
-            if(iviglcpartroadsigncode!=null){
-                message.route = iviglcpartroadsigncode.optString("Route","")
-                message.eta = iviglcpartroadsigncode.optString("ETA","")
-
-            }
-        }
-        var ivigeographiclocationcontainer = rootJsonObject.optJSONObject("ivigeographiclocationcontainer")
-        if (ivigeographiclocationcontainer != null){
-            message.latitude = ivigeographiclocationcontainer.optDouble("latitude",0.0)
-            message.longitude = ivigeographiclocationcontainer.optDouble("longitude",0.0)
-        }
+//        val rootJsonObject = JSONObject(jsonString)
+//        var ivigeneralivicontainer = rootJsonObject.optJSONObject("ivigeneralivicontainer")
+//        if (ivigeneralivicontainer != null){
+//            var iviglcpartroadsigncode = ivigeneralivicontainer.optJSONObject("iviglcpartroadsigncode")
+//            if(iviglcpartroadsigncode!=null){
+//                message.route = iviglcpartroadsigncode.optString("Route","")
+//                message.eta = iviglcpartroadsigncode.optString("ETA","")
+//
+//            }
+//        }
+//        var ivigeographiclocationcontainer = rootJsonObject.optJSONObject("ivigeographiclocationcontainer")
+//        if (ivigeographiclocationcontainer != null){
+//            message.latitude = ivigeographiclocationcontainer.optDouble("latitude",0.0)
+//            message.longitude = ivigeographiclocationcontainer.optDouble("longitude",0.0)
+//        }
         message.topic =topic
         return message
 
@@ -178,54 +232,43 @@ object Helper {
     fun parseMAPMessage(jsonString:String,topic:Topic): MAPUserMessage {
         var message = MAPUserMessage()
         val rootJsonObject = JSONObject(jsonString)
-        if(rootJsonObject != null){
-            if(rootJsonObject.has("map") && rootJsonObject.optJSONObject("map") != null){
-                var mapJSONObject = rootJsonObject.optJSONObject("map")
-                if(mapJSONObject.has("header")&& mapJSONObject.optJSONObject("header")!= null){
-                    var headerJSONObject = mapJSONObject.optJSONObject("header")
-                    message.indexNumber = headerJSONObject.optInt("indexnumber",0)
-                    message.latitude = headerJSONObject.optDouble("latitude",0.0)
-                    message.longitude = headerJSONObject.optDouble("longitude",0.0)
-
+        if(rootJsonObject.has("header") && rootJsonObject.optJSONObject("header")!= null){
+            message.header = parseHeaderUserMessage(rootJsonObject.optJSONObject("header").toString())
+        }
+        if(rootJsonObject.has("location") && rootJsonObject.optJSONObject("location")!= null){
+            var locationJson = rootJsonObject.optJSONObject("location")
+            if(locationJson.has("relevanceZoneNr")) {
+                message.relevanceZoneNr = locationJson.optInt("relevanceZoneNr")
+            }
+            if(locationJson.has("latitude")) {
+                message.latitude = locationJson.optInt("latitude")
+            }
+            if(locationJson.has("longitude")) {
+                message.longitude = locationJson.optInt("longitude")
+            }
+            if(locationJson.has("relevanceZone") && locationJson.optJSONArray("relevanceZone")!= null) {
+                message.relevanceZones = ArrayList<RelevanceZone>()
+                var relevanceZoneJson = locationJson.optJSONArray("relevanceZone")
+                for(i in 0 until relevanceZoneJson.length()){
+                    var tmpRelevanceZone = parseRelevanceZone(relevanceZoneJson.get(i).toString())
+                    (message.relevanceZones as ArrayList<RelevanceZone>).add(tmpRelevanceZone)
                 }
 
-                if(mapJSONObject.has("location") && mapJSONObject.optJSONObject("location") != null){
-                    var locationJSONObject = mapJSONObject.optJSONObject("location")
-                    if(locationJSONObject.has("osm")&& locationJSONObject.optJSONArray("osm")!= null){
-                        var osmJSONArray = locationJSONObject.optJSONArray("osm")
-                        if(osmJSONArray.length()==2){
-                            var osmStartJSONObject = osmJSONArray.optJSONObject(0)
-                            if(osmStartJSONObject!= null){
-                                if(osmStartJSONObject.has("osmtagstart")){
-                                    message.osmTagsStart = osmStartJSONObject.optInt("osmtagstart",0)
-                                }
-                                if(osmStartJSONObject.has("latitude")){
-                                    message.osmTagsStartLat = osmStartJSONObject.optDouble("latitude",0.0)
-                                }
-                                if(osmStartJSONObject.has("longitude")){
-                                    message.osmTagsStartLon = osmStartJSONObject.optDouble("longitude",0.0)
-                                }
-                            }
-                            var osmStopJSONObject = osmJSONArray.optJSONObject(1)
-                            if(osmStopJSONObject!= null){
-                                if(osmStopJSONObject.has("osmtagstop")){
-                                    message.osmTagsStop = osmStopJSONObject.optInt("osmtagstop",0)
-                                }
-                                if(osmStopJSONObject.has("latitude")){
-                                    message.osmTagsStopLat = osmStopJSONObject.optDouble("latitude",0.0)
-                                }
-                                if(osmStopJSONObject.has("longitude")){
-                                    message.osmTagsStopLon = osmStopJSONObject.optDouble("longitude",0.0)
-                                }
-                            }
-                        }
-                  }
-
-                }
             }
 
         }
-
+        if(rootJsonObject.has("map") && rootJsonObject.optJSONObject("map")!= null) {
+            var mapJson = rootJsonObject.optJSONObject("map")
+            if (mapJson.has("mapIdentificationNumber")) {
+                message.mapIdentificationNumber = mapJson.optInt("mapIdentificationNumber")
+            }
+            if (mapJson.has("mapStatus")) {
+                message.mapStatus = mapJson.optInt("mapStatus")
+            }
+            if (mapJson.has("timestamp")) {
+                message.timestamp = mapJson.optLong("timestamp")
+            }
+        }
         message.topic =topic
         return message
     }
@@ -233,10 +276,48 @@ object Helper {
     fun parseSPATMessage(jsonString:String,topic:Topic): SPATUserMessage {
         var message = SPATUserMessage()
         val rootJsonObject = JSONObject(jsonString)
-        if(rootJsonObject != null){
-            message.indexNumber = rootJsonObject.optInt("indexnumber",0)
-            message.eventState = rootJsonObject.optString("eventstate")
-            message.likelyTime = rootJsonObject.optString("likelytime")
+        if(rootJsonObject.has("header") && rootJsonObject.optJSONObject("header")!= null){
+            message.header = parseHeaderUserMessage(rootJsonObject.optJSONObject("header").toString())
+        }
+        if(rootJsonObject.has("location") && rootJsonObject.optJSONObject("location")!= null){
+            var locationJson = rootJsonObject.optJSONObject("location")
+            if(locationJson.has("relevanceZoneNr")) {
+                message.relevanceZoneNr = locationJson.optInt("relevanceZoneNr")
+            }
+            if(locationJson.has("latitude")) {
+                message.latitude = locationJson.optInt("latitude")
+            }
+            if(locationJson.has("longitude")) {
+                message.longitude = locationJson.optInt("longitude")
+            }
+            if(locationJson.has("relevanceZone") && locationJson.optJSONArray("relevanceZone")!= null) {
+                message.relevanceZones = ArrayList<RelevanceZone>()
+                var relevanceZoneJson = locationJson.optJSONArray("relevanceZone")
+                for(i in 0 until relevanceZoneJson.length()){
+                    var tmpRelevanceZone = parseRelevanceZone(relevanceZoneJson.get(i).toString())
+                    (message.relevanceZones as ArrayList<RelevanceZone>).add(tmpRelevanceZone)
+                }
+
+            }
+
+        }
+        if(rootJsonObject.has("spat") && rootJsonObject.optJSONObject("spat")!= null) {
+            var spatJson = rootJsonObject.optJSONObject("spat")
+            if (spatJson.has("spatIdentificationNumber")) {
+                message.spatIdentificationNumber = spatJson.optInt("spatIdentificationNumber")
+            }
+            if (spatJson.has("spatStatus")) {
+                message.spatStatus = spatJson.optInt("spatStatus")
+            }
+            if (spatJson.has("timestamp")) {
+                message.timestamp = spatJson.optLong("timestamp")
+            }
+            if (spatJson.has("eventState")) {
+                message.eventState = spatJson.optString("eventState","")
+            }
+            if (spatJson.has("likelyTime")) {
+                message.likelyTime = spatJson.optInt("likelyTime")
+            }
         }
         message.topic =topic
         return message
@@ -276,8 +357,7 @@ object Helper {
     }
 
 
-    fun appendLog(text:String,filename:String)
-    {
+    fun appendLog(text:String,filename:String){
         val externalStorageDir = Environment.getExternalStorageDirectory()
         val logFile = File(externalStorageDir, filename+".txt")
         if (!logFile.exists())
@@ -326,35 +406,91 @@ object Helper {
     fun parseDENMUserMessage(jsonString: String, topic: Topic): DENMUserMessage {
         var message = DENMUserMessage()
         val rootJsonObject = JSONObject(jsonString)
-        var denm = rootJsonObject.optJSONObject("denm")
-        if(denm != null){
-            var situation = denm.optJSONObject("situation")
-            if(situation != null){
-                var eventType = situation.optJSONObject("eventType")
-                if(eventType!= null){
-                    message.causeCode = eventType.optInt("causeCode",0)
-                    message.subCauseCode = eventType.optInt("subCauseCode",0)
-                }
-
+        if(rootJsonObject.has("header") && rootJsonObject.optJSONObject("header")!= null){
+            message.header = parseHeaderUserMessage(rootJsonObject.optJSONObject("header").toString())
+        }
+        if(rootJsonObject.has("location") && rootJsonObject.optJSONObject("location")!= null){
+            var locationJson = rootJsonObject.optJSONObject("location")
+            if(locationJson.has("relevanceZoneNr")) {
+                message.relevanceZoneNr = locationJson.optInt("relevanceZoneNr")
             }
-            var management =  denm.optJSONObject("management")
-            if(management != null){
-              var eventPosition =  management.optJSONObject("eventPosition")
-                if(eventPosition != null){
-                  var lat =  eventPosition.optInt("latitude")
-                  var digits = countDigits(lat)
-                    message.latitude =  lat/  Math.pow(10.0,digits-1)
-                    var long =  eventPosition.optInt("longitude")
-                    digits = countDigits(long)
-                    message.longitude =  long/ Math.pow(10.0,digits-1)
+            if(locationJson.has("latitude")) {
+                message.latitude = locationJson.optInt("latitude")
+            }
+            if(locationJson.has("longitude")) {
+                message.longitude = locationJson.optInt("longitude")
+            }
+            if(locationJson.has("relevanceZone") && locationJson.optJSONArray("relevanceZone")!= null) {
+                message.relevanceZones = ArrayList<RelevanceZone>()
+                var relevanceZoneJson = locationJson.optJSONArray("relevanceZone")
+                for(i in 0 until relevanceZoneJson.length()){
+                    var tmpRelevanceZone = parseRelevanceZone(relevanceZoneJson.get(i).toString())
+                    (message.relevanceZones as ArrayList<RelevanceZone>).add(tmpRelevanceZone)
                 }
 
             }
 
         }
+        if(rootJsonObject.has("denm") && rootJsonObject.optJSONObject("denm")!= null) {
+            var denmJson = rootJsonObject.optJSONObject("denm")
+            if(denmJson.has("denmIdentificationNumber")){
+               message.denmIdentificationNumber = denmJson.optInt("denmIdentificationNumber")
+            }
+            if(denmJson.has("denmStatus")){
+                message.denmStatus = denmJson.optInt("denmStatus")
+            }
+            if(denmJson.has("timestamp")){
+                message.timestamp = denmJson.optLong("timestamp")
+            }
+            if(denmJson.has("duration")){
+                message.duration = denmJson.optInt("duration")
+            }
+            if(denmJson.has("causeCode")){
+                message.causeCode = denmJson.optInt("causeCode")
+            }
+            if(denmJson.has("subCauseCode")){
+                message.subCauseCode = denmJson.optInt("subCauseCode")
+            }
+            if (denmJson.has("extraText") && denmJson.optJSONArray("extraText") != null) {
+                var extraTextJson = denmJson.optJSONArray("extraText")
+                message.extraTexts = ArrayList()
+                for (i in 0 until extraTextJson.length()) {
+                    var tmpExtraText = parseExtraText(extraTextJson.get(i).toString())
+                    (message.extraTexts as ArrayList<ExtraText>).add(tmpExtraText)
+                }
+            }
+        }
+//        val rootJsonObject = JSONObject(jsonString)
+//        var denm = rootJsonObject.optJSONObject("denm")
+//        if(denm != null){
+//            var situation = denm.optJSONObject("situation")
+//            if(situation != null){
+//                var eventType = situation.optJSONObject("eventType")
+//                if(eventType!= null){
+//                    message.causeCode = eventType.optInt("causeCode",0)
+//                    message.subCauseCode = eventType.optInt("subCauseCode",0)
+//                }
+//
+//            }
+//            var management =  denm.optJSONObject("management")
+//            if(management != null){
+//              var eventPosition =  management.optJSONObject("eventPosition")
+//                if(eventPosition != null){
+//                  var lat =  eventPosition.optInt("latitude")
+//                  var digits = countDigits(lat)
+//                    message.latitude =  lat/  Math.pow(10.0,digits-1)
+//                    var long =  eventPosition.optInt("longitude")
+//                    digits = countDigits(long)
+//                    message.longitude =  long/ Math.pow(10.0,digits-1)
+//                }
+//
+//            }
+
+
         message.topic =topic
         return message
     }
+
         fun countDigits (number:Int):Double{
             var count = 0
             var num = number

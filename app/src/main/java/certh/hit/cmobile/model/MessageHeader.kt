@@ -9,4 +9,5 @@ class MessageHeader {
     var protocolVersion :Int? = null
     var providerIdentifier :String? =null
     var countryCode :String? =null
+
 }
