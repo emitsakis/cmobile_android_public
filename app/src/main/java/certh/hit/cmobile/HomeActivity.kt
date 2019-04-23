@@ -84,6 +84,11 @@ class HomeActivity : AppCompatActivity(),OnMapReadyCallback,PermissionsListener,
     private var  root : RelativeLayout? = null
     private lateinit var  denmStaticMessages :DENMStaticMessage
     private var flipFlag: Int? = 0
+    private var isInsideIvi: Int? =0
+    private var isInsideDenm: Int? =0
+    private var iVIMessageToHandle :IVIUserMessage? = null
+    private var denmMessageToHandle :DENMUserMessage? = null
+
     private val gpsObserver = Observer<GpsStatus> { status ->
         status?.let {
             Log.d(TAG,status.toString())
@@ -323,10 +328,15 @@ class HomeActivity : AppCompatActivity(),OnMapReadyCallback,PermissionsListener,
         }
 
         override fun onIVIUnsubscribe() {
-            iviSing!!.visibility = GONE
+            iVIMessageToHandle = null
+            //iviSing!!.visibility = GONE
 
         }
+        override fun onDenmUnsubscribe() {
+            denmMessageToHandle = null
 
+
+        }
         override fun onEgnatiaUserMessage(message: EgnatiaUserMessage) {
             iviMessageParent!!.visibility = VISIBLE
             var messageString = message.egantiaMessage
@@ -340,39 +350,28 @@ class HomeActivity : AppCompatActivity(),OnMapReadyCallback,PermissionsListener,
         }
 
         override fun onDenmUserMessage(message: DENMUserMessage) {
-
-           var messageToShow = denmStaticMessages!!.list!!.firstOrNull() { w -> w.code==message.causeCode && w.subcode==message.subCauseCode }
-            if(messageToShow!= null) {
-                iviMessageParent!!.visibility = VISIBLE
-                var messageString = messageToShow.message
-                vIVIMessage!!.typeface = tf
-                vIVIMessage!!.isSelected = true
-                vIVIMessage!!.text = messageString
-                vIVIMessage!!.setTextColor(resources.getColor(R.color.gold));
-                Handler().postDelayed({
-                    iviMessageParent!!.visibility = GONE
-                }, 30000)
-            }
+            denmMessageToHandle = message
+            isInsideDenm = 0
         }
 
         override fun onIVIMessageReceived(message: IVIUserMessage) {
-
-            Log.d(TAG,message.toString())
-            if(message.iviType==1) {
-                iviSing!!.visibility = VISIBLE
-                speedBar!!.setMaxValues(50f)
-            }else if(message.iviType==2){
-                iviMessageParent!!.visibility = VISIBLE
-                var messageString = Helper.getViviNameFromID(message.iviIdentificationNumber) +" "+Helper.convertSecToMin(message.travelTime)+"'"
-                vIVIMessage!!.typeface = tf
-                vIVIMessage!!.isSelected  = true
-                vIVIMessage!!.text = messageString
-                vIVIMessage!!.setTextColor(resources.getColor(R.color.white));
-                Handler().postDelayed({
-                    iviMessageParent!!.visibility = GONE
-                }, 30000)
-
-            }
+            iVIMessageToHandle = message
+             isInsideIvi = 0
+//            if(message.iviType==1) {
+//                iviSing!!.visibility = VISIBLE
+//                speedBar!!.setMaxValues(50f)
+//            }else if(message.iviType==2){
+//                iviMessageParent!!.visibility = VISIBLE
+//                var messageString = Helper.getViviNameFromID(message.iviIdentificationNumber) +" "+Helper.convertSecToMin(message.travelTime)+"'"
+//                vIVIMessage!!.typeface = tf
+//                vIVIMessage!!.isSelected  = true
+//                vIVIMessage!!.text = messageString
+//                vIVIMessage!!.setTextColor(resources.getColor(R.color.white));
+//                Handler().postDelayed({
+//                    iviMessageParent!!.visibility = GONE
+//                }, 30000)
+//
+//            }
 
         }
 
@@ -405,6 +404,9 @@ class HomeActivity : AppCompatActivity(),OnMapReadyCallback,PermissionsListener,
 
         override fun onPositionChanged(position: Location) {
             speedBar!!.setCurrentValues(Helper.toKmPerHour(position.speed).toFloat())
+            handleIvi(position)
+            handleDenm(position)
+
 
 
         }
@@ -412,6 +414,71 @@ class HomeActivity : AppCompatActivity(),OnMapReadyCallback,PermissionsListener,
 
 
 
+    }
+
+    private fun handleDenm(position: Location) {
+        if(denmMessageToHandle != null){
+
+            for(relevanceZone in denmMessageToHandle!!.relevanceZones!!){
+                if(GeoHelper.isLocationInsideLineBox(denmMessageToHandle!!.actualLatitude,denmMessageToHandle!!.actuallongitude,
+                        relevanceZone.zones,position.latitude,position.longitude)){
+                    Log.d("isInside", true.toString())
+                    isInsideDenm = isInsideDenm!!.plus(other = 1)
+                }
+            }
+            Log.d("isInside",isInsideDenm!!.toString())
+            if (isInsideDenm!!>0){
+                var messageToShow = denmStaticMessages!!.list!!.firstOrNull() { w -> w.code==denmMessageToHandle!!.causeCode && w.subcode==denmMessageToHandle!!.subCauseCode }
+                if(messageToShow!= null) {
+                    iviMessageParent!!.visibility = VISIBLE
+                    var messageString = messageToShow.message
+                    vIVIMessage!!.typeface = tf
+                    vIVIMessage!!.isSelected = true
+                    vIVIMessage!!.text = messageString
+                    vIVIMessage!!.setTextColor(resources.getColor(R.color.gold));
+                }
+                isInsideDenm = 0
+            }else{
+                iviMessageParent!!.visibility = GONE
+
+            }
+        }
+    }
+
+    private fun handleIvi(position: Location) {
+        if(iVIMessageToHandle != null){
+
+            for(relevanceZone in iVIMessageToHandle!!.relevanceZones!!){
+                if(GeoHelper.isLocationInsideLineBox(iVIMessageToHandle!!.actualLatitude,iVIMessageToHandle!!.actuallongitude,
+                        relevanceZone.zones,position.latitude,position.longitude)){
+                    Log.d("isInside", true.toString())
+                    isInsideIvi = isInsideIvi!!.plus(other = 1)
+                }
+            }
+            Log.d("isInside",isInsideIvi!!.toString())
+            if (isInsideIvi!!>0){
+                if(iVIMessageToHandle!!.iviType==1) {
+                    iviSing!!.visibility = VISIBLE
+                    speedBar!!.setMaxValues(50f)
+                }else if(iVIMessageToHandle!!.iviType==2){
+                    iviMessageParent!!.visibility = VISIBLE
+                    var messageString = Helper.getViviNameFromID(iVIMessageToHandle!!.iviIdentificationNumber) +" "+Helper.convertSecToMin(iVIMessageToHandle!!.travelTime)+"'"
+                    vIVIMessage!!.typeface = tf
+                    vIVIMessage!!.isSelected  = true
+                    vIVIMessage!!.text = messageString
+                    vIVIMessage!!.setTextColor(resources.getColor(R.color.white))
+
+                }
+                isInsideIvi = 0
+            }else{
+                if(iVIMessageToHandle!!.iviType==1) {
+                    iviSing!!.visibility = GONE
+                }else if(iVIMessageToHandle!!.iviType==2) {
+                    iviMessageParent!!.visibility = GONE
+                }
+
+            }
+        }
     }
 
     /**

@@ -463,6 +463,10 @@ class LocationService:Service(), LocationServiceInterface {
                                 if(tmpTopic.type.equals( Topic.IVI)) {
                                         mPlaybackInfoListener!!.onIVIUnsubscribe()
                                     }
+                                if(tmpTopic.type.equals(Topic.DENM)){
+                                    mPlaybackInfoListener!!.onDenmUnsubscribe()
+
+                                }
                                 Log.d(TAG,"remove"+tmpTopic.type)
                             }
 

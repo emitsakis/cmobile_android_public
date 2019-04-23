@@ -95,9 +95,11 @@ object Helper {
             }
             if(locationJson.has("latitude")) {
                 message.latitude = locationJson.optInt("latitude")
+                message.actualLatitude = convertCoordinates(message.latitude!!)
             }
             if(locationJson.has("longitude")) {
                 message.longitude = locationJson.optInt("longitude")
+                message.actuallongitude = convertCoordinates(message.longitude!!)
             }
             if(locationJson.has("relevanceZone") && locationJson.optJSONArray("relevanceZone")!= null) {
               message.relevanceZones = ArrayList()
@@ -217,21 +219,6 @@ object Helper {
 
     fun parseVIVIUserMessage(jsonString: String,topic: Topic):VIVIUserMessage{
         var message = VIVIUserMessage()
-//        val rootJsonObject = JSONObject(jsonString)
-//        var ivigeneralivicontainer = rootJsonObject.optJSONObject("ivigeneralivicontainer")
-//        if (ivigeneralivicontainer != null){
-//            var iviglcpartroadsigncode = ivigeneralivicontainer.optJSONObject("iviglcpartroadsigncode")
-//            if(iviglcpartroadsigncode!=null){
-//                message.route = iviglcpartroadsigncode.optString("Route","")
-//                message.eta = iviglcpartroadsigncode.optString("ETA","")
-//
-//            }
-//        }
-//        var ivigeographiclocationcontainer = rootJsonObject.optJSONObject("ivigeographiclocationcontainer")
-//        if (ivigeographiclocationcontainer != null){
-//            message.latitude = ivigeographiclocationcontainer.optDouble("latitude",0.0)
-//            message.longitude = ivigeographiclocationcontainer.optDouble("longitude",0.0)
-//        }
         message.topic =topic
         return message
 
@@ -250,9 +237,11 @@ object Helper {
             }
             if(locationJson.has("latitude")) {
                 message.latitude = locationJson.optInt("latitude")
+                message.actualLatitude = convertCoordinates(message.latitude!!)
             }
             if(locationJson.has("longitude")) {
                 message.longitude = locationJson.optInt("longitude")
+                message.actuallongitude = convertCoordinates(message.longitude!!)
             }
             if(locationJson.has("relevanceZone") && locationJson.optJSONArray("relevanceZone")!= null) {
                 message.relevanceZones = ArrayList()
@@ -295,9 +284,11 @@ object Helper {
             }
             if(locationJson.has("latitude")) {
                 message.latitude = locationJson.optInt("latitude")
+                message.actualLatitude = convertCoordinates(message.latitude!!)
             }
             if(locationJson.has("longitude")) {
                 message.longitude = locationJson.optInt("longitude")
+                message.actuallongitude = convertCoordinates(message.longitude!!)
             }
             if(locationJson.has("relevanceZone") && locationJson.optJSONArray("relevanceZone")!= null) {
                 message.relevanceZones = ArrayList<RelevanceZone>()
@@ -426,9 +417,11 @@ object Helper {
             }
             if(locationJson.has("latitude")) {
                 message.latitude = locationJson.optInt("latitude")
+                message.actualLatitude = convertCoordinates(message.latitude!!)
             }
             if(locationJson.has("longitude")) {
                 message.longitude = locationJson.optInt("longitude")
+                message.actuallongitude = convertCoordinates(message.longitude!!)
             }
             if(locationJson.has("relevanceZone") && locationJson.optJSONArray("relevanceZone")!= null) {
                 message.relevanceZones = ArrayList()
@@ -502,7 +495,9 @@ object Helper {
         return message
     }
 
-        fun countDigits (number:Int):Double{
+
+
+    fun countDigits (number:Int):Double{
             var count = 0
             var num = number
 
@@ -546,13 +541,15 @@ object Helper {
     }
 
     fun calculateDeltas(delta:Int,referenceCor:Int):Double{
-        var finalCoordinates = referenceCor - delta
-        var digits = countDigits(finalCoordinates)
-        Log.d("calculateDeltas",finalCoordinates.toString())
-        var returnValue =  finalCoordinates/  Math.pow(10.0,digits-2)
-      //  returnValue = referenceCor.div(10000000.0)
-        Log.d("calculateDeltas",returnValue.toString())
+        val finalCoordinates = referenceCor - delta
+        val digits = countDigits(finalCoordinates)
+        val returnValue =  finalCoordinates/  Math.pow(10.0,digits-2)
     return returnValue
     }
-
+    private fun convertCoordinates(coordinate: Int): Double? {
+        val digits = countDigits(coordinate)
+        Log.d("calculateDeltas",coordinate.toString())
+        val returnValue =  coordinate/  Math.pow(10.0,digits-2)
+        return returnValue
+    }
 }

@@ -7,6 +7,8 @@ open class UserMessage {
     var topic: Topic? = null
     var latitude: Int? = null
     var longitude: Int? = null
+    var actualLatitude: Double? = null
+    var actuallongitude: Double? = null
     var header :MessageHeader? = null
 
 
