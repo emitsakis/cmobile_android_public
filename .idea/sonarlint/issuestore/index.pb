@@ -27,3 +27,9 @@ n
 >app/src/main/java/certh/hit/cmobile/service/LocationService.kt,e\f\ef5f160953ecaed31a2f603e5130ec861b6bb098
 c
 3app/src/main/java/certh/hit/cmobile/utils/Helper.kt,d\d\dd3eaacede272a481b9542ce599eac6a017cac6c
+k
+;app/src/main/java/certh/hit/cmobile/model/MAPUserMessage.kt,6\e\6edd289f5d1871495960b0f370944826d7c1b132
+l
+<app/src/main/java/certh/hit/cmobile/model/DENMUserMessage.kt,a\c\ac07a9a27b4c0f88f4722751046b86f8efad9e3c
+l
+<app/src/main/java/certh/hit/cmobile/model/SPATUserMessage.kt,b\5\b5291a1f79912ddc5d901fca68e82aa6045acb46

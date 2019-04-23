@@ -3,23 +3,29 @@ package certh.hit.cmobile.utils
 
 import android.content.Context
 import android.os.Environment
-import android.os.Message
 import android.util.Base64
 import android.util.Log
 import certh.hit.cmobile.BuildConfig
 import certh.hit.cmobile.model.*
 import org.json.JSONObject
-import java.io.*
+import java.io.BufferedWriter
+import java.io.File
+import java.io.FileWriter
+import java.io.IOException
 import java.security.KeyPairGenerator
 import java.security.SecureRandom
 import java.security.interfaces.ECPrivateKey
 import java.security.interfaces.ECPublicKey
+import java.util.*
+import kotlin.collections.ArrayList as ArrayList1
 
 
 /**
  * Created by anmpout on 21/01/2019
  */
 object Helper {
+
+
     private val TAG: String = Helper::class.java.canonicalName  as String
     val mapsKey = BuildConfig.MAP_BOX_API_KEY
     val ZOOM_LEVEL = 17
@@ -84,6 +90,9 @@ object Helper {
             if(locationJson.has("relevanceZoneNr")) {
                 message.relevanceZoneNr = locationJson.optInt("relevanceZoneNr")
             }
+            if(locationJson.has("relevanceZoneType")) {
+                message.relevanceZoneType = locationJson.optString("relevanceZoneType")
+            }
             if(locationJson.has("latitude")) {
                 message.latitude = locationJson.optInt("latitude")
             }
@@ -91,10 +100,12 @@ object Helper {
                 message.longitude = locationJson.optInt("longitude")
             }
             if(locationJson.has("relevanceZone") && locationJson.optJSONArray("relevanceZone")!= null) {
-              message.relevanceZones = ArrayList<RelevanceZone>()
+              message.relevanceZones = ArrayList()
                 var relevanceZoneJson = locationJson.optJSONArray("relevanceZone")
                 for(i in 0 until relevanceZoneJson.length()){
-                    var tmpRelevanceZone = parseRelevanceZone(relevanceZoneJson.get(i).toString())
+                    var tmpRelevanceZone = parseRelevanceZone(relevanceZoneJson.get(i).toString(),message.latitude!!,
+                        message.longitude!!
+                    )
                     (message.relevanceZones as ArrayList<RelevanceZone>).add(tmpRelevanceZone)
                 }
 
@@ -150,35 +161,32 @@ object Helper {
         return extraText
     }
 
-    fun parseRelevanceZone(jsonString: String):RelevanceZone{
+    fun parseRelevanceZone(jsonString: String,referenceLat:Int,referenceLon:Int):RelevanceZone{
         var relevanceZone = RelevanceZone()
         val rootJsonObject = JSONObject(jsonString)
-        if(rootJsonObject.has("zone") && rootJsonObject.optJSONArray("zone") != null){
+        if(rootJsonObject.has("zone") && rootJsonObject.optJSONArray("zone") != null) {
             var zoneArray = rootJsonObject.optJSONArray("zone")
-            var zoneCoordinates = zoneArray.optJSONObject(0)
-            var zoneDescription = zoneArray.optJSONObject(1)
-            if(zoneCoordinates != null){
-                if(zoneCoordinates.has("deltaLongitude")){
-                    relevanceZone.deltaLongitude = zoneCoordinates.optInt("deltaLongitude",0)
+            var zoneArrayList = ArrayList<Zone>()
+            for (i in 0 until zoneArray.length()) {
+                var zoneCoordinates = zoneArray.optJSONObject(i)
 
-                }
-                if(zoneCoordinates.has("deltaLatitude")){
-                    relevanceZone.deltaLatitude = zoneCoordinates.optInt("deltaLatitude",0)
+                if (zoneCoordinates != null) {
+                    var tmpZone = Zone()
+                    if (zoneCoordinates.has("deltaLongitude")) {
+                        tmpZone.deltaLongitude = zoneCoordinates.optInt("deltaLongitude", 0)
+                        tmpZone.actualLongitude = calculateDeltas(tmpZone.deltaLongitude!!,referenceLon)
 
+                    }
+                    if (zoneCoordinates.has("deltaLatitude")) {
+                        tmpZone.deltaLatitude = zoneCoordinates.optInt("deltaLatitude", 0)
+                        tmpZone.actualLatitude = calculateDeltas(tmpZone.deltaLatitude!!,referenceLat)
+
+
+                    }
+                    zoneArrayList.add(tmpZone)
                 }
             }
-            if(zoneDescription != null){
-                if(zoneCoordinates.has("zoneId")){
-                    relevanceZone.zoneId = zoneCoordinates.optInt("zoneId",0)
-
-                }
-                if(zoneCoordinates.has("type")){
-                    relevanceZone.type = zoneCoordinates.optString("type","")
-
-                }
-
-
-            }
+            relevanceZone.zones = zoneArrayList
         }
         return relevanceZone
     }
@@ -247,10 +255,11 @@ object Helper {
                 message.longitude = locationJson.optInt("longitude")
             }
             if(locationJson.has("relevanceZone") && locationJson.optJSONArray("relevanceZone")!= null) {
-                message.relevanceZones = ArrayList<RelevanceZone>()
+                message.relevanceZones = ArrayList()
                 var relevanceZoneJson = locationJson.optJSONArray("relevanceZone")
                 for(i in 0 until relevanceZoneJson.length()){
-                    var tmpRelevanceZone = parseRelevanceZone(relevanceZoneJson.get(i).toString())
+                    var tmpRelevanceZone = parseRelevanceZone(relevanceZoneJson.get(i).toString(),message.latitude!!,
+                        message.longitude!!)
                     (message.relevanceZones as ArrayList<RelevanceZone>).add(tmpRelevanceZone)
                 }
 
@@ -294,7 +303,8 @@ object Helper {
                 message.relevanceZones = ArrayList<RelevanceZone>()
                 var relevanceZoneJson = locationJson.optJSONArray("relevanceZone")
                 for(i in 0 until relevanceZoneJson.length()){
-                    var tmpRelevanceZone = parseRelevanceZone(relevanceZoneJson.get(i).toString())
+                    var tmpRelevanceZone = parseRelevanceZone(relevanceZoneJson.get(i).toString(),message.latitude!!,
+                        message.longitude!!)
                     (message.relevanceZones as ArrayList<RelevanceZone>).add(tmpRelevanceZone)
                 }
 
@@ -332,10 +342,10 @@ object Helper {
         for (i in 2 until  topicSplit.size-1 step 1) {
 
             if(i==topicSplit.size-1){
-                tmpQuadtree = tmpQuadtree+ topicSplit.get(i)
+                tmpQuadtree = tmpQuadtree + topicSplit.get(i)
 
             }else{
-                tmpQuadtree = tmpQuadtree+ topicSplit.get(i)+"/"
+                tmpQuadtree = tmpQuadtree + topicSplit.get(i)+"/"
             }
         }
 
@@ -421,10 +431,11 @@ object Helper {
                 message.longitude = locationJson.optInt("longitude")
             }
             if(locationJson.has("relevanceZone") && locationJson.optJSONArray("relevanceZone")!= null) {
-                message.relevanceZones = ArrayList<RelevanceZone>()
+                message.relevanceZones = ArrayList()
                 var relevanceZoneJson = locationJson.optJSONArray("relevanceZone")
                 for(i in 0 until relevanceZoneJson.length()){
-                    var tmpRelevanceZone = parseRelevanceZone(relevanceZoneJson.get(i).toString())
+                    var tmpRelevanceZone = parseRelevanceZone(relevanceZoneJson.get(i).toString(),message.latitude!!,
+                        message.longitude!!)
                     (message.relevanceZones as ArrayList<RelevanceZone>).add(tmpRelevanceZone)
                 }
 
@@ -522,6 +533,26 @@ object Helper {
 
     }
 
+    fun convertSecToMin(travelTime: Int?): String {
+        var minutes = travelTime!!.div(60)
+    return minutes.toString()
+    }
+    fun getViviNameFromID(iviIdentificationNumber: Int?):String {
+        var viviName = "Path Name"
+        if(iviIdentificationNumber==7){
+            viviName = "V.OLGAS - YMCA"
+        }
+    return viviName
+    }
 
+    fun calculateDeltas(delta:Int,referenceCor:Int):Double{
+        var finalCoordinates = referenceCor - delta
+        var digits = countDigits(finalCoordinates)
+        Log.d("calculateDeltas",finalCoordinates.toString())
+        var returnValue =  finalCoordinates/  Math.pow(10.0,digits-2)
+      //  returnValue = referenceCor.div(10000000.0)
+        Log.d("calculateDeltas",returnValue.toString())
+    return returnValue
+    }
 
 }

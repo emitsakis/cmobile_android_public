@@ -1,5 +1,8 @@
 
-Gkotlin:S1066µ".Merge this "if" statement with the nested one.(çÀÍş
-kkotlin:S3776²"RRefactor this method to reduce its Cognitive Complexity from 76 to the 15 allowed.(®ËÜš
+wkotlin:S3776™"RRefactor this method to reduce its Cognitive Complexity from 18 to the 15 allowed.(úÆàñüÿÿÿÿ8õÕ·¢£-
+vkotlin:S3776L"RRefactor this method to reduce its Cognitive Complexity from 38 to the 15 allowed.(õâ²€ùÿÿÿÿ8âåû¢-
+rkotlin:S3776–"RRefactor this method to reduce its Cognitive Complexity from 36 to the 15 allowed.(ÌëŸÌ8¼ø££-
 Akotlin:S1481!")Remove this unused "priv" local variable.(âš·à
-vkotlin:S3776N"RRefactor this method to reduce its Cognitive Complexity from 16 to the 15 allowed.(õâ²€ùÿÿÿÿ8âåû¢-
+rkotlin:S3776”"RRefactor this method to reduce its Cognitive Complexity from 28 to the 15 allowed.(â‹8–øÂ¤£-
+rkotlin:S3776è"RRefactor this method to reduce its Cognitive Complexity from 24 to the 15 allowed.(®ËÜš8‰Ô•¤£-
+>kotlin:S125Ô"Remove this commented out code.(Ååİ8¸ä¥££-

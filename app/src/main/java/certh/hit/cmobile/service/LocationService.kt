@@ -234,7 +234,7 @@ class LocationService:Service(), LocationServiceInterface {
     }
 
     private fun createSPATTopicAndSubscribe(mapMessage:MAPUserMessage) {
-        var topicSpat = Topic.createSPAT(mapMessage.indexNumber.toString())
+        var topicSpat = Topic.createSPAT(mapMessage.mapIdentificationNumber.toString())
         mqttHelper.subscribeToTopic(topicSpat.toStringSpat(), 0, object : IMqttActionListener {
             override fun onSuccess(asyncActionToken: IMqttToken) {
                 Log.w("Mqtt", "Subscribed!")
@@ -253,7 +253,7 @@ class LocationService:Service(), LocationServiceInterface {
         tmpTopic: Topic
     ) {
         var spatUserMessage = Helper.parseSPATMessage(mqttMessage.toString(),tmpTopic)
-         var mapMessage = mapMessages.find { msg -> msg.indexNumber==spatUserMessage.indexNumber }
+         var mapMessage = mapMessages.find { msg -> msg.mapIdentificationNumber==spatUserMessage.spatIdentificationNumber }
         spatUserMessage.mapMessage = mapMessage
         mPlaybackInfoListener!!.onSPATUserMessage(spatUserMessage,lastLocation)
 

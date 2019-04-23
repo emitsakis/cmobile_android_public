@@ -6,6 +6,7 @@ package certh.hit.cmobile.model
 class IVIUserMessage : UserMessage(){
     var name :String? = null
     var relevanceZoneNr :Int? = null
+    var relevanceZoneType :String? = null
     var relevanceZones : List<RelevanceZone>? = null
     var iviIdentificationNumber :Int? = null
     var iviStatus :Int? = null

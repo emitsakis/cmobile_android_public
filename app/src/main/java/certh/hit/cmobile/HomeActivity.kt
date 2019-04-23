@@ -1,5 +1,6 @@
 package certh.hit.cmobile
 
+import android.app.Activity
 import android.arch.lifecycle.Observer
 import android.arch.lifecycle.ViewModelProviders
 import android.content.ComponentName
@@ -7,6 +8,7 @@ import android.content.Context
 import android.content.Intent
 import android.content.ServiceConnection
 import android.content.pm.ActivityInfo
+import android.content.res.Configuration
 import android.graphics.Color
 import android.graphics.Typeface
 import android.location.Location
@@ -81,6 +83,7 @@ class HomeActivity : AppCompatActivity(),OnMapReadyCallback,PermissionsListener,
     private var iviSing : ImageView? = null
     private var  root : RelativeLayout? = null
     private lateinit var  denmStaticMessages :DENMStaticMessage
+    private var flipFlag: Int? = 0
     private val gpsObserver = Observer<GpsStatus> { status ->
         status?.let {
             Log.d(TAG,status.toString())
@@ -144,8 +147,18 @@ class HomeActivity : AppCompatActivity(),OnMapReadyCallback,PermissionsListener,
         flip = findViewById(R.id.flip)
         flip!!.setOnClickListener(object : View.OnClickListener{
             override fun onClick(p0: View?) {
-                requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_REVERSE_PORTRAIT
-                root!!.scaleX = 1.0f
+                    if(flipFlag==0) {
+                        requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_REVERSE_PORTRAIT
+                        root!!.scaleX = -1.0f
+                        flipFlag = 1
+                    }else{
+                        requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
+                        root!!.scaleX = 1.0f
+                        flipFlag = 0
+                    }
+
+
+
             }
         })
         root = findViewById(R.id.root)
@@ -343,9 +356,23 @@ class HomeActivity : AppCompatActivity(),OnMapReadyCallback,PermissionsListener,
         }
 
         override fun onIVIMessageReceived(message: IVIUserMessage) {
+
             Log.d(TAG,message.toString())
-            iviSing!!.visibility = VISIBLE
-            speedBar!!.setMaxValues(50f)
+            if(message.iviType==1) {
+                iviSing!!.visibility = VISIBLE
+                speedBar!!.setMaxValues(50f)
+            }else if(message.iviType==2){
+                iviMessageParent!!.visibility = VISIBLE
+                var messageString = Helper.getViviNameFromID(message.iviIdentificationNumber) +" "+Helper.convertSecToMin(message.travelTime)+"'"
+                vIVIMessage!!.typeface = tf
+                vIVIMessage!!.isSelected  = true
+                vIVIMessage!!.text = messageString
+                vIVIMessage!!.setTextColor(resources.getColor(R.color.white));
+                Handler().postDelayed({
+                    iviMessageParent!!.visibility = GONE
+                }, 30000)
+
+            }
 
         }
 
@@ -367,13 +394,13 @@ class HomeActivity : AppCompatActivity(),OnMapReadyCallback,PermissionsListener,
             message: SPATUserMessage,
             lastLocation: Location
         ) {
-            if(GeoHelper.isLocationInsideLineBox(message.mapMessage!!.osmTagsStartLat,message.mapMessage!!.osmTagsStartLon,message.mapMessage!!.osmTagsStopLat,message.mapMessage!!.osmTagsStopLon,lastLocation.latitude,lastLocation.longitude)&& message.eventState.equals("green",ignoreCase = true)){
-                trafficLight!!.visibility = VISIBLE
-
-            }else{
-                trafficLight!!.visibility = GONE
-
-            }
+//            if(GeoHelper.isLocationInsideLineBox(message.mapMessage!!.osmTagsStartLat,message.mapMessage!!.osmTagsStartLon,message.mapMessage!!.osmTagsStopLat,message.mapMessage!!.osmTagsStopLon,lastLocation.latitude,lastLocation.longitude)&& message.eventState.equals("green",ignoreCase = true)){
+//                trafficLight!!.visibility = VISIBLE
+//
+//            }else{
+//                trafficLight!!.visibility = GONE
+//
+//            }
         }
 
         override fun onPositionChanged(position: Location) {

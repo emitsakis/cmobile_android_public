@@ -6,4 +6,6 @@ package certh.hit.cmobile.model
 class Zone {
     var deltaLongitude :Int? = null
     var deltaLatitude :Int? = null
+    var actualLongitude :Double? = null
+    var actualLatitude :Double? = null
 }
