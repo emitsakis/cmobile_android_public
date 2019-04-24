@@ -421,8 +421,8 @@ class LocationService:Service(), LocationServiceInterface {
                 var topicQuadTreeRmvSlash = tmpTopic.quadTree!!.replace("/","")
 
                 var quadTreeRmvSlash = quadTree!!.replace("/","")
-                Log.w("quad t",topicQuadTreeRmvSlash.substring(0,Helper.ZOOM_LEVEL))
-                Log.w("quad i",quadTreeRmvSlash)
+               //Log.w("quad t",topicQuadTreeRmvSlash.substring(0,Helper.ZOOM_LEVEL))
+                //Log.w("quad i",quadTreeRmvSlash)
 
                 if(!quadTreeRmvSlash.equals(topicQuadTreeRmvSlash.substring(0,Helper.ZOOM_LEVEL))) {
                     Log.w("quad m","in")

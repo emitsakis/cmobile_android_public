@@ -548,7 +548,7 @@ object Helper {
     }
     private fun convertCoordinates(coordinate: Int): Double? {
         val digits = countDigits(coordinate)
-        Log.d("calculateDeltas",coordinate.toString())
+       //Log.d("calculateDeltas",coordinate.toString())
         val returnValue =  coordinate/  Math.pow(10.0,digits-2)
         return returnValue
     }

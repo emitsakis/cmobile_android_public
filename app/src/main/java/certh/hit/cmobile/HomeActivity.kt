@@ -1,5 +1,6 @@
 package certh.hit.cmobile
 
+import android.annotation.SuppressLint
 import android.app.Activity
 import android.arch.lifecycle.Observer
 import android.arch.lifecycle.ViewModelProviders
@@ -15,6 +16,7 @@ import android.location.Location
 import android.os.Bundle
 import android.os.Handler
 import android.os.IBinder
+import android.speech.tts.TextToSpeech
 import android.support.design.widget.FloatingActionButton
 import android.support.v7.app.AlertDialog
 import android.support.v7.app.AppCompatActivity
@@ -34,6 +36,7 @@ import certh.hit.cmobile.service.LocationServiceInterface
 import certh.hit.cmobile.utils.ColorArcProgressBar
 import certh.hit.cmobile.utils.GeoHelper
 import certh.hit.cmobile.utils.Helper
+import certh.hit.cmobile.utils.TTS
 import certh.hit.cmobile.viewmodel.MapViewModel
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
@@ -70,7 +73,7 @@ class HomeActivity : AppCompatActivity(),OnMapReadyCallback,PermissionsListener,
     private var locationIntent :Intent? = null
     private var locationSrv: LocationService? = null
     private var mLocationAdapter:LocationServiceInterface? = null
-    private var  vIVIMessage :TextView? = null
+    private var vIVIMessage :TextView? = null
     private var iviMessageParent :RelativeLayout? = null
     private var trafficLight :RelativeLayout? = null
     private var trafficLightRed :ImageView? = null
@@ -78,6 +81,7 @@ class HomeActivity : AppCompatActivity(),OnMapReadyCallback,PermissionsListener,
     private var trafficLightGreen :ImageView? = null
     private var settings :FloatingActionButton? = null
     private var flip :FloatingActionButton? = null
+    private var reCenter :FloatingActionButton? = null
     private var  tf : Typeface? = null
     private var speedBar : ColorArcProgressBar? = null
     private var iviSing : ImageView? = null
@@ -88,6 +92,8 @@ class HomeActivity : AppCompatActivity(),OnMapReadyCallback,PermissionsListener,
     private var isInsideDenm: Int? =0
     private var iVIMessageToHandle :IVIUserMessage? = null
     private var denmMessageToHandle :DENMUserMessage? = null
+    private var denmTTS :Boolean? = null
+    private var iviTTS :Boolean? = null
 
     private val gpsObserver = Observer<GpsStatus> { status ->
         status?.let {
@@ -128,6 +134,8 @@ class HomeActivity : AppCompatActivity(),OnMapReadyCallback,PermissionsListener,
         viewModel = ViewModelProviders.of(this).get(MapViewModel::class.java)
         mapView?.getMapAsync(this)
 
+
+
     }
 
     private fun setupUI() {
@@ -161,9 +169,18 @@ class HomeActivity : AppCompatActivity(),OnMapReadyCallback,PermissionsListener,
                         root!!.scaleX = 1.0f
                         flipFlag = 0
                     }
+         }
+        })
+        reCenter = findViewById(R.id.fixed_location)
+        reCenter!!.setOnClickListener(object : View.OnClickListener{
+            @SuppressLint("MissingPermission")
+            override fun onClick(p0: View?) {
+                if(mapboxMap!!.locationComponent.isLocationComponentEnabled && mapboxMap!!.locationComponent.lastKnownLocation != null){
+                    var cameraPosition = CameraPosition.Builder().target(LatLng(mapboxMap!!.locationComponent.lastKnownLocation!!.latitude,mapboxMap!!.locationComponent.lastKnownLocation!!.longitude)).zoom(18.0).build()
+                   mapboxMap!!.cameraPosition = cameraPosition
 
 
-
+                }
             }
         })
         root = findViewById(R.id.root)
@@ -193,7 +210,6 @@ class HomeActivity : AppCompatActivity(),OnMapReadyCallback,PermissionsListener,
 
     @SuppressWarnings("MissingPermission")
     private fun enableLocationComponent() {
-
         // Check if permissions are enabled and if not request
         if (PermissionsManager.areLocationPermissionsGranted(this)) {
             val options1 = LocationComponentOptions.builder(this)
@@ -352,27 +368,13 @@ class HomeActivity : AppCompatActivity(),OnMapReadyCallback,PermissionsListener,
         override fun onDenmUserMessage(message: DENMUserMessage) {
             denmMessageToHandle = message
             isInsideDenm = 0
+            denmTTS = true
         }
 
         override fun onIVIMessageReceived(message: IVIUserMessage) {
             iVIMessageToHandle = message
              isInsideIvi = 0
-//            if(message.iviType==1) {
-//                iviSing!!.visibility = VISIBLE
-//                speedBar!!.setMaxValues(50f)
-//            }else if(message.iviType==2){
-//                iviMessageParent!!.visibility = VISIBLE
-//                var messageString = Helper.getViviNameFromID(message.iviIdentificationNumber) +" "+Helper.convertSecToMin(message.travelTime)+"'"
-//                vIVIMessage!!.typeface = tf
-//                vIVIMessage!!.isSelected  = true
-//                vIVIMessage!!.text = messageString
-//                vIVIMessage!!.setTextColor(resources.getColor(R.color.white));
-//                Handler().postDelayed({
-//                    iviMessageParent!!.visibility = GONE
-//                }, 30000)
-//
-//            }
-
+             iviTTS = true
         }
 
         override fun onVIVIUserMessage(message: VIVIUserMessage) {
@@ -393,6 +395,34 @@ class HomeActivity : AppCompatActivity(),OnMapReadyCallback,PermissionsListener,
             message: SPATUserMessage,
             lastLocation: Location
         ) {
+            if(message.eventState.equals("1000xxxx")){
+                var isInsideSpat =0
+            for(relevanceZone in message!!.relevanceZones!!){
+                if(GeoHelper.isLocationInsideLineBox(message!!.actualLatitude,message!!.actuallongitude,
+                        relevanceZone.zones,lastLocation.latitude,lastLocation.longitude)){
+
+                    isInsideSpat = isInsideSpat!!.plus(other = 1)
+                }
+            }
+            Log.d("isInside",isInsideSpat!!.toString())
+            val systemTimestamp = System.currentTimeMillis()/1000
+            val validTimestamp = systemTimestamp - message.timestamp!!
+            Log.d("message timestamp", message!!.timestamp.toString())
+            Log.d("system timestamp", systemTimestamp.toString())
+            Log.d("valid timestamp",validTimestamp.toString())
+            if (isInsideSpat!!>0 && validTimestamp<61){
+                trafficLight!!.visibility = VISIBLE
+                isInsideSpat = 0
+            }else{
+                trafficLight!!.visibility = VISIBLE
+
+            }
+        }else{
+                trafficLight!!.visibility = GONE
+            }
+
+
+            Log.d("debug message",message.toString())
 //            if(GeoHelper.isLocationInsideLineBox(message.mapMessage!!.osmTagsStartLat,message.mapMessage!!.osmTagsStartLon,message.mapMessage!!.osmTagsStopLat,message.mapMessage!!.osmTagsStopLon,lastLocation.latitude,lastLocation.longitude)&& message.eventState.equals("green",ignoreCase = true)){
 //                trafficLight!!.visibility = VISIBLE
 //
@@ -406,14 +436,7 @@ class HomeActivity : AppCompatActivity(),OnMapReadyCallback,PermissionsListener,
             speedBar!!.setCurrentValues(Helper.toKmPerHour(position.speed).toFloat())
             handleIvi(position)
             handleDenm(position)
-
-
-
-        }
-
-
-
-
+       }
     }
 
     private fun handleDenm(position: Location) {
@@ -422,12 +445,17 @@ class HomeActivity : AppCompatActivity(),OnMapReadyCallback,PermissionsListener,
             for(relevanceZone in denmMessageToHandle!!.relevanceZones!!){
                 if(GeoHelper.isLocationInsideLineBox(denmMessageToHandle!!.actualLatitude,denmMessageToHandle!!.actuallongitude,
                         relevanceZone.zones,position.latitude,position.longitude)){
-                    Log.d("isInside", true.toString())
+
                     isInsideDenm = isInsideDenm!!.plus(other = 1)
                 }
             }
             Log.d("isInside",isInsideDenm!!.toString())
-            if (isInsideDenm!!>0){
+            val systemTimestamp = System.currentTimeMillis()/1000
+            val validTimestamp = systemTimestamp - denmMessageToHandle!!.timestamp!!+ denmMessageToHandle!!.duration!!
+            Log.d("message timestamp", denmMessageToHandle!!.timestamp.toString())
+            Log.d("system timestamp", systemTimestamp.toString())
+            Log.d("valid timestamp",validTimestamp.toString())
+            if (isInsideDenm!!>0 &&validTimestamp>=0){
                 var messageToShow = denmStaticMessages!!.list!!.firstOrNull() { w -> w.code==denmMessageToHandle!!.causeCode && w.subcode==denmMessageToHandle!!.subCauseCode }
                 if(messageToShow!= null) {
                     iviMessageParent!!.visibility = VISIBLE
@@ -436,6 +464,10 @@ class HomeActivity : AppCompatActivity(),OnMapReadyCallback,PermissionsListener,
                     vIVIMessage!!.isSelected = true
                     vIVIMessage!!.text = messageString
                     vIVIMessage!!.setTextColor(resources.getColor(R.color.gold));
+                    if(denmTTS!!) {
+                        TTS(this@HomeActivity, messageToShow.message)
+                        denmTTS = false
+                    }
                 }
                 isInsideDenm = 0
             }else{
@@ -467,6 +499,10 @@ class HomeActivity : AppCompatActivity(),OnMapReadyCallback,PermissionsListener,
                     vIVIMessage!!.isSelected  = true
                     vIVIMessage!!.text = messageString
                     vIVIMessage!!.setTextColor(resources.getColor(R.color.white))
+                    if(iviTTS!!) {
+                        TTS(this@HomeActivity, messageString)
+                        iviTTS = false
+                    }
 
                 }
                 isInsideIvi = 0
@@ -541,7 +577,7 @@ class HomeActivity : AppCompatActivity(),OnMapReadyCallback,PermissionsListener,
         return false
     }
 
-    fun culculateOsmId(position: Location){
+    fun calculateOhmId(position: Location){
         var point = LatLng(position.latitude,position.longitude)
         val pixel = mapboxMap!!.projection.toScreenLocation(point)
         val features = mapboxMap!!.queryRenderedFeatures(pixel)
