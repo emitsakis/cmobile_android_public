@@ -1,15 +1,16 @@
 
-skotlin:S1186Õ"ZAdd a nested comment explaining why this function is empty or complete the implementation.(È…Öà
-}kotlin:S1192n"eDefine a constant instead of duplicating this literal "Error when registerLocationUpdates()" 3 times.(Ó¯š‰
-Tkotlin:S1172¬"/Remove this unused function parameter "result".(àµÒ¹üÿÿÿÿ8È¾ù¢-
->kotlin:S125ë"Remove this commented out code.(óØØã8È¾ù¢-
 skotlin:S1186Ã"ZAdd a nested comment explaining why this function is empty or complete the implementation.(È…Öà
-7kotlin:S125ñ"Remove this commented out code.(›İéÅ
+>kotlin:S125ë"Remove this commented out code.(óØØã8È¾ù¢-
+<kotlin:S125æ"Remove this commented out code.(Ã€Â‘şÿÿÿÿ
+>kotlin:S125£"Remove this commented out code.(ƒ®Ñ¬8Äïù¢-
+Ckotlin:S125¨"Remove this commented out code.(¦êüÿÿÿÿ8ôµ¯ñ¤-
+pkotlin:S1192ö"RDefine a constant instead of duplicating this literal "Subscribed fail!" 13 times.(öÀ˜Ñıÿÿÿÿ
+gkotlin:S1192€"NDefine a constant instead of duplicating this literal "UnSubscribed!" 9 times.( µËÇ
 Ukotlin:S1172Ÿ"7Remove this unused function parameter "locationResult".(ã’Ñ¦üÿÿÿÿ
 skotlin:S1186¼"ZAdd a nested comment explaining why this function is empty or complete the implementation.(È…Öà
-pkotlin:S1192ö"RDefine a constant instead of duplicating this literal "Subscribed fail!" 13 times.(öÀ˜Ñıÿÿÿÿ
-gkotlin:S1192ü"NDefine a constant instead of duplicating this literal "UnSubscribed!" 9 times.( µËÇ
-pkotlin:S3776"RRefactor this method to reduce its Cognitive Complexity from 25 to the 15 allowed.(Â×Ø“ûÿÿÿÿ
 jkotlin:S117²"RRename this local variable to match the regular expression "^[_a-z][a-zA-Z0-9]*$".(Ò¸è®
->kotlin:S125£"Remove this commented out code.(ƒ®Ñ¬8Äïù¢-
-<kotlin:S125â"Remove this commented out code.(Ã€Â‘şÿÿÿÿ
+skotlin:S1186Ù"ZAdd a nested comment explaining why this function is empty or complete the implementation.(È…Öà
+}kotlin:S1192n"eDefine a constant instead of duplicating this literal "Error when registerLocationUpdates()" 3 times.(Ó¯š‰
+Tkotlin:S1172¬"/Remove this unused function parameter "result".(àµÒ¹üÿÿÿÿ8È¾ù¢-
+7kotlin:S125ñ"Remove this commented out code.(›İéÅ
+pkotlin:S3776"RRefactor this method to reduce its Cognitive Complexity from 32 to the 15 allowed.(Â×Ø“ûÿÿÿÿ

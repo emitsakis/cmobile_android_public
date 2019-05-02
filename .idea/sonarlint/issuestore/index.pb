@@ -33,3 +33,9 @@ l
 <app/src/main/java/certh/hit/cmobile/model/DENMUserMessage.kt,a\c\ac07a9a27b4c0f88f4722751046b86f8efad9e3c
 l
 <app/src/main/java/certh/hit/cmobile/model/SPATUserMessage.kt,b\5\b5291a1f79912ddc5d901fca68e82aa6045acb46
+v
+Fapp/src/main/java/certh/hit/cmobile/service/LocationServiceCallback.kt,e\f\ef5d7a7ba8e8d1c03bd2f8d0ecad90a17997f294
+w
+Gapp/src/main/java/certh/hit/cmobile/service/LocationServiceInterface.kt,0\c\0cca547535c4de61f5d85446869e58b0fee3481b
+`
+0app/src/main/java/certh/hit/cmobile/utils/TTS.kt,4\e\4e3d67aa5bb29c87594ff5441b8f265786474431

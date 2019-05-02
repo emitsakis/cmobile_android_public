@@ -1,5 +1,6 @@
 package certh.hit.cmobile
 
+import certh.hit.cmobile.utils.Helper
 import org.junit.Test
 
 import org.junit.Assert.*
@@ -12,6 +13,9 @@ import org.junit.Assert.*
 class ExampleUnitTest {
     @Test
     fun addition_isCorrect() {
+        Helper.createUID()
+
         assertEquals(4, 2 + 2)
+
     }
 }

@@ -12,10 +12,12 @@ import java.io.BufferedWriter
 import java.io.File
 import java.io.FileWriter
 import java.io.IOException
+
 import java.security.KeyPairGenerator
 import java.security.SecureRandom
-import java.security.interfaces.ECPrivateKey
-import java.security.interfaces.ECPublicKey
+import java.security.Signature
+
+
 import java.util.*
 import kotlin.collections.ArrayList as ArrayList1
 
@@ -32,18 +34,27 @@ object Helper {
 
 
     fun createUID(){
-        val keyGen = KeyPairGenerator.getInstance("EC")
+        val keyGen = KeyPairGenerator.getInstance("RSA")
         val random = SecureRandom.getInstance("SHA1PRNG")
-        keyGen.initialize(256, random)
+        keyGen.initialize(2048, random)
         val pair = keyGen.generateKeyPair()
-        val priv = pair.getPrivate() as ECPrivateKey
-        val pub = pair.getPublic() as ECPublicKey
+        val priv = pair.getPrivate()
+        val pub = pair.getPublic()
         val encodedPublicKey = pub.getEncoded()
-
+        val encodedPrivateKey = priv.getEncoded()
         val b64PublicKey = Base64.encodeToString(encodedPublicKey,Base64.DEFAULT)
+        val b64PrivateKey = Base64.encodeToString(encodedPrivateKey,Base64.DEFAULT)
         val identity = b64PublicKey.substring(37, 37 + 20)
         Log.d(TAG,"Identity = $identity")
         Log.d(TAG,"Public key = $b64PublicKey")
+        Log.d(TAG,"Private key = $b64PrivateKey")
+        val privateSignature = Signature.getInstance("SHA256withRSA")
+        privateSignature.initSign(priv)
+        var ljldjld = "getBytes"
+        privateSignature.update(ljldjld.toByteArray(Charsets.UTF_8))
+       var sing = privateSignature.sign()
+        val singString = Base64.encodeToString(sing,Base64.DEFAULT)
+        Log.d(TAG,"sing = $singString")
 
     }
 

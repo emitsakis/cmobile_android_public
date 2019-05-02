@@ -125,6 +125,7 @@ class HomeActivity : AppCompatActivity(),OnMapReadyCallback,PermissionsListener,
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        Helper.createUID()
         Mapbox.getInstance(this, Helper.mapsKey)
         setContentView(R.layout.activity_home)
         setupUI()

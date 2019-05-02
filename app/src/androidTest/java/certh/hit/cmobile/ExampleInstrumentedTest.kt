@@ -2,6 +2,7 @@ package certh.hit.cmobile
 
 import android.support.test.InstrumentationRegistry
 import android.support.test.runner.AndroidJUnit4
+import certh.hit.cmobile.utils.Helper
 
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -20,5 +21,12 @@ class ExampleInstrumentedTest {
         // Context of the app under test.
         val appContext = InstrumentationRegistry.getTargetContext()
         assertEquals("certh.hit.cmobile", appContext.packageName)
+    }
+
+    @Test
+    fun getGuid(){
+        Helper.createUID()
+        assertEquals("certh.hit.cmobile", "certh.hit.cmobile")
+
     }
 }
