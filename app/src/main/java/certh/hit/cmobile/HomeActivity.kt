@@ -1,7 +1,6 @@
 package certh.hit.cmobile
 
 import android.annotation.SuppressLint
-import android.app.Activity
 import android.arch.lifecycle.Observer
 import android.arch.lifecycle.ViewModelProviders
 import android.content.ComponentName
@@ -9,14 +8,14 @@ import android.content.Context
 import android.content.Intent
 import android.content.ServiceConnection
 import android.content.pm.ActivityInfo
-import android.content.res.Configuration
+import android.graphics.BitmapFactory
 import android.graphics.Color
 import android.graphics.Typeface
 import android.location.Location
 import android.os.Bundle
 import android.os.Handler
 import android.os.IBinder
-import android.speech.tts.TextToSpeech
+import android.provider.Settings
 import android.support.design.widget.FloatingActionButton
 import android.support.v7.app.AlertDialog
 import android.support.v7.app.AppCompatActivity
@@ -39,9 +38,10 @@ import certh.hit.cmobile.utils.Helper
 import certh.hit.cmobile.utils.TTS
 import certh.hit.cmobile.viewmodel.MapViewModel
 import com.google.gson.Gson
-import com.google.gson.reflect.TypeToken
 import com.mapbox.android.core.permissions.PermissionsListener
 import com.mapbox.android.core.permissions.PermissionsManager
+import com.mapbox.geojson.Feature
+import com.mapbox.geojson.Point
 import com.mapbox.mapboxsdk.Mapbox
 import com.mapbox.mapboxsdk.camera.CameraPosition
 import com.mapbox.mapboxsdk.geometry.LatLng
@@ -53,6 +53,9 @@ import com.mapbox.mapboxsdk.maps.MapView
 import com.mapbox.mapboxsdk.maps.MapboxMap
 import com.mapbox.mapboxsdk.maps.OnMapReadyCallback
 import com.mapbox.mapboxsdk.maps.Style
+import com.mapbox.mapboxsdk.style.layers.PropertyFactory
+import com.mapbox.mapboxsdk.style.layers.SymbolLayer
+import com.mapbox.mapboxsdk.style.sources.GeoJsonSource
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -126,6 +129,7 @@ class HomeActivity : AppCompatActivity(),OnMapReadyCallback,PermissionsListener,
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         Helper.createUID()
+        Log.d("locked",checkOrientationLocked().toString())
         Mapbox.getInstance(this, Helper.mapsKey)
         setContentView(R.layout.activity_home)
         setupUI()
@@ -161,15 +165,22 @@ class HomeActivity : AppCompatActivity(),OnMapReadyCallback,PermissionsListener,
         flip = findViewById(R.id.flip)
         flip!!.setOnClickListener(object : View.OnClickListener{
             override fun onClick(p0: View?) {
-                    if(flipFlag==0) {
+                if(checkOrientationLocked()){
+                    showAlertDialogLockedOrientation()
+
+                }else {
+                  if (flipFlag == 0) {
                         requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_REVERSE_PORTRAIT
                         root!!.scaleX = -1.0f
+                        mapView!!.scaleX = -1.0f
                         flipFlag = 1
-                    }else{
+                    } else {
                         requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
                         root!!.scaleX = 1.0f
+                        mapView!!.scaleX = 1.0f
                         flipFlag = 0
                     }
+                }
          }
         })
         reCenter = findViewById(R.id.fixed_location)
@@ -192,7 +203,7 @@ class HomeActivity : AppCompatActivity(),OnMapReadyCallback,PermissionsListener,
         this.mapboxMap = mapboxMap
         mapboxMap.setStyle(Style.DARK){
             this.mapboxMap!!.addOnMapClickListener(this);
-            this.style = style
+            this.style = mapboxMap.style
 
 
            enableLocationComponent()
@@ -237,13 +248,13 @@ class HomeActivity : AppCompatActivity(),OnMapReadyCallback,PermissionsListener,
                 override fun onCameraTrackingDismissed() {
                     Log.d(TAG,"dismiss")
                     // Tracking has been dismissed
-
+                    //locationComponent?.cameraMode = CameraMode.TRACKING_GPS
                 }
 
                 override fun onCameraTrackingChanged(currentMode: Int) {
                     // CameraMode has been updated
                     Log.d(TAG,"change"+currentMode.toString())
-
+                   // locationComponent?.cameraMode = CameraMode.TRACKING_GPS
 
                 }
             })
@@ -353,6 +364,7 @@ class HomeActivity : AppCompatActivity(),OnMapReadyCallback,PermissionsListener,
             denmMessageToHandle = null
 
 
+
         }
         override fun onEgnatiaUserMessage(message: EgnatiaUserMessage) {
             iviMessageParent!!.visibility = VISIBLE
@@ -435,6 +447,18 @@ class HomeActivity : AppCompatActivity(),OnMapReadyCallback,PermissionsListener,
 
         override fun onPositionChanged(position: Location) {
             speedBar!!.setCurrentValues(Helper.toKmPerHour(position.speed).toFloat())
+            if(mapboxMap?.locationComponent!!.cameraMode != CameraMode.TRACKING_GPS) {
+                mapboxMap?.locationComponent!!.cameraMode = CameraMode.TRACKING_GPS
+                //Set the component's camera mode
+                // Set the component's render mode
+                mapboxMap?.locationComponent!!.renderMode = RenderMode.GPS
+            }
+           if(mapboxMap?.cameraPosition!!.zoom != 18.0){
+            val camPosition = CameraPosition.Builder()
+                .zoom(18.0)
+                .build()
+            mapboxMap?.cameraPosition = camPosition
+        }
             handleIvi(position)
             handleDenm(position)
        }
@@ -465,14 +489,37 @@ class HomeActivity : AppCompatActivity(),OnMapReadyCallback,PermissionsListener,
                     vIVIMessage!!.isSelected = true
                     vIVIMessage!!.text = messageString
                     vIVIMessage!!.setTextColor(resources.getColor(R.color.gold));
-                    if(denmTTS!!) {
+                    if (denmTTS!!) {
                         TTS(this@HomeActivity, messageToShow.message)
                         denmTTS = false
+
+                        style!!.addImage(
+                            "marker-icon-id",
+                            BitmapFactory.decodeResource(
+                                this@HomeActivity.resources, R.drawable.ic_car_breakdown
+                            )
+                        )
+
+                        var geoJsonSource = GeoJsonSource(
+                            "source-id", Feature.fromGeometry(
+                                Point.fromLngLat(
+                                    denmMessageToHandle!!.actuallongitude!!,
+                                    denmMessageToHandle!!.actualLatitude!!
+                                )
+                            )
+                        );
+                        style!!.addSource(geoJsonSource);
+
+                        var symbolLayer = SymbolLayer("layer-id", "source-id")
+                        symbolLayer.withProperties(PropertyFactory.iconImage("marker-icon-id"))
+                        style!!.addLayer(symbolLayer)
+
                     }
                 }
                 isInsideDenm = 0
             }else{
                 iviMessageParent!!.visibility = GONE
+                style!!.removeLayer("layer-id")
 
             }
         }
@@ -553,7 +600,11 @@ class HomeActivity : AppCompatActivity(),OnMapReadyCallback,PermissionsListener,
     }
 
     override fun onBackPressed() {
+        showExitAlert()
 
+    }
+
+    private fun showExitAlert() {
         val builder = AlertDialog.Builder(this@HomeActivity)
         builder.setTitle("C- Mobile")
         builder.setMessage("Exit application")
@@ -563,14 +614,13 @@ class HomeActivity : AppCompatActivity(),OnMapReadyCallback,PermissionsListener,
             System.exit(1);
         }
         builder.setNegativeButton("No"){dialog,which ->
-        dialog.dismiss()
+            dialog.dismiss()
 
         }
         val dialog: AlertDialog = builder.create()
 
         // Display the alert dialog on app interface
-        dialog.show()
-    }
+        dialog.show()    }
 
     override fun onMapClick(point: LatLng): Boolean {
 
@@ -608,6 +658,36 @@ class HomeActivity : AppCompatActivity(),OnMapReadyCallback,PermissionsListener,
                 }
             }
         }
+
+
+    }
+
+    fun checkOrientationLocked():Boolean{
+          val str = Settings.System.getInt(this@HomeActivity.contentResolver,
+             Settings.System.ACCELEROMETER_ROTATION);
+
+   if(str==1)
+   {
+       return false
+      // rotation is Unlocked
+   }
+       return true
+      // rotation is Locked
+
+    }
+    fun showAlertDialogLockedOrientation(){
+        val builder = AlertDialog.Builder(this@HomeActivity)
+        builder.setTitle("C- Mobile")
+        builder.setMessage("Rotation is locked!Please go to the settings and disable it.")
+        builder.setPositiveButton("OK"){dialog, which ->
+            dialog.dismiss()
+        }
+
+        val dialog: AlertDialog = builder.create()
+
+        // Display the alert dialog on app interface
+        dialog.show()
+
 
 
     }

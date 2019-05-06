@@ -12,6 +12,7 @@ import java.io.BufferedWriter
 import java.io.File
 import java.io.FileWriter
 import java.io.IOException
+import java.net.URLEncoder
 
 import java.security.KeyPairGenerator
 import java.security.SecureRandom
@@ -51,10 +52,32 @@ object Helper {
         val privateSignature = Signature.getInstance("SHA256withRSA")
         privateSignature.initSign(priv)
         var ljldjld = "getBytes"
-        privateSignature.update(ljldjld.toByteArray(Charsets.UTF_8))
+
+        var appkeyIDalt1 = "app_key="+"appkey"+
+                                    "&app_name="+"CMobile"+
+                                    "&app_version="+"1.0"+
+                                    "&country_code="+"GR"+
+                                    "&latitude="+"40.645173"+
+                                    "&longitude="+"22.926629"+
+                                    "&public_key="+b64PublicKey+
+                                    "&timestamp="+"1556863232"+
+                                    "&vehicle_type="+"5"
+//            'app_key='+req.body.app_key+
+//                    '&app_name='+req.body.app_name+
+//                    '&app_version='+req.body.app_version+
+//                    '&country_code='+req.body.country_code+
+//                    '&latitude='+req.body.latitude+
+//                    '&longitude='+req.body.longitude+
+//                    '&public_key='+req.body.public_key+
+//                    '&timestamp='+req.body.timestamp+
+//                    '&vehicle_type='+req.body.vehicle_type;
+
+        privateSignature.update(appkeyIDalt1.toByteArray(Charsets.UTF_8))
        var sing = privateSignature.sign()
         val singString = Base64.encodeToString(sing,Base64.DEFAULT)
+        val urlEncodedSing = URLEncoder.encode(singString,Charsets.UTF_8.name())
         Log.d(TAG,"sing = $singString")
+        Log.d(TAG,"sing encoded = $urlEncodedSing")
 
     }
 
