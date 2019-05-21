@@ -427,7 +427,7 @@ class HomeActivity : AppCompatActivity(),OnMapReadyCallback,PermissionsListener,
                 trafficLight!!.visibility = VISIBLE
                 isInsideSpat = 0
             }else{
-                trafficLight!!.visibility = VISIBLE
+                trafficLight!!.visibility = GONE
 
             }
         }else{
@@ -447,18 +447,20 @@ class HomeActivity : AppCompatActivity(),OnMapReadyCallback,PermissionsListener,
 
         override fun onPositionChanged(position: Location) {
             speedBar!!.setCurrentValues(Helper.toKmPerHour(position.speed).toFloat())
-            if(mapboxMap?.locationComponent!!.cameraMode != CameraMode.TRACKING_GPS) {
-                mapboxMap?.locationComponent!!.cameraMode = CameraMode.TRACKING_GPS
-                //Set the component's camera mode
-                // Set the component's render mode
-                mapboxMap?.locationComponent!!.renderMode = RenderMode.GPS
+            if(mapboxMap != null && mapboxMap?.locationComponent != null && mapboxMap?.locationComponent!!.cameraMode != null) {
+                if (mapboxMap?.locationComponent!!.cameraMode != CameraMode.TRACKING_GPS) {
+                    mapboxMap?.locationComponent!!.cameraMode = CameraMode.TRACKING_GPS
+                    //Set the component's camera mode
+                    // Set the component's render mode
+                    mapboxMap?.locationComponent!!.renderMode = RenderMode.GPS
+                }
+                if (mapboxMap?.cameraPosition!!.zoom != 18.0) {
+                    val camPosition = CameraPosition.Builder()
+                        .zoom(18.0)
+                        .build()
+                    mapboxMap?.cameraPosition = camPosition
+                }
             }
-           if(mapboxMap?.cameraPosition!!.zoom != 18.0){
-            val camPosition = CameraPosition.Builder()
-                .zoom(18.0)
-                .build()
-            mapboxMap?.cameraPosition = camPosition
-        }
             handleIvi(position)
             handleDenm(position)
        }
@@ -540,18 +542,23 @@ class HomeActivity : AppCompatActivity(),OnMapReadyCallback,PermissionsListener,
                 if(iVIMessageToHandle!!.iviType==1) {
                     iviSing!!.visibility = VISIBLE
                     speedBar!!.setMaxValues(50f)
-                }else if(iVIMessageToHandle!!.iviType==2){
+                }else if(iVIMessageToHandle!!.iviType==2) {
                     iviMessageParent!!.visibility = VISIBLE
-                    var messageString = Helper.getViviNameFromID(iVIMessageToHandle!!.iviIdentificationNumber) +" "+Helper.convertSecToMin(iVIMessageToHandle!!.travelTime)+"'"
+                    var path = Helper.getViviNameFromExtraText(iVIMessageToHandle!!.extraTexts)
+                     if(!path.equals("")){
+                    var messageString =
+                        path + " " + Helper.convertSecToMin(
+                            iVIMessageToHandle!!.travelTime
+                        ) + "'"
                     vIVIMessage!!.typeface = tf
-                    vIVIMessage!!.isSelected  = true
+                    vIVIMessage!!.isSelected = true
                     vIVIMessage!!.text = messageString
                     vIVIMessage!!.setTextColor(resources.getColor(R.color.white))
-                    if(iviTTS!!) {
+                    if (iviTTS!!) {
                         TTS(this@HomeActivity, messageString)
                         iviTTS = false
                     }
-
+                }
                 }
                 isInsideIvi = 0
             }else{

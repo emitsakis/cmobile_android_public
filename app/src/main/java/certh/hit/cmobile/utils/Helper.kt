@@ -586,4 +586,21 @@ object Helper {
         val returnValue =  coordinate/  Math.pow(10.0,digits-2)
         return returnValue
     }
+
+    fun getViviNameFromExtraText(extraTexts: List<ExtraText>?): String {
+        if (extraTexts != null) {
+            for (extra in extraTexts){
+                if(!extra.textContent.equals("")){
+                    return extra.textContent!!
+                }
+            }
+
+            return ""
+        }else{
+
+            return ""
+        }
+
+
+    }
 }
