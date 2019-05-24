@@ -17,6 +17,7 @@ import android.os.Handler
 import android.os.IBinder
 import android.provider.Settings
 import android.support.design.widget.FloatingActionButton
+import android.support.v4.content.ContextCompat
 import android.support.v7.app.AlertDialog
 import android.support.v7.app.AppCompatActivity
 import android.util.Log
@@ -482,42 +483,49 @@ class HomeActivity : AppCompatActivity(),OnMapReadyCallback,PermissionsListener,
             Log.d("message timestamp", denmMessageToHandle!!.timestamp.toString())
             Log.d("system timestamp", systemTimestamp.toString())
             Log.d("valid timestamp",validTimestamp.toString())
-            if (isInsideDenm!!>0 &&validTimestamp>=0){
-                var messageToShow = denmStaticMessages!!.list!!.firstOrNull() { w -> w.code==denmMessageToHandle!!.causeCode && w.subcode==denmMessageToHandle!!.subCauseCode }
-                if(messageToShow!= null) {
-                    iviMessageParent!!.visibility = VISIBLE
-                    var messageString = messageToShow.message
-                    vIVIMessage!!.typeface = tf
-                    vIVIMessage!!.isSelected = true
-                    vIVIMessage!!.text = messageString
-                    vIVIMessage!!.setTextColor(resources.getColor(R.color.gold));
-                    if (denmTTS!!) {
-                        TTS(this@HomeActivity, messageToShow.message)
-                        denmTTS = false
-
-                        style!!.addImage(
-                            "marker-icon-id",
-                            BitmapFactory.decodeResource(
-                                this@HomeActivity.resources, R.drawable.ic_car_breakdown
-                            )
-                        )
-
-                        var geoJsonSource = GeoJsonSource(
-                            "source-id", Feature.fromGeometry(
-                                Point.fromLngLat(
-                                    denmMessageToHandle!!.actuallongitude!!,
-                                    denmMessageToHandle!!.actualLatitude!!
-                                )
-                            )
-                        );
-                        style!!.addSource(geoJsonSource);
-
-                        var symbolLayer = SymbolLayer("layer-id", "source-id")
-                        symbolLayer.withProperties(PropertyFactory.iconImage("marker-icon-id"))
-                        style!!.addLayer(symbolLayer)
-
+            if (isInsideDenm!!>0 &&validTimestamp>=0) {
+                var messageToShow = Helper.getViviNameFromExtraText(iVIMessageToHandle!!.extraTexts)
+                var staticMessageToShow =
+                    denmStaticMessages!!.list!!.firstOrNull() { w -> w.code == denmMessageToHandle!!.causeCode && w.subcode == denmMessageToHandle!!.subCauseCode }
+                if (messageToShow.equals("")) {
+                    if (staticMessageToShow != null) {
+                        messageToShow = staticMessageToShow.message
                     }
                 }
+                if (!messageToShow.equals("")){
+                    iviMessageParent!!.visibility = VISIBLE
+                var messageString = messageToShow
+                vIVIMessage!!.typeface = tf
+                vIVIMessage!!.isSelected = true
+                vIVIMessage!!.text = messageString
+                vIVIMessage!!.setTextColor(resources.getColor(R.color.gold));
+                if (denmTTS!!) {
+                    TTS(this@HomeActivity, messageToShow)
+                    denmTTS = false
+
+                    style!!.addImage(
+                        "marker-icon-id",
+                        BitmapFactory.decodeResource(
+                            this@HomeActivity.resources, R.drawable.ic_warning
+                        )
+                    )
+
+                    var geoJsonSource = GeoJsonSource(
+                        "source-id", Feature.fromGeometry(
+                            Point.fromLngLat(
+                                denmMessageToHandle!!.actuallongitude!!,
+                                denmMessageToHandle!!.actualLatitude!!
+                            )
+                        )
+                    );
+                    style!!.addSource(geoJsonSource);
+
+                    var symbolLayer = SymbolLayer("layer-id", "source-id")
+                    symbolLayer.withProperties(PropertyFactory.iconImage("marker-icon-id"))
+                    style!!.addLayer(symbolLayer)
+
+                }
+            }
                 isInsideDenm = 0
             }else{
                 iviMessageParent!!.visibility = GONE
@@ -540,9 +548,14 @@ class HomeActivity : AppCompatActivity(),OnMapReadyCallback,PermissionsListener,
             Log.d("isInside",isInsideIvi!!.toString())
             if (isInsideIvi!!>0){
                 if(iVIMessageToHandle!!.iviType==1) {
-                    iviSing!!.visibility = VISIBLE
-                    speedBar!!.setMaxValues(50f)
-                }else if(iVIMessageToHandle!!.iviType==2) {
+                    val iviImg = Helper.getIviSing(iVIMessageToHandle!!.serviceCategoryCode,iVIMessageToHandle!!.pictogramCategoryCode)
+                    if(iviImg!=0) {
+                        iviSing!!.visibility = VISIBLE
+                        iviSing!!.setImageResource(iviImg)
+                    }
+
+                  //  speedBar!!.setMaxValues(50f)
+                }else if(iVIMessageToHandle!!.iviType==2 && iVIMessageToHandle!!.messageOffline!!) {
                     iviMessageParent!!.visibility = VISIBLE
                     var path = Helper.getViviNameFromExtraText(iVIMessageToHandle!!.extraTexts)
                      if(!path.equals("")){
@@ -571,6 +584,8 @@ class HomeActivity : AppCompatActivity(),OnMapReadyCallback,PermissionsListener,
             }
         }
     }
+
+
 
     /**
      * Connect to the service

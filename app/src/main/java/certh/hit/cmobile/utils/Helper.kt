@@ -6,6 +6,7 @@ import android.os.Environment
 import android.util.Base64
 import android.util.Log
 import certh.hit.cmobile.BuildConfig
+import certh.hit.cmobile.R
 import certh.hit.cmobile.model.*
 import org.json.JSONObject
 import java.io.BufferedWriter
@@ -156,9 +157,16 @@ object Helper {
             if(iviJson.has("iviStatus")){
                 message.iviStatus = iviJson.optInt("iviStatus")
             }
-            if(iviJson.has("timestamp")){
-                message.timestamp = iviJson.optLong("timestamp")
+            if(iviJson.has("timestamp") ){
+                var timestamp = iviJson.get("timestamp")
+                    if(timestamp is Integer){
+                        message.timestamp =  iviJson.optLong("timestamp")
+                        message.messageOffline = true
+                    }else{
+                        message.messageOffline = false
+                    }
             }
+
             if(iviJson.has("iviType")){
                 message.iviType = iviJson.optInt("iviType")
             }
@@ -601,6 +609,49 @@ object Helper {
             return ""
         }
 
+
+    }
+
+    fun getCategory11Img(pictogramCategoryCode: Int?): Int {
+        var returnValue = 0
+        returnValue = when (pictogramCategoryCode){
+            257 -> R.drawable.ic_dangerous_shoulder
+            268 -> R.drawable.ic_uneven_road
+            else -> 0
+
+        }
+        return returnValue
+    }
+    fun getCategory12Img(pictogramCategoryCode: Int?): Int {
+        var returnValue = 0
+        returnValue = when (pictogramCategoryCode){
+            117 -> R.drawable.ic_give_way
+
+            else -> 0
+
+        }
+        return returnValue
+    }
+    fun getCategory13Img(pictogramCategoryCode: Int?): Int {
+        var returnValue = 0
+        returnValue = when (pictogramCategoryCode){
+            811 -> R.drawable.ic_road_for_motor_vehicles
+            812 -> R.drawable.ic_end_of_road_for_motor_vehicles
+            else -> 0
+
+        }
+        return returnValue
+    }
+
+    fun getIviSing(serviceCategoryCode: Int?, pictogramCategoryCode: Int?): Int {
+        var returnValue = 0
+        returnValue = when(serviceCategoryCode){
+            11 -> Helper.getCategory11Img(pictogramCategoryCode)
+            12 -> Helper.getCategory12Img(pictogramCategoryCode)
+            13-> Helper.getCategory13Img(pictogramCategoryCode)
+            else -> 0
+        }
+        return returnValue
 
     }
 }

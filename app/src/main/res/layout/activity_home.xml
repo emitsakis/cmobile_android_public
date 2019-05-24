@@ -51,11 +51,12 @@
             <ImageView
                     android:layout_width="50dp"
                     android:layout_height="50dp"
-                    android:src="@drawable/speed_limit_50"
+                    android:src="@drawable/ic_uneven_road"
                     android:layout_toEndOf="@id/speed_bar"
                     android:layout_marginStart="-30dp"
                     android:layout_marginTop="20dp"
-                    android:visibility="gone" android:id="@+id/ivi_sign"/>
+                    android:visibility="gone"
+                    android:id="@+id/ivi_sign"/>
 
 
         </RelativeLayout>

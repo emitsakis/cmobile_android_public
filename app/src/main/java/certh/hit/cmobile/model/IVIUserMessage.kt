@@ -11,6 +11,7 @@ class IVIUserMessage : UserMessage(){
     var iviIdentificationNumber :Int? = null
     var iviStatus :Int? = null
     var timestamp :Long? = null
+    var messageOffline :Boolean? = null
     var iviType :Int? = null
     var travelTime :Int? = null
     var serviceCategoryCode :Int? = null
