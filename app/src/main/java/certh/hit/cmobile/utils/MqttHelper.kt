@@ -46,48 +46,50 @@ class MqttHelper(context: Context) {
         mqttAndroidClient.setCallback(callback)
     }
 
-    public fun connect() {
-        val mqttConnectOptions = MqttConnectOptions()
-        mqttConnectOptions.isAutomaticReconnect = true
-        mqttConnectOptions.isCleanSession = true
-        mqttConnectOptions.userName = username
-        mqttConnectOptions.password = password.toCharArray()
+    fun connect() {
+        Thread().run {
+            val mqttConnectOptions = MqttConnectOptions()
+            mqttConnectOptions.isAutomaticReconnect = true
+            mqttConnectOptions.isCleanSession = true
+            mqttConnectOptions.userName = username
+            mqttConnectOptions.password = password.toCharArray()
 
-        try {
+            try {
 
-            mqttAndroidClient.connect(mqttConnectOptions, null, object : IMqttActionListener {
-                override fun onSuccess(asyncActionToken: IMqttToken) {
+                mqttAndroidClient.connect(mqttConnectOptions, null, object : IMqttActionListener {
+                    override fun onSuccess(asyncActionToken: IMqttToken) {
 
-                    val disconnectedBufferOptions = DisconnectedBufferOptions()
-                    disconnectedBufferOptions.isBufferEnabled = true
-                    disconnectedBufferOptions.bufferSize = 500
-                    disconnectedBufferOptions.isPersistBuffer = false
-                    disconnectedBufferOptions.isDeleteOldestMessages = false
-                    mqttAndroidClient.setBufferOpts(disconnectedBufferOptions)
-                  //  subscribeToTopic(subscriptionTopic :String,qos:Int)
-                }
+                        val disconnectedBufferOptions = DisconnectedBufferOptions()
+                        disconnectedBufferOptions.isBufferEnabled = true
+                        disconnectedBufferOptions.bufferSize = 500
+                        disconnectedBufferOptions.isPersistBuffer = false
+                        disconnectedBufferOptions.isDeleteOldestMessages = false
+                        mqttAndroidClient.setBufferOpts(disconnectedBufferOptions)
+                        //  subscribeToTopic(subscriptionTopic :String,qos:Int)
+                    }
 
-                override fun onFailure(asyncActionToken: IMqttToken, exception: Throwable) {
-                    Log.w("Mqtt", "Failed to connect to: " + serverUri + exception.toString())
-                }
-            })
+                    override fun onFailure(asyncActionToken: IMqttToken, exception: Throwable) {
+                        Log.w("Mqtt", "Failed to connect to: " + serverUri + exception.toString())
+                    }
+                })
 
 
-        } catch (ex: MqttException) {
-            ex.printStackTrace()
+            } catch (ex: java.lang.Exception) {
+                ex.printStackTrace()
+            }
         }
-
     }
 
 
-    public fun subscribeToTopic(subscriptionTopic :String,qos:Int,callback:IMqttActionListener) {
-        try {
-            mqttAndroidClient.subscribe(subscriptionTopic, qos, null, callback)
-        } catch (ex: MqttException) {
-            System.err.println("Exceptionst subscribing")
-            ex.printStackTrace()
+    fun subscribeToTopic(subscriptionTopic :String,qos:Int,callback:IMqttActionListener) {
+        Thread().run {
+            try {
+                mqttAndroidClient.subscribe(subscriptionTopic, qos, null, callback)
+            } catch (ex: Exception) {
+                System.err.println("Exceptionst subscribing")
+                ex.printStackTrace()
+            }
         }
-
     }
 
     public fun subscribeToTopics(topics :Array<String>, qos:IntArray) {
@@ -108,17 +110,18 @@ class MqttHelper(context: Context) {
 
     }
 
-    public fun unsubscribeToTopic(subscriptionTopic :String,callback: IMqttActionListener) {
+    fun unsubscribeToTopic(subscriptionTopic :String,callback: IMqttActionListener) {
+        Thread().run {
         try {
             mqttAndroidClient.unsubscribe(subscriptionTopic,  null,callback )
-        } catch (ex: MqttException) {
+        } catch (ex: java.lang.Exception) {
             System.err.println("Exceptionst subscribing")
             ex.printStackTrace()
         }
-
+        }
     }
 
-    public fun unsubscribeToTopics(topics :Array<String>) {
+    fun unsubscribeToTopics(topics :Array<String>) {
         try {
             mqttAndroidClient.unsubscribe(topics,  null, object : IMqttActionListener {
                 override fun onSuccess(asyncActionToken: IMqttToken) {
@@ -136,7 +139,7 @@ class MqttHelper(context: Context) {
 
     }
 
-    public fun disconnect(){
+    fun disconnect(){
         mqttAndroidClient.unregisterResources()
         mqttAndroidClient.disconnect(null,object:IMqttActionListener{
             override fun onSuccess(asyncActionToken: IMqttToken?) {
