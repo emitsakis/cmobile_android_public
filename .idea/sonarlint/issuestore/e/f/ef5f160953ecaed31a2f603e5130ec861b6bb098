@@ -1,16 +1,16 @@
 
+>kotlin:S125£"Remove this commented out code.(ƒ®Ñ¬8Äïù¢-
+}kotlin:S1192n"eDefine a constant instead of duplicating this literal "Error when registerLocationUpdates()" 3 times.(Ó¯š‰
 skotlin:S1186Ù"ZAdd a nested comment explaining why this function is empty or complete the implementation.(È…Öà
+pkotlin:S1192ö"RDefine a constant instead of duplicating this literal "Subscribed fail!" 13 times.(öÀ˜Ñıÿÿÿÿ
 skotlin:S1186Ã"ZAdd a nested comment explaining why this function is empty or complete the implementation.(È…Öà
-7kotlin:S125ñ"Remove this commented out code.(›İéÅ
+<kotlin:S125æ"Remove this commented out code.(Ã€Â‘şÿÿÿÿ
 Tkotlin:S1172¬"/Remove this unused function parameter "result".(àµÒ¹üÿÿÿÿ8È¾ù¢-
+Ckotlin:S125¨"Remove this commented out code.(¦êüÿÿÿÿ8ôµ¯ñ¤-
+jkotlin:S117²"RRename this local variable to match the regular expression "^[_a-z][a-zA-Z0-9]*$".(Ò¸è®
 gkotlin:S1192€"NDefine a constant instead of duplicating this literal "UnSubscribed!" 9 times.( µËÇ
 Ukotlin:S1172Ÿ"7Remove this unused function parameter "locationResult".(ã’Ñ¦üÿÿÿÿ
-pkotlin:S3776"RRefactor this method to reduce its Cognitive Complexity from 32 to the 15 allowed.(Â×Ø“ûÿÿÿÿ
->kotlin:S125ë"Remove this commented out code.(óØØã8È¾ù¢-
->kotlin:S125£"Remove this commented out code.(ƒ®Ñ¬8Äïù¢-
-Ckotlin:S125¨"Remove this commented out code.(¦êüÿÿÿÿ8ôµ¯ñ¤-
 skotlin:S1186¼"ZAdd a nested comment explaining why this function is empty or complete the implementation.(È…Öà
-pkotlin:S1192ö"RDefine a constant instead of duplicating this literal "Subscribed fail!" 13 times.(öÀ˜Ñıÿÿÿÿ
-<kotlin:S125æ"Remove this commented out code.(Ã€Â‘şÿÿÿÿ
-}kotlin:S1192n"eDefine a constant instead of duplicating this literal "Error when registerLocationUpdates()" 3 times.(Ó¯š‰
-jkotlin:S117²"RRename this local variable to match the regular expression "^[_a-z][a-zA-Z0-9]*$".(Ò¸è®
+>kotlin:S125ë"Remove this commented out code.(óØØã8È¾ù¢-
+pkotlin:S3776"RRefactor this method to reduce its Cognitive Complexity from 32 to the 15 allowed.(Â×Ø“ûÿÿÿÿ
+7kotlin:S125ñ"Remove this commented out code.(›İéÅ

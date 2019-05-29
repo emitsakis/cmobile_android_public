@@ -36,7 +36,8 @@
         </activity>
         <activity
                 android:name=".HomeActivity"
-                android:theme="@style/Theme.AppCompat.NoActionBar">
+                android:theme="@style/Theme.AppCompat.NoActionBar"
+                android:screenOrientation="landscape">
             <intent-filter>
                 <action android:name="android.intent.action.VIEW"/>
 

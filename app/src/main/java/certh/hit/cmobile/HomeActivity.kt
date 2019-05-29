@@ -171,12 +171,12 @@ class HomeActivity : AppCompatActivity(),OnMapReadyCallback,PermissionsListener,
 
                 }else {
                   if (flipFlag == 0) {
-                        requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_REVERSE_PORTRAIT
+                        requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_REVERSE_LANDSCAPE
                         root!!.scaleX = -1.0f
                         mapView!!.scaleX = -1.0f
                         flipFlag = 1
                     } else {
-                        requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
+                        requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
                         root!!.scaleX = 1.0f
                         mapView!!.scaleX = 1.0f
                         flipFlag = 0
@@ -202,6 +202,7 @@ class HomeActivity : AppCompatActivity(),OnMapReadyCallback,PermissionsListener,
     override fun onMapReady(mapboxMap: MapboxMap) {
         Log.d(TAG, "onMapReady:")
         this.mapboxMap = mapboxMap
+
         mapboxMap.setStyle(Style.DARK){
             this.mapboxMap!!.addOnMapClickListener(this);
             this.style = mapboxMap.style
@@ -409,6 +410,7 @@ class HomeActivity : AppCompatActivity(),OnMapReadyCallback,PermissionsListener,
             message: SPATUserMessage,
             lastLocation: Location
         ) {
+
             if(message.eventState.equals("1000xxxx")){
                 var isInsideSpat =0
             for(relevanceZone in message!!.relevanceZones!!){
@@ -448,7 +450,7 @@ class HomeActivity : AppCompatActivity(),OnMapReadyCallback,PermissionsListener,
 
         override fun onPositionChanged(position: Location) {
             speedBar!!.setCurrentValues(Helper.toKmPerHour(position.speed).toFloat())
-            if(mapboxMap != null && mapboxMap?.locationComponent != null && mapboxMap?.locationComponent!!.cameraMode != null) {
+    if(mapboxMap != null && mapboxMap?.locationComponent != null && mapboxMap?.locationComponent?.cameraMode != null) {
                 if (mapboxMap?.locationComponent!!.cameraMode != CameraMode.TRACKING_GPS) {
                     mapboxMap?.locationComponent!!.cameraMode = CameraMode.TRACKING_GPS
                     //Set the component's camera mode
@@ -484,7 +486,7 @@ class HomeActivity : AppCompatActivity(),OnMapReadyCallback,PermissionsListener,
             Log.d("system timestamp", systemTimestamp.toString())
             Log.d("valid timestamp",validTimestamp.toString())
             if (isInsideDenm!!>0 &&validTimestamp>=0) {
-                var messageToShow = Helper.getViviNameFromExtraText(iVIMessageToHandle!!.extraTexts)
+                var messageToShow = Helper.getViviNameFromExtraText(denmMessageToHandle!!.extraTexts)
                 var staticMessageToShow =
                     denmStaticMessages!!.list!!.firstOrNull() { w -> w.code == denmMessageToHandle!!.causeCode && w.subcode == denmMessageToHandle!!.subCauseCode }
                 if (messageToShow.equals("")) {
@@ -492,7 +494,8 @@ class HomeActivity : AppCompatActivity(),OnMapReadyCallback,PermissionsListener,
                         messageToShow = staticMessageToShow.message
                     }
                 }
-                if (!messageToShow.equals("")){
+                //&& denmMessageToHandle!!.causeCode ==99 && denmMessageToHandle!!.subCauseCode ==99
+                if (iviMessageParent!!.visibility== GONE &&!messageToShow.equals("")){
                     iviMessageParent!!.visibility = VISIBLE
                 var messageString = messageToShow
                 vIVIMessage!!.typeface = tf
@@ -504,14 +507,14 @@ class HomeActivity : AppCompatActivity(),OnMapReadyCallback,PermissionsListener,
                     denmTTS = false
 
                     style!!.addImage(
-                        "marker-icon-id",
+                        denmMessageToHandle!!.timestamp.toString(),
                         BitmapFactory.decodeResource(
                             this@HomeActivity.resources, R.drawable.ic_warning
                         )
                     )
 
                     var geoJsonSource = GeoJsonSource(
-                        "source-id", Feature.fromGeometry(
+                        denmMessageToHandle!!.timestamp.toString(), Feature.fromGeometry(
                             Point.fromLngLat(
                                 denmMessageToHandle!!.actuallongitude!!,
                                 denmMessageToHandle!!.actualLatitude!!
@@ -520,8 +523,8 @@ class HomeActivity : AppCompatActivity(),OnMapReadyCallback,PermissionsListener,
                     );
                     style!!.addSource(geoJsonSource);
 
-                    var symbolLayer = SymbolLayer("layer-id", "source-id")
-                    symbolLayer.withProperties(PropertyFactory.iconImage("marker-icon-id"))
+                    var symbolLayer = SymbolLayer(denmMessageToHandle!!.timestamp.toString(), denmMessageToHandle!!.timestamp.toString())
+                    symbolLayer.withProperties(PropertyFactory.iconImage(denmMessageToHandle!!.timestamp.toString()))
                     style!!.addLayer(symbolLayer)
 
                 }
@@ -529,7 +532,8 @@ class HomeActivity : AppCompatActivity(),OnMapReadyCallback,PermissionsListener,
                 isInsideDenm = 0
             }else{
                 iviMessageParent!!.visibility = GONE
-                style!!.removeLayer("layer-id")
+                style!!.removeLayer(denmMessageToHandle!!.timestamp.toString())
+                style!!.removeSource(denmMessageToHandle!!.timestamp.toString())
 
             }
         }

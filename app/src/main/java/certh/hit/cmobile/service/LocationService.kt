@@ -235,7 +235,7 @@ class LocationService:Service(), LocationServiceInterface {
 
     private fun createSPATTopicAndSubscribe(mapMessage:MAPUserMessage) {
         var topicSpat = Topic.createSPAT(mapMessage.mapIdentificationNumber.toString())
-        mqttHelper.subscribeToTopic(topicSpat.toStringSpat(), 0, object : IMqttActionListener {
+        mqttHelper.subscribeToTopic(topicSpat.toStringSpat(), 1, object : IMqttActionListener {
             override fun onSuccess(asyncActionToken: IMqttToken) {
                 Log.w("Mqtt", "Subscribed!")
                 //Helper.appendLog("Subscribed! :"+topicSpat.toString(),"mqtt")
@@ -307,7 +307,7 @@ class LocationService:Service(), LocationServiceInterface {
                 var topicViv = Topic.createIVI(quadTree)
                 var topicMAP = Topic.createMAP(quadTree)
                 var topicDenm = Topic.createDenm(quadTree)
-                mqttHelper.subscribeToTopic(topicViv.toString(), 0, object : IMqttActionListener {
+                mqttHelper.subscribeToTopic(topicViv.toString(), 1, object : IMqttActionListener {
                     override fun onSuccess(asyncActionToken: IMqttToken) {
                         //Helper.appendLog("Subscribed! :"+topicViv.toString(),"mqtt")
 
@@ -327,7 +327,7 @@ class LocationService:Service(), LocationServiceInterface {
 //                        Log.w("Mqtt", "Subscribed fail!")
 //                    }
 //                })
-                mqttHelper.subscribeToTopic(topicMAP.toString(), 0, object : IMqttActionListener {
+                mqttHelper.subscribeToTopic(topicMAP.toString(), 1, object : IMqttActionListener {
                     override fun onSuccess(asyncActionToken: IMqttToken) {
                        //Helper.appendLog("Subscribed! :"+topicMAP.toString(),"mqtt")
 
@@ -348,7 +348,7 @@ class LocationService:Service(), LocationServiceInterface {
 //                        Log.w("Mqtt", "Subscribed fail!")
 //                    }
 //                })
-                mqttHelper.subscribeToTopic(topicDenm.toString(), 0, object : IMqttActionListener {
+                mqttHelper.subscribeToTopic(topicDenm.toString(), 1, object : IMqttActionListener {
                     override fun onSuccess(asyncActionToken: IMqttToken) {
                         //Helper.appendLog("Subscribed! :"+topicFr.toString(),"mqtt")
                         Log.w("Mqtt", "Subscribed! :"+topicDenm.toString())

@@ -57,3 +57,9 @@ A
 gradle.properties,2\a\2afbb999f001938c88fa43fc2ef52abf0f8213e4
 @
 app/build.gradle,f\4\f4a01d6a4fcb971362ec00a83903fd3902f52164
+v
+Fapp/src/main/java/certh/hit/cmobile/location/LocationUpdateListener.kt,8\4\848ddf030695e437c9c76e37e6263d5e41b5d540
+l
+<app/src/main/java/certh/hit/cmobile/model/VIVIUserMessage.kt,b\0\b0faad175b2f4de44ea7f9ceedc2d9188df7823e
+g
+7app/src/main/java/certh/hit/cmobile/utils/MqttHelper.kt,f\1\f162d18592a8a4d820649d878cd781328e5a55a5
