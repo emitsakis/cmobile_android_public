@@ -98,6 +98,7 @@ class HomeActivity : AppCompatActivity(),OnMapReadyCallback,PermissionsListener,
     private var denmMessageToHandle :DENMUserMessage? = null
     private var denmTTS :Boolean? = null
     private var iviTTS :Boolean? = null
+    private var mapboxIsReady :Boolean = false
 
     private val gpsObserver = Observer<GpsStatus> { status ->
         status?.let {
@@ -272,7 +273,7 @@ class HomeActivity : AppCompatActivity(),OnMapReadyCallback,PermissionsListener,
             locationComponent?.renderMode = RenderMode.GPS
             locationComponent?.isLocationComponentEnabled = true
             mapboxMap!!.cameraPosition = position
-
+            mapboxIsReady = true
 
         } else {
 
@@ -319,6 +320,7 @@ class HomeActivity : AppCompatActivity(),OnMapReadyCallback,PermissionsListener,
     }
         super.onDestroy()
         mapView?.onDestroy()
+        mapboxIsReady = false
 
     }
 
@@ -450,7 +452,7 @@ class HomeActivity : AppCompatActivity(),OnMapReadyCallback,PermissionsListener,
 
         override fun onPositionChanged(position: Location) {
             speedBar!!.setCurrentValues(Helper.toKmPerHour(position.speed).toFloat())
-    if(mapboxMap != null && mapboxMap?.locationComponent != null && mapboxMap?.locationComponent?.cameraMode != null) {
+    if(mapboxIsReady && mapboxMap != null && mapboxMap?.locationComponent != null && mapboxMap?.locationComponent?.cameraMode != null) {
                 if (mapboxMap?.locationComponent!!.cameraMode != CameraMode.TRACKING_GPS) {
                     mapboxMap?.locationComponent!!.cameraMode = CameraMode.TRACKING_GPS
                     //Set the component's camera mode

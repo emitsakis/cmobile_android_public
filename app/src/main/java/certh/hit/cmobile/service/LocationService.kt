@@ -43,7 +43,7 @@ class LocationService:Service(), LocationServiceInterface {
     private val mapMessages :ArrayList<MAPUserMessage> = ArrayList()
     private val mBinder = LocationBinder()
     private var mMediaNotificationManager: NotificationManager_CMobile? = null
-    private var logDao: LogDao? = null
+   // private var logDao: LogDao? = null
     private lateinit var mDbWorkerThread: DbWorkerThread
     private var dataCollection = false
     private var preferencesHelper :PreferencesHelper? = null
@@ -66,10 +66,10 @@ class LocationService:Service(), LocationServiceInterface {
             tmpGPSLogger.speed = locationResult.lastLocation.speed.toDouble()
 
 
-            val task = Runnable { logDao!!.insertGPSLogger(tmpGPSLogger) }
-            if(mDbWorkerThread.isAlive && dataCollection) {
-                mDbWorkerThread.postTask(task)
-            }
+//            val task = Runnable { logDao!!.insertGPSLogger(tmpGPSLogger) }
+//            if(mDbWorkerThread.isAlive && dataCollection) {
+//                mDbWorkerThread.postTask(task)
+//            }
            if( mPlaybackInfoListener != null) {
                mPlaybackInfoListener!!.onPositionChanged(locationResult.lastLocation)
                var quadTree = Helper.calculateQuadTree(
@@ -120,7 +120,7 @@ class LocationService:Service(), LocationServiceInterface {
         checkGpsAndReact()
         mDbWorkerThread = DbWorkerThread("dbWorkerThread")
         mDbWorkerThread.start()
-        logDao = LogDatabase.getDatabase(this)!!.logDao()
+       //logDao = LogDatabase.getDatabase(this)!!.logDao()
         preferencesHelper = PreferencesHelper(this)
         dataCollection = preferencesHelper!!.dataCollection
     }
@@ -177,10 +177,10 @@ class LocationService:Service(), LocationServiceInterface {
                 tmpMessage.timestamp = System.currentTimeMillis();
                 tmpMessage.topic = topic
                 tmpMessage.message = mqttMessage.toString()
-                val task = Runnable { logDao!!.insertMessage(tmpMessage) }
-                if(mDbWorkerThread.isAlive && dataCollection) {
-                    mDbWorkerThread.postTask(task)
-                }
+//                val task = Runnable { logDao!!.insertMessage(tmpMessage) }
+//                if(mDbWorkerThread.isAlive && dataCollection) {
+//                    mDbWorkerThread.postTask(task)
+//                }
                 if(topic.contains(Topic.VIVI)){
                     handleVIVIMessage(mqttMessage,tmpTopic)
                 }else if(topic.contains(Topic.IVI)){

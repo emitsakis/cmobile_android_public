@@ -63,3 +63,9 @@ l
 <app/src/main/java/certh/hit/cmobile/model/VIVIUserMessage.kt,b\0\b0faad175b2f4de44ea7f9ceedc2d9188df7823e
 g
 7app/src/main/java/certh/hit/cmobile/utils/MqttHelper.kt,f\1\f162d18592a8a4d820649d878cd781328e5a55a5
+e
+5app/src/main/java/certh/hit/cmobile/logs/GPSLogger.kt,f\a\fa56a0f034d214522745594b80186507eff8b0fb
+<
+build.gradle,f\0\f07866736216be0ee2aba49e392191aeae700a35
+F
+app/proguard-rules.pro,9\e\9e08934d811afe28fbc77aaa3c0d747b94348db9
