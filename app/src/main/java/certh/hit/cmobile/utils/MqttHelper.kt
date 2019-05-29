@@ -47,7 +47,7 @@ class MqttHelper(context: Context) {
     }
 
     fun connect() {
-        Thread().run {
+
             val mqttConnectOptions = MqttConnectOptions()
             mqttConnectOptions.isAutomaticReconnect = true
             mqttConnectOptions.isCleanSession = true
@@ -77,19 +77,19 @@ class MqttHelper(context: Context) {
             } catch (ex: java.lang.Exception) {
                 ex.printStackTrace()
             }
-        }
+
     }
 
 
     fun subscribeToTopic(subscriptionTopic :String,qos:Int,callback:IMqttActionListener) {
-        Thread().run {
+
             try {
                 mqttAndroidClient.subscribe(subscriptionTopic, qos, null, callback)
             } catch (ex: Exception) {
                 System.err.println("Exceptionst subscribing")
                 ex.printStackTrace()
             }
-        }
+
     }
 
     public fun subscribeToTopics(topics :Array<String>, qos:IntArray) {
@@ -111,14 +111,14 @@ class MqttHelper(context: Context) {
     }
 
     fun unsubscribeToTopic(subscriptionTopic :String,callback: IMqttActionListener) {
-        Thread().run {
+
         try {
             mqttAndroidClient.unsubscribe(subscriptionTopic,  null,callback )
         } catch (ex: java.lang.Exception) {
             System.err.println("Exceptionst subscribing")
             ex.printStackTrace()
         }
-        }
+
     }
 
     fun unsubscribeToTopics(topics :Array<String>) {
