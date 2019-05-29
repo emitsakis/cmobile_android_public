@@ -51,11 +51,12 @@
             <ImageView
                     android:layout_width="50dp"
                     android:layout_height="50dp"
-                    android:src="@drawable/speed_limit_50"
+                    android:src="@drawable/ic_uneven_road"
                     android:layout_toEndOf="@id/speed_bar"
                     android:layout_marginStart="-30dp"
                     android:layout_marginTop="20dp"
-                    android:visibility="gone" android:id="@+id/ivi_sign"/>
+                    android:visibility="gone"
+                    android:id="@+id/ivi_sign"/>
 
 
         </RelativeLayout>
@@ -131,20 +132,36 @@
             app:layout_anchorGravity="bottom|right|end"
             app:fabSize="normal"
             app:useCompatPadding="true"/>
-    <android.support.design.widget.FloatingActionButton
-            android:id="@+id/flip"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignParentEnd="true"
-            android:layout_alignParentBottom="true"
-            android:layout_marginBottom="100dp"
-            android:layout_marginRight="8dp"
-            android:layout_marginEnd="8dp"
-            android:src="@drawable/ic_sea_waves"
-            android:visibility="visible"
-            app:backgroundTint="@color/blackColorTransparent"
-            app:layout_anchorGravity="bottom|right|end"
-            app:fabSize="normal"
-            app:useCompatPadding="true"/>
+        <android.support.design.widget.FloatingActionButton
+                android:id="@+id/flip"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentEnd="true"
+                android:layout_alignParentBottom="true"
+                android:layout_marginBottom="100dp"
+                android:layout_marginRight="8dp"
+                android:layout_marginEnd="8dp"
+                android:src="@drawable/ic_flip"
+                android:visibility="visible"
+                app:backgroundTint="@color/blackColorTransparent"
+                app:layout_anchorGravity="bottom|right|end"
+                app:fabSize="normal"
+                app:useCompatPadding="true"/>
+        <android.support.design.widget.FloatingActionButton
+                android:id="@+id/fixed_location"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentEnd="true"
+                android:layout_alignParentBottom="true"
+                android:layout_marginBottom="170dp"
+                android:layout_marginRight="8dp"
+                android:layout_marginEnd="8dp"
+                android:src="@drawable/ic_gps_fixed"
+                android:visibility="visible"
+                app:backgroundTint="@color/blackColorTransparent"
+                app:layout_anchorGravity="bottom|right|end"
+                app:fabSize="normal"
+                app:useCompatPadding="true"/>
+
     </RelativeLayout>
 </RelativeLayout>

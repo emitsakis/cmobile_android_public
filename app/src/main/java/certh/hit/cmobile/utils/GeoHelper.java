@@ -1,6 +1,7 @@
 package certh.hit.cmobile.utils;
 
 import android.util.Log;
+import certh.hit.cmobile.model.Zone;
 import com.spatial4j.core.context.SpatialContext;
 import com.spatial4j.core.shape.Point;
 import com.spatial4j.core.shape.SpatialRelation;
@@ -51,6 +52,47 @@ public class GeoHelper {
         pointsList.add(start);
         pointsList.add(stop);
 
+        ls = new BufferedLineString(pointsList, 0.001, SpatialContext.GEO);
+        return ls;
+
+    }
+
+    public static boolean isLocationInsideLineBox(Double startLat, Double startLon,List<Zone> zones, double currentLat, double currentLon){
+        List<PointImpl> linePoints = new ArrayList<>();
+        PointImpl start = new PointImpl(startLat,startLon, SpatialContext.GEO);
+        linePoints.add(start);
+        for(Zone zone:zones){
+            PointImpl tmp = new PointImpl(zone.getActualLatitude(),zone.getActualLongitude(), SpatialContext.GEO);
+            linePoints.add(tmp);
+        }
+
+
+        PointImpl currentPoint = new PointImpl(currentLat,currentLon, SpatialContext.GEO);
+        BufferedLineString bls = createPolyline(linePoints);
+
+        SpatialRelation relation = bls.relate(currentPoint);
+        if(relation.equals(SpatialRelation.CONTAINS)){
+            Log.d("Debug","CONTAINS");
+            Log.d("Debug",start.toString());
+            Log.d("Debug",currentPoint.toString());
+            Log.d("Debug",bls.toString());
+            return true;
+
+        }else{
+            Log.d("Debug","NOT CONTAINS");
+            Log.d("Debug",start.toString());
+            Log.d("Debug",currentPoint.toString());
+            Log.d("Debug",bls.toString());
+            return false;
+        }
+
+
+    }
+
+    private static BufferedLineString createPolyline(List<PointImpl> linePoints) {
+        BufferedLineString ls = null;
+        List<Point> pointsList = new ArrayList<>();
+        pointsList.addAll(linePoints);
         ls = new BufferedLineString(pointsList, 0.001, SpatialContext.GEO);
         return ls;
 

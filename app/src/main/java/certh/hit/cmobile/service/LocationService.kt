@@ -43,7 +43,7 @@ class LocationService:Service(), LocationServiceInterface {
     private val mapMessages :ArrayList<MAPUserMessage> = ArrayList()
     private val mBinder = LocationBinder()
     private var mMediaNotificationManager: NotificationManager_CMobile? = null
-    private var logDao: LogDao? = null
+   // private var logDao: LogDao? = null
     private lateinit var mDbWorkerThread: DbWorkerThread
     private var dataCollection = false
     private var preferencesHelper :PreferencesHelper? = null
@@ -66,10 +66,10 @@ class LocationService:Service(), LocationServiceInterface {
             tmpGPSLogger.speed = locationResult.lastLocation.speed.toDouble()
 
 
-            val task = Runnable { logDao!!.insertGPSLogger(tmpGPSLogger) }
-            if(mDbWorkerThread.isAlive && dataCollection) {
-                mDbWorkerThread.postTask(task)
-            }
+//            val task = Runnable { logDao!!.insertGPSLogger(tmpGPSLogger) }
+//            if(mDbWorkerThread.isAlive && dataCollection) {
+//                mDbWorkerThread.postTask(task)
+//            }
            if( mPlaybackInfoListener != null) {
                mPlaybackInfoListener!!.onPositionChanged(locationResult.lastLocation)
                var quadTree = Helper.calculateQuadTree(
@@ -120,7 +120,7 @@ class LocationService:Service(), LocationServiceInterface {
         checkGpsAndReact()
         mDbWorkerThread = DbWorkerThread("dbWorkerThread")
         mDbWorkerThread.start()
-        logDao = LogDatabase.getDatabase(this)!!.logDao()
+       //logDao = LogDatabase.getDatabase(this)!!.logDao()
         preferencesHelper = PreferencesHelper(this)
         dataCollection = preferencesHelper!!.dataCollection
     }
@@ -158,7 +158,8 @@ class LocationService:Service(), LocationServiceInterface {
         mqttHelper.connect()
         mqttHelper.setCallback(object : MqttCallbackExtended {
             override fun connectComplete(b: Boolean, s: String) {
-                //Helper.appendLog("connectComplete! ","mqtt")
+
+                Log.d("Debug", "connectComplete")
               //  clearTopics()
             }
 
@@ -176,10 +177,10 @@ class LocationService:Service(), LocationServiceInterface {
                 tmpMessage.timestamp = System.currentTimeMillis();
                 tmpMessage.topic = topic
                 tmpMessage.message = mqttMessage.toString()
-                val task = Runnable { logDao!!.insertMessage(tmpMessage) }
-                if(mDbWorkerThread.isAlive && dataCollection) {
-                    mDbWorkerThread.postTask(task)
-                }
+//                val task = Runnable { logDao!!.insertMessage(tmpMessage) }
+//                if(mDbWorkerThread.isAlive && dataCollection) {
+//                    mDbWorkerThread.postTask(task)
+//                }
                 if(topic.contains(Topic.VIVI)){
                     handleVIVIMessage(mqttMessage,tmpTopic)
                 }else if(topic.contains(Topic.IVI)){
@@ -233,8 +234,8 @@ class LocationService:Service(), LocationServiceInterface {
     }
 
     private fun createSPATTopicAndSubscribe(mapMessage:MAPUserMessage) {
-        var topicSpat = Topic.createSPAT(mapMessage.indexNumber.toString())
-        mqttHelper.subscribeToTopic(topicSpat.toStringSpat(), 0, object : IMqttActionListener {
+        var topicSpat = Topic.createSPAT(mapMessage.mapIdentificationNumber.toString())
+        mqttHelper.subscribeToTopic(topicSpat.toStringSpat(), 1, object : IMqttActionListener {
             override fun onSuccess(asyncActionToken: IMqttToken) {
                 Log.w("Mqtt", "Subscribed!")
                 //Helper.appendLog("Subscribed! :"+topicSpat.toString(),"mqtt")
@@ -252,7 +253,7 @@ class LocationService:Service(), LocationServiceInterface {
         tmpTopic: Topic
     ) {
         var spatUserMessage = Helper.parseSPATMessage(mqttMessage.toString(),tmpTopic)
-         var mapMessage = mapMessages.find { msg -> msg.indexNumber==spatUserMessage.indexNumber }
+         var mapMessage = mapMessages.find { msg -> msg.mapIdentificationNumber==spatUserMessage.spatIdentificationNumber }
         spatUserMessage.mapMessage = mapMessage
         mPlaybackInfoListener!!.onSPATUserMessage(spatUserMessage,lastLocation)
 
@@ -304,11 +305,9 @@ class LocationService:Service(), LocationServiceInterface {
             if (mqttHelper.isConnected()) {
                 currentQuadTree = quadTree
                 var topicViv = Topic.createIVI(quadTree)
-                var topicVivI = Topic.createVIVI(quadTree)
                 var topicMAP = Topic.createMAP(quadTree)
-                var topicEgnatia = Topic.createEgnatia(quadTree)
-                var topicFr = Topic.createFr(quadTree)
-                mqttHelper.subscribeToTopic(topicViv.toString(), 0, object : IMqttActionListener {
+                var topicDenm = Topic.createDenm(quadTree)
+                mqttHelper.subscribeToTopic(topicViv.toString(), 1, object : IMqttActionListener {
                     override fun onSuccess(asyncActionToken: IMqttToken) {
                         //Helper.appendLog("Subscribed! :"+topicViv.toString(),"mqtt")
 
@@ -318,17 +317,17 @@ class LocationService:Service(), LocationServiceInterface {
                         Log.w("Mqtt", "Subscribed fail!")
                     }
                 })
-                mqttHelper.subscribeToTopic(topicVivI.toString(), 0, object : IMqttActionListener {
-                    override fun onSuccess(asyncActionToken: IMqttToken) {
-                        //Helper.appendLog("Subscribed! :"+topicVivI.toString(),"mqtt")
-                        //subscribedTopics.add(topicVivI)
-                    }
-
-                    override fun onFailure(asyncActionToken: IMqttToken, exception: Throwable) {
-                        Log.w("Mqtt", "Subscribed fail!")
-                    }
-                })
-                mqttHelper.subscribeToTopic(topicMAP.toString(), 0, object : IMqttActionListener {
+//                mqttHelper.subscribeToTopic(topicVivI.toString(), 0, object : IMqttActionListener {
+//                    override fun onSuccess(asyncActionToken: IMqttToken) {
+//                        //Helper.appendLog("Subscribed! :"+topicVivI.toString(),"mqtt")
+//                        //subscribedTopics.add(topicVivI)
+//                    }
+//
+//                    override fun onFailure(asyncActionToken: IMqttToken, exception: Throwable) {
+//                        Log.w("Mqtt", "Subscribed fail!")
+//                    }
+//                })
+                mqttHelper.subscribeToTopic(topicMAP.toString(), 1, object : IMqttActionListener {
                     override fun onSuccess(asyncActionToken: IMqttToken) {
                        //Helper.appendLog("Subscribed! :"+topicMAP.toString(),"mqtt")
 
@@ -339,20 +338,20 @@ class LocationService:Service(), LocationServiceInterface {
                         Log.w("Mqtt", "Subscribed fail!")
                     }
                 })
-                mqttHelper.subscribeToTopic(topicEgnatia.toString(), 0, object : IMqttActionListener {
-                    override fun onSuccess(asyncActionToken: IMqttToken) {
-                        //Helper.appendLog("Subscribed! :"+topicEgnatia.toString(),"mqtt")
-                        //subscribedTopics.add(topicEgnatia)
-                    }
-
-                    override fun onFailure(asyncActionToken: IMqttToken, exception: Throwable) {
-                        Log.w("Mqtt", "Subscribed fail!")
-                    }
-                })
-                mqttHelper.subscribeToTopic(topicFr.toString(), 0, object : IMqttActionListener {
+//                mqttHelper.subscribeToTopic(topicEgnatia.toString(), 0, object : IMqttActionListener {
+//                    override fun onSuccess(asyncActionToken: IMqttToken) {
+//                        //Helper.appendLog("Subscribed! :"+topicEgnatia.toString(),"mqtt")
+//                        //subscribedTopics.add(topicEgnatia)
+//                    }
+//
+//                    override fun onFailure(asyncActionToken: IMqttToken, exception: Throwable) {
+//                        Log.w("Mqtt", "Subscribed fail!")
+//                    }
+//                })
+                mqttHelper.subscribeToTopic(topicDenm.toString(), 1, object : IMqttActionListener {
                     override fun onSuccess(asyncActionToken: IMqttToken) {
                         //Helper.appendLog("Subscribed! :"+topicFr.toString(),"mqtt")
-                        Log.w("Mqtt", "Subscribed! :"+topicFr.toString())
+                        Log.w("Mqtt", "Subscribed! :"+topicDenm.toString())
                         //subscribedTopics.add(topicFr)
                     }
 
@@ -361,48 +360,48 @@ class LocationService:Service(), LocationServiceInterface {
                     }
                 })
             }else{
-                var locationVIVI = Location("vivilocation")
-                locationVIVI.latitude =40.615006
-                locationVIVI.longitude =22.954195
-                var locationIVI = Location("ivilocation")
-                locationIVI.latitude =40.5549
-                locationIVI.longitude =23.0148
-                var locationSPAT = Location("trafficLight")
-                locationSPAT.latitude =40.629549
-                locationSPAT.longitude =22.947945
-                var locationEgnatia = Location("egnatia")
-                locationEgnatia.latitude =39.790804323
-                locationEgnatia.longitude =21.300095498
-                var locationFr = Location("france")
-                locationFr.latitude =44.88388823
-                locationFr.longitude =-0.5573381
-                if(result.lastLocation.distanceTo(locationVIVI)<100){
-                    var viviUserMessage = VIVIUserMessage()
-                    viviUserMessage.eta = "00:02:00"
-                    viviUserMessage.route = "V.OLGAS-YMCA"
-
-                    mPlaybackInfoListener!!.onVIVIUserMessage(viviUserMessage)
-                }else if(result.lastLocation.distanceTo(locationIVI)<100){
-                    var iviUserMessage = IVIUserMessage()
-                    mPlaybackInfoListener!!.onIVIMessageReceived(iviUserMessage)
-
-                }
-                else if(result.lastLocation.distanceTo(locationSPAT)<100){
-                    var spatUserMessage = SPATUserMessage()
-                    spatUserMessage.eventState = "green"
-                    mPlaybackInfoListener!!.onSPATUserMessage(spatUserMessage, lastLocation)
-
-                }else if(result.lastLocation.distanceTo(locationEgnatia)<100){
-                    var egnatiaUserMessage = EgnatiaUserMessage()
-                    egnatiaUserMessage.egantiaMessage = "IN CONGESTION DO NOT BLOCK EMERGENCY LANE "
-                    mPlaybackInfoListener!!.onEgnatiaUserMessage(egnatiaUserMessage)
-
-                }
-                else if(result.lastLocation.distanceTo(locationFr)<100){
-                    var denmUserMessage = DENMUserMessage()
-                    mPlaybackInfoListener!!.onDenmUserMessage(denmUserMessage)
-
-                }
+//                var locationVIVI = Location("vivilocation")
+//                locationVIVI.latitude =40.615006
+//                locationVIVI.longitude =22.954195
+//                var locationIVI = Location("ivilocation")
+//                locationIVI.latitude =40.5549
+//                locationIVI.longitude =23.0148
+//                var locationSPAT = Location("trafficLight")
+//                locationSPAT.latitude =40.629549
+//                locationSPAT.longitude =22.947945
+//                var locationEgnatia = Location("egnatia")
+//                locationEgnatia.latitude =39.790804323
+//                locationEgnatia.longitude =21.300095498
+//                var locationFr = Location("france")
+//                locationFr.latitude =44.88388823
+//                locationFr.longitude =-0.5573381
+//                if(result.lastLocation.distanceTo(locationVIVI)<100){
+//                    var viviUserMessage = VIVIUserMessage()
+//                    viviUserMessage.eta = "00:02:00"
+//                    viviUserMessage.route = "V.OLGAS-YMCA"
+//
+//                    mPlaybackInfoListener!!.onVIVIUserMessage(viviUserMessage)
+//                }else if(result.lastLocation.distanceTo(locationIVI)<100){
+//                    var iviUserMessage = IVIUserMessage()
+//                    mPlaybackInfoListener!!.onIVIMessageReceived(iviUserMessage)
+//
+//                }
+//                else if(result.lastLocation.distanceTo(locationSPAT)<100){
+//                    var spatUserMessage = SPATUserMessage()
+//                    spatUserMessage.eventState = "green"
+//                    mPlaybackInfoListener!!.onSPATUserMessage(spatUserMessage, lastLocation)
+//
+//                }else if(result.lastLocation.distanceTo(locationEgnatia)<100){
+//                    var egnatiaUserMessage = EgnatiaUserMessage()
+//                    egnatiaUserMessage.egantiaMessage = "IN CONGESTION DO NOT BLOCK EMERGENCY LANE "
+//                    mPlaybackInfoListener!!.onEgnatiaUserMessage(egnatiaUserMessage)
+//
+//                }
+//                else if(result.lastLocation.distanceTo(locationFr)<100){
+//                    var denmUserMessage = DENMUserMessage()
+//                    mPlaybackInfoListener!!.onDenmUserMessage(denmUserMessage)
+//
+//                }
 
             }
 
@@ -422,8 +421,8 @@ class LocationService:Service(), LocationServiceInterface {
                 var topicQuadTreeRmvSlash = tmpTopic.quadTree!!.replace("/","")
 
                 var quadTreeRmvSlash = quadTree!!.replace("/","")
-                Log.w("quad t",topicQuadTreeRmvSlash.substring(0,Helper.ZOOM_LEVEL))
-                Log.w("quad i",quadTreeRmvSlash)
+               //Log.w("quad t",topicQuadTreeRmvSlash.substring(0,Helper.ZOOM_LEVEL))
+                //Log.w("quad i",quadTreeRmvSlash)
 
                 if(!quadTreeRmvSlash.equals(topicQuadTreeRmvSlash.substring(0,Helper.ZOOM_LEVEL))) {
                     Log.w("quad m","in")
@@ -464,6 +463,10 @@ class LocationService:Service(), LocationServiceInterface {
                                 if(tmpTopic.type.equals( Topic.IVI)) {
                                         mPlaybackInfoListener!!.onIVIUnsubscribe()
                                     }
+                                if(tmpTopic.type.equals(Topic.DENM)){
+                                    mPlaybackInfoListener!!.onDenmUnsubscribe()
+
+                                }
                                 Log.d(TAG,"remove"+tmpTopic.type)
                             }
 

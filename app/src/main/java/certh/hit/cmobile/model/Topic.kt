@@ -33,14 +33,7 @@ class Topic {
                 returnTopic.data = "#"
             return returnTopic
         }
-        fun createVIVI(quadTree: String): Topic {
-            var returnTopic = Topic()
-            returnTopic.basePath = BASE
-            returnTopic.type = VIVI
-            returnTopic.quadTree=quadTree
-            returnTopic.data = "#"
-            return returnTopic
-        }
+
         fun createMAP(quadTree: String): Topic {
             var returnTopic = Topic()
             returnTopic.basePath = BASE
@@ -57,35 +50,44 @@ class Topic {
            // returnTopic.data = "#"
             return returnTopic
         }
-
-        fun createEgnatia(quadTree: String): Topic {
+        fun createDenm(quadTree: String): Topic {
             var returnTopic = Topic()
-            returnTopic.basePath = BASE_EGNATIA
-            returnTopic.type = VIVI_EGNATIA
-            returnTopic.quadTree=quadTree
-            returnTopic.data = "#"
-            return returnTopic
-        }
-
-        fun createFr(quadTree: String): Topic {
-            var returnTopic = Topic()
-            returnTopic.basePath = BASE_FR
+            returnTopic.basePath = BASE
             returnTopic.type = DENM
             returnTopic.quadTree=quadTree
             returnTopic.data = "#"
             return returnTopic
         }
 
-        const val IVI = "ivi_hit"
+//        fun createEgnatia(quadTree: String): Topic {
+//            var returnTopic = Topic()
+//            returnTopic.basePath = BASE_EGNATIA
+//            returnTopic.type = VIVI_EGNATIA
+//            returnTopic.quadTree=quadTree
+//            returnTopic.data = "#"
+//            return returnTopic
+//        }
+
+
+//        fun createVIVI(quadTree: String): Topic {
+//            var returnTopic = Topic()
+//            returnTopic.basePath = BASE
+//            returnTopic.type = VIVI
+//            returnTopic.quadTree=quadTree
+//            returnTopic.data = "#"
+//            return returnTopic
+//        }
+        const val IVI = "ivi"
+        const val DENM = "denm"
+        const val MAP = "map"
+        const val SPAT = "spat"
+        const val BASE ="certh_hit"
+
         const val VIVI = "v-ivi_hit"
         const val VIVI_EGNATIA = "v-ivi_egnatia"
-        const val DENM = "denm"
-        const val MAP = "map_hit"
-        const val SPAT = "spat_hit"
         const val CAM = "cam"
         const val SSM = "ssm"
         const val SRM = "srm"
-        const val BASE ="hit_certh"
         const val BASE_EGNATIA ="egnatia_sa"
         const val BASE_FR ="tt"
 

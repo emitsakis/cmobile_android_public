@@ -31,4 +31,6 @@ public abstract class LocationServiceCallback {
 
     abstract fun onSPATUnsubscribe()
 
+    abstract fun onDenmUnsubscribe()
+
 }
