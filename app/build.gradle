@@ -20,12 +20,12 @@ android {
             debuggable true
             //minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
-            buildConfigField "String", "MAP_BOX_API_KEY", "\"pk.eyJ1IjoiYy1tb2JpbGUiLCJhIjoiY2pxemxjaXJsMGJ3MjN4cXEzMWxmcGM2dyJ9.m-vLVrqbSbqYg7COmtx06w\""
+            buildConfigField "String", "MAP_BOX_API_KEY", "mapbox_key"
         }
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
-            buildConfigField "String", "MAP_BOX_API_KEY", "\"pk.eyJ1IjoiYy1tb2JpbGUiLCJhIjoiY2pxemxjaXJsMGJ3MjN4cXEzMWxmcGM2dyJ9.m-vLVrqbSbqYg7COmtx06w\""
+            buildConfigField "String", "MAP_BOX_API_KEY", "mapbox_key"
 
         }
     }
